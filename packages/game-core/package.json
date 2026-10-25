@@ -1,0 +1,10 @@
+{
+  "name": "@last-orbit/game-core",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic rules engine for Last Orbit: Solar System Showdown. Pure TypeScript: no DOM, no Math.random, no Date.now.",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

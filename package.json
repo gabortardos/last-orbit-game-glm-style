@@ -1,0 +1,25 @@
+{
+  "name": "last-orbit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Last Orbit: Solar System Showdown — a social risk card game for 2-5 captains, built as a digital-first game. Design + code monorepo.",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w apps/hotseat",
+    "build": "npm run build -w apps/hotseat",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p packages/game-core --noEmit && tsc -p apps/hotseat --noEmit",
+    "sim": "tsx sim/run-sim.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { StartOptions } from '../App';
+import Briefing from './Briefing';
 
 export default function Setup({ onStart }: { onStart: (o: StartOptions) => void }) {
   const [count, setCount] = useState(4);
@@ -7,11 +8,25 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
   const [sunFury, setSunFury] = useState(true);
   const [derelicts, setDerelicts] = useState(true);
   const [seed, setSeed] = useState(() => Math.floor(Math.random() * 100000) + 1);
+  const [briefing, setBriefing] = useState(() => {
+    try { return !localStorage.getItem('lastorbit-briefed'); } catch { return true; }
+  });
+
+  const closeBriefing = () => {
+    try { localStorage.setItem('lastorbit-briefed', '1'); } catch { /* private mode — fine */ }
+    setBriefing(false);
+  };
 
   return (
     <div className="setup">
       <h1>☀️ Last Orbit</h1>
       <p className="tagline">Solar System Showdown — pass-and-play prototype (rules v0.2)</p>
+
+      <div className="intro">
+        <p>You are rival captains in the <b>Grand Solar Rally</b> — one final lap around the inner solar system while the Sun flares.</p>
+        <p>🎯 <b>Goal: be the last flagship still flying.</b> Each turn: play cards, then <b>draw</b> — and the deck hides ☀️ Solar Ruptures that disable whoever draws them unprepared.</p>
+        <button className="ghost" onClick={() => setBriefing(true)}>📖 How to play — full briefing</button>
+      </div>
 
       <label className="row">
         Captains:
@@ -32,11 +47,11 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
 
       <label className="row">
         <input type="checkbox" checked={sunFury} onChange={(e) => setSunFury(e.target.checked)} />
-        Sun Fury module (furious reinsertion limits)
+        <span>🌞 Sun Fury <span className="hint">— every containment enrages the Sun; late ruptures get harder to bury</span></span>
       </label>
       <label className="row">
         <input type="checkbox" checked={derelicts} onChange={(e) => setDerelicts(e.target.checked)} />
-        Derelict Interference module (eliminated captains keep one Override)
+        <span>🛰️ Derelict Interference <span className="hint">— eliminated captains keep one revenge Override</span></span>
       </label>
 
       <label className="row">
@@ -47,7 +62,9 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
       <button className="primary big" onClick={() => onStart({ playerCount: count, names: names.slice(0, count), sunFury, derelicts, seed })}>
         Begin the Rally
       </button>
-      <p className="hint">Turn: play any cards → draw to end. Drawing a ☀️ Solar Rupture without a 🛡️ disables your flagship. Last flagship flying wins.</p>
+      <p className="hint">Pass one device around the table. Turn: play any cards → draw to end. Draw a ☀️ without a 🛡️ → flagship disabled. Last flagship flying wins.</p>
+
+      {briefing && <Briefing onClose={closeBriefing} sunFury={sunFury} derelicts={derelicts} />}
     </div>
   );
 }

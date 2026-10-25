@@ -9,7 +9,9 @@ export function HandoffGate({ game, player, onDone }: { game: GameState; player:
       <div className="modal">
         <h2>Pass the device to</h2>
         <div className="bigname">🛰️ {game.players[player].name}</div>
-        <p className="hint">Everyone else: eyes away from the screen. Tap to start the turn.</p>
+        <p className="hint">Your turn: play any cards you like, then <b>draw to end the turn</b>.</p>
+        <p className="hint">Goal: be the last flagship flying. Everyone else — eyes off the screen.</p>
+        <p className="hint dim">Tap to start the turn.</p>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CARD_INFO } from '@last-orbit/game-core';
 import type { CardKind, Command, GameState, MatchReport } from '@last-orbit/game-core';
 import { LogFeed, Modals } from './Overlays';
+import Briefing from './Briefing';
 
 interface Props {
   game: GameState;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function GameView({ game, dispatch, error, report, onNewGame }: Props) {
   const [choosing, setChoosing] = useState<CardKind[] | null>(null); // play awaiting target/salvage
+  const [help, setHelp] = useState(false);
   const me = game.players[game.activePlayer];
   const rupturesLeft = game.config.playerCount - 1 - game.rupturesOutOfGame;
   const handKinds = [...new Set(me.hand)];
@@ -43,10 +45,11 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
         <span>Turn <b>{game.turnCount}</b></span>
         <span>Direction <b>{game.direction === 1 ? '↻' : '↺'}</b></span>
         {game.config.modules.sunFury && (
-          <span className="fury" title="Sun Fury: limits reinsertion depth">
+          <span className="fury" title="Sun Fury: every containment +1; limits how deep a contained rupture may be buried">
             Fury {Array.from({ length: 5 }, (_, i) => <span key={i} className={i < game.sunFury ? 'pip on' : 'pip'}>●</span>)}
           </span>
         )}
+        <button className="ghost" onClick={() => setHelp(true)} title="Rules, goal and card reference">❓ Help</button>
         <button className="ghost" onClick={onNewGame}>New game</button>
       </header>
 
@@ -73,13 +76,16 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
             {handKinds.map((k) => {
               const n = me.hand.filter((c) => c === k).length;
               const playable = CARD_INFO[k].playableInCommand;
+              const note = !playable
+                ? (k === 'containment' ? ' — auto-used when you draw a ☀️' : ' — reaction windows / pairs only')
+                : '';
               return (
                 <button
                   key={k}
                   className={`card ${playable ? '' : 'unplayable'}`}
                   disabled={!playable}
                   onClick={() => onCardClick(k)}
-                  title={playable ? '' : k === 'containment' ? 'Auto-used when you draw a Rupture' : 'Used during reaction windows / as pairs'}
+                  title={CARD_INFO[k].blurb + note}
                 >
                   <span className="emoji">{CARD_INFO[k].emoji}</span>
                   <span>{CARD_INFO[k].name}{n > 1 ? ` ×${n}` : ''}</span>
@@ -87,7 +93,7 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
               );
             })}
             {pairs.map((k) => (
-              <button key={`pair-${k}`} className="card pair" onClick={() => setChoosing([k, k])}>
+              <button key={`pair-${k}`} className="card pair" onClick={() => setChoosing([k, k])} title="Play two matching Components as one action: steal 1 random card from a target captain (can be overridden).">
                 <span className="emoji">{CARD_INFO[k].emoji}{CARD_INFO[k].emoji}</span>
                 <span>Play matching pair — steal</span>
               </button>
@@ -122,6 +128,7 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
       )}
 
       <Modals game={game} dispatch={dispatch} report={report} onNewGame={onNewGame} />
+      {help && <Briefing onClose={() => setHelp(false)} sunFury={game.config.modules.sunFury} derelicts={game.config.modules.derelicts} />}
     </div>
   );
 }

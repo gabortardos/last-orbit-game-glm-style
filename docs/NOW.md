@@ -10,11 +10,15 @@
 
 ### Next actions (in order)
 
-1. **Gábor:** create GitHub repo, then `git remote add origin <url> && git push -u origin main` (or paste URL to the assistant).
-2. **Gábor:** run `npm run dev`, play one hotseat match solo (all seats), note confusions.
+1. ✅ ~~GitHub remote~~ — pushed to `gabortardos/last-orbit-game-glm-style` (2026-10-25).
+2. **Gábor:** refresh http://localhost:5173 (`npm run dev` if stopped) → the **Mission Briefing** now opens automatically; re-run the solo smoke test with the onboarding in place. PT-00 round 2.
 3. Schedule **PT-01** (3 humans, vanilla core) per `docs/08-playtest-plan.md`; log in `09`, export metrics JSON to `docs/balance/raw/`.
 4. Iterate rules from findings; keep decision log current.
-5. Chore when remote exists: GitHub Actions CI (`npm test` + `npm run typecheck`).
+5. Chore: GitHub Actions CI (`npm test` + `npm run typecheck`).
+
+### PT-00 finding (2026-10-25, logged in `docs/09` + D-013)
+
+Solo smoke test aborted: **critical onboarding gap** — new player gets no premise/goal/mechanics context. Fixed same day: Mission Briefing overlay (auto-opens once, reusable via "How to play" + in-game ❓ Help), per-card `blurb` tooltips in `CARD_INFO`, goal reminders on Setup + handoff gate. Re-test pending.
 
 ### Open decisions for Gábor (docs/11)
 

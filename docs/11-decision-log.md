@@ -16,9 +16,13 @@ Append-only. Statuses: PROPOSED · ADOPTED · APPROVED (Gábor) · REVERSED (wit
 | D-010 | 2026-10-25 | Repo name `last-orbit`; continuity system (PROJECT_CONTEXT/NOW/decision log; conventional commits) | **APPROVED** | Gábor: "any model must be able to continue development" |
 | D-011 | 2026-10-25 | Three-of-a-kind and five-card combos excluded from v0.2 | ADOPTED | Complexity budget; revisit in P2 with factions |
 | D-012 | 2026-10-25 | Session-1 scope = D ("docs + repo + hotseat prototype + Monte Carlo report") | **APPROVED** | Gábor chose maximum scope |
+| D-013 | 2026-10-25 | Hotseat app ships an onboarding layer: auto-opening Mission Briefing (premise, goal, turn flow, rupture loop, override parity, modules, card reference), per-card effect tooltips via `CARD_INFO.blurb`, goal reminders on Setup + handoff gate + in-game ❓ Help | ADOPTED | PT-00 blocker: without context a new player "cannot have a valuable test" — first real playtest finding |
 
 ## Pending decisions (need Gábor)
 
 - Final game title (working title provisional).
-- GitHub repo URL → `git remote add origin <url>` + push.
 - PT-01 timing & tester recruitment (3 humans).
+
+## Resolved
+
+- ~~GitHub repo URL~~ → `https://github.com/gabortardos/last-orbit-game-glm-style` (pushed 2026-10-25).

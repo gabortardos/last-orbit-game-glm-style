@@ -88,6 +88,23 @@ button { font: inherit; }
 .stats td:nth-child(even) { color: var(--ink); font-weight: 600; }
 .rowbtns { display: flex; gap: 10px; }
 
+/* ---------- briefing & intro ---------- */
+.intro { background: var(--panel2); border: 1px solid #2c3554; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.intro p { margin: 0; font-size: 0.95rem; line-height: 1.45; }
+.intro .ghost { align-self: flex-start; }
+.briefing { max-width: 620px; }
+.briefing-scroll { max-height: 66vh; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 10px; }
+.brief h3 { margin: 0 0 6px; color: var(--gold); font-size: 1rem; }
+.brief p { margin: 0 0 6px; font-size: 0.92rem; line-height: 1.5; }
+.brief p:last-child { margin-bottom: 0; }
+.brief p.dim, .hint.dim { color: var(--dim); font-size: 0.85rem; }
+.cardref { display: flex; flex-direction: column; gap: 6px; }
+.cardref-row { display: grid; grid-template-columns: 175px 1fr; gap: 10px; align-items: start; background: var(--panel2); border: 1px solid #232b47; border-radius: 10px; padding: 8px 12px; }
+.cardref-row b { white-space: nowrap; font-size: 0.9rem; }
+.cardref-row span { color: var(--dim); font-size: 0.85rem; line-height: 1.45; }
+.modtag { font-size: 0.72rem; padding: 1px 8px; border-radius: 999px; border: 1px solid #34406b; color: var(--dim); margin-left: 8px; vertical-align: 1px; }
+.modtag.on { color: var(--gold); border-color: var(--gold); }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }

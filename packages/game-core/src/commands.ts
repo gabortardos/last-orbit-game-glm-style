@@ -54,7 +54,7 @@ export function applyCommand(state: GameState, cmd: Command): ApplyResult {
         }
       } else {
         p.hand.push(card);
-        addLog(s, 'draw', { player: p.id, deckLeft: s.deck.length });
+        addLog(s, 'draw', { player: p.id, card, deckLeft: s.deck.length });
         endTurnAndAdvance(s, true);
       }
       return ok(s);

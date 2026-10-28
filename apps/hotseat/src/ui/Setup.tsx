@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { StartOptions } from '../App';
 import Briefing from './Briefing';
+import { SoundButton } from './Overlays';
 
 export default function Setup({ onStart }: { onStart: (o: StartOptions) => void }) {
   const [count, setCount] = useState(4);
@@ -21,6 +22,11 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
     <div className="setup">
       <h1>☀️ Last Orbit</h1>
       <p className="tagline">Solar System Showdown — pass-and-play prototype (rules v0.2)</p>
+
+      <div className="row soundrow">
+        <SoundButton />
+        <span className="hint">ambient soundtrack</span>
+      </div>
 
       <div className="intro">
         <p>You are rival captains in the <b>Grand Solar Rally</b> — one final lap around the inner solar system while the Sun flares.</p>

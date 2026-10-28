@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CARD_INFO } from '@last-orbit/game-core';
 import type { CardKind, Command, GameState, MatchReport } from '@last-orbit/game-core';
-import { LogFeed, Modals } from './Overlays';
+import { LogFeed, Modals, SoundButton } from './Overlays';
 import Briefing from './Briefing';
 
 interface Props {
@@ -49,6 +49,7 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
             Fury {Array.from({ length: 5 }, (_, i) => <span key={i} className={i < game.sunFury ? 'pip on' : 'pip'}>●</span>)}
           </span>
         )}
+        <SoundButton />
         <button className="ghost" onClick={() => setHelp(true)} title="Rules, goal and card reference">❓ Help</button>
         <button className="ghost" onClick={onNewGame}>New game</button>
       </header>
@@ -105,7 +106,7 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
               <span>Salvage from discard:</span>
               {salvageOptions.length === 0 && <span className="hint"> (nothing salvageable)</span>}
               {salvageOptions.map((k) => (
-                <button key={k} className="mini" onClick={() => play(['salvage'], undefined, k)}>{CARD_INFO[k].emoji} {CARD_INFO[k].name}</button>
+                <button key={k} className="mini" title={CARD_INFO[k].blurb} onClick={() => play(['salvage'], undefined, k)}>{CARD_INFO[k].emoji} {CARD_INFO[k].name}</button>
               ))}
               <button className="ghost" onClick={() => setChoosing(null)}>Cancel</button>
             </div>

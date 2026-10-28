@@ -105,6 +105,11 @@ button { font: inherit; }
 .modtag { font-size: 0.72rem; padding: 1px 8px; border-radius: 999px; border: 1px solid #34406b; color: var(--dim); margin-left: 8px; vertical-align: 1px; }
 .modtag.on { color: var(--gold); border-color: var(--gold); }
 
+/* ---------- draw reveal & sound ---------- */
+.drawcard { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; background: var(--panel2); border: 1px solid #34406b; border-radius: 12px; padding: 12px 18px; }
+.drawcard .emoji { font-size: 1.6rem; }
+.soundrow { justify-content: flex-start; margin-top: -4px; }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }

@@ -1,6 +1,43 @@
 import { useEffect, useRef, useState } from 'react';
 import { CARD_INFO, eligibleReactorIds, furyDepthLimit } from '@last-orbit/game-core';
 import type { CardKind, Command, GameState, LogEntry, MatchReport } from '@last-orbit/game-core';
+import { isMuted, startAudio, toggleMuted } from '../audio';
+
+/** 🔊/🔇 ambient soundtrack toggle. */
+export function SoundButton({ className = 'ghost' }: { className?: string }) {
+  const [muted, setMuted] = useState(isMuted());
+  return (
+    <button
+      className={className}
+      title={muted ? 'Ambient music off — click to enable' : 'Ambient music on — click to mute'}
+      onClick={() => { startAudio(); setMuted(toggleMuted()); }}
+    >
+      {muted ? '🔇' : '🔊'}
+    </button>
+  );
+}
+
+/** Shows the drawer what they drew, before the device passes on. */
+export function DrawReveal({ game, reveal, onDone }: {
+  game: GameState;
+  reveal: { player: number; card: CardKind };
+  onDone: () => void;
+}) {
+  const p = game.players[reveal.player];
+  const info = CARD_INFO[reveal.card];
+  const stillMe = game.phase === 'command' && game.activePlayer === reveal.player;
+  return (
+    <div className="overlay">
+      <div className="modal gate">
+        <h3>🃏 {p.name} drew:</h3>
+        <div className="drawcard"><span className="emoji">{info.emoji}</span> <b>{info.name}</b></div>
+        <p className="hint">{info.blurb}</p>
+        <p className="hint dim">{stillMe ? 'You owe another turn — stay at the controls.' : `Next up: ${game.players[game.activePlayer]?.name ?? '—'} — then pass the device.`}</p>
+        <button className="primary" onClick={onDone}>Got it</button>
+      </div>
+    </div>
+  );
+}
 
 /** Privacy gate between captains (pass-and-play). */
 export function HandoffGate({ game, player, onDone }: { game: GameState; player: number; onDone: () => void }) {
@@ -124,7 +161,7 @@ function ScanModal({ game, dispatch }: { game: GameState; dispatch: (c: Command)
         <p className="hint">Only {game.players[me].name} should look.</p>
         <div className="scanrow">
           {cards.map((c, i) => (
-            <span key={i} className="scancard">{CARD_INFO[c].emoji} {CARD_INFO[c].name}</span>
+            <span key={i} className="scancard" title={CARD_INFO[c].blurb}>{CARD_INFO[c].emoji} {CARD_INFO[c].name}</span>
           ))}
         </div>
         <p className="hint">Top card first. The deck order does not change.</p>
@@ -173,7 +210,7 @@ function GiveModal({ game, dispatch }: { game: GameState; dispatch: (c: Command)
         <p className="hint">Pass the device to <b>{giver.name}</b> — they choose 1 card to give to {game.players[game.awaiting.to].name}.</p>
         <div className="hand">
           {[...new Set(giver.hand)].map((k) => (
-            <button key={k} className="card" onClick={() => dispatch({ type: 'GIVE', player: giver.id, card: k })}>
+            <button key={k} className="card" title={CARD_INFO[k].blurb} onClick={() => dispatch({ type: 'GIVE', player: giver.id, card: k })}>
               <span className="emoji">{CARD_INFO[k].emoji}</span>
               <span>{CARD_INFO[k].name}{giver.hand.filter((c) => c === k).length > 1 ? ` ×${giver.hand.filter((c) => c === k).length}` : ''}</span>
             </button>

@@ -17,11 +17,14 @@ Append-only. Statuses: PROPOSED · ADOPTED · APPROVED (Gábor) · REVERSED (wit
 | D-011 | 2026-10-25 | Three-of-a-kind and five-card combos excluded from v0.2 | ADOPTED | Complexity budget; revisit in P2 with factions |
 | D-012 | 2026-10-25 | Session-1 scope = D ("docs + repo + hotseat prototype + Monte Carlo report") | **APPROVED** | Gábor chose maximum scope |
 | D-013 | 2026-10-25 | Hotseat app ships an onboarding layer: auto-opening Mission Briefing (premise, goal, turn flow, rupture loop, override parity, modules, card reference), per-card effect tooltips via `CARD_INFO.blurb`, goal reminders on Setup + handoff gate + in-game ❓ Help | ADOPTED | PT-00 blocker: without context a new player "cannot have a valuable test" — first real playtest finding |
+| D-014 | 2026-10-25 | Hotseat app gets **Solo vs AI mode**: one human seat, remaining seats played by greedy bots (`botCommandFor`, ~1 s pacing, private info stays private); pass-and-play mode unchanged | ADOPTED | PT-00 round 3: solo hotseat yields no real data when the designer controls all seats |
+| D-015 | 2026-10-25 | v0.3 expansion direction: ☄️ Micrometeoroid Storm + 🌟 Solar Wind draw-step pair (equal weight), optional component density 3+3 — sketch in `docs/15-expansion-v0.3-sketch.md` | **PROPOSED** | Gábor: "other dangers and absolutely equal other opportunities… maintain integrity and gameplay flow and joy"; sim-gated before humans |
 
 ## Pending decisions (need Gábor)
 
 - Final game title (working title provisional).
 - PT-01 timing & tester recruitment (3 humans).
+- D-015 pick: (a) Pair A only · (b) Pair A + components 3+3 · (c) veto/other.
 
 ## Resolved
 

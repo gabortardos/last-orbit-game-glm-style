@@ -110,6 +110,13 @@ button { font: inherit; }
 .drawcard .emoji { font-size: 1.6rem; }
 .soundrow { justify-content: flex-start; margin-top: -4px; }
 
+/* ---------- solo vs AI ---------- */
+.mini.on { border-color: var(--gold); color: var(--gold); }
+.thinking { text-align: center; color: var(--dim); font-style: italic; padding: 12px 0; }
+.chip { font-size: 0.72rem; color: var(--dim); }
+.botchip { color: var(--dim); font-style: italic; font-size: 0.85rem; }
+.lone { color: var(--dim); font-size: 0.7rem; }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }

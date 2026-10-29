@@ -1,5 +1,30 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, evening continuation — 2026-10-25 ✅
+
+**Phase:** P1 Core validation (pre-PT-01). Solo vs AI is now the primary designer instrument.
+
+**Built since last entry:** ambient soundtrack (procedural Web Audio) · draw reveal overlay (engine logs the drawn card; feed stays blind) · card blurbs on every surface · **Solo vs AI mode** (D-014: `botCommandFor` in game-core, greedy bots, paced ~1 s, privacy preserved — bot scans/reinserts/gives stay hidden) · lone-component "find its twin" hint · expansion sketch `docs/15-expansion-v0.3-sketch.md`.
+
+### Next actions (in order)
+
+1. **Gábor:** refresh http://localhost:5173 → Setup → **🤖 Solo vs AI** (3–5 captains recommended) → play full matches vs the bots. Note: anything that feels unfair, unclear, or boring — that's PT data now.
+2. **Gábor decision D-015:** (a) Storm+Wind only · (b) + components 3+3 · (c) veto (`docs/15`).
+3. Implement chosen v0.3 cards → extend tests → sim gate vs baseline (`docs/10`).
+4. Schedule **PT-01** (3 humans, in person, hotseat mode — it's ready today; remote friends = P4 online).
+
+### PT-00 status
+
+Rounds 1–3 closed (onboarding gap → fixed; music/draw reveal/tooltips → done; solo instrument limit → solo vs AI built). Round 4 = designer vs bots under v0.2, then v0.3 candidates.
+
+### Open decisions for Gábor (docs/11)
+
+Final title · PT-01 timing · D-015 expansion pick.
+
+### Watch-list (do not forget)
+
+Salvage power (unmeasured by bots) · Scan hoarding · Fury pacing at depth 5 (Fury≥4 in 85–99% of games — PT-03 fairness read) · Derelict kingmaking · 2p viability (13 min, comeback metric needs 2p proxy) · human pass-turn behaviour (bots turtle 72%; if humans do too, discuss incentives) · bot difficulty: greedy only — if solo feels too easy/hard, next policies are cheap.
+
 ## Session 1 — 2026-10-25 ✅
 
 **Phase:** P0 Foundation → complete (all gates). **Next phase:** P1 Core validation (human playtests).

@@ -3,7 +3,10 @@ import type { StartOptions } from '../App';
 import Briefing from './Briefing';
 import { SoundButton } from './Overlays';
 
+const AI_NAMES = ['Vega', 'Sirius', 'Altair', 'Rigel', 'Deneb'];
+
 export default function Setup({ onStart }: { onStart: (o: StartOptions) => void }) {
+  const [mode, setMode] = useState<'hotseat' | 'solo'>('hotseat');
   const [count, setCount] = useState(4);
   const [names, setNames] = useState<string[]>(['Mercury', 'Venus', 'Earth', 'Mars', 'Saturn']);
   const [sunFury, setSunFury] = useState(true);
@@ -16,6 +19,16 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
   const closeBriefing = () => {
     try { localStorage.setItem('lastorbit-briefed', '1'); } catch { /* private mode — fine */ }
     setBriefing(false);
+  };
+
+  const begin = () => {
+    const humans = mode === 'solo'
+      ? [0]
+      : Array.from({ length: count }, (_, i) => i);
+    const chosenNames = mode === 'solo'
+      ? [names[0] || 'You', ...AI_NAMES.slice(0, count - 1)]
+      : names.slice(0, count);
+    onStart({ playerCount: count, names: chosenNames, sunFury, derelicts, seed, humans });
   };
 
   return (
@@ -34,6 +47,11 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
         <button className="ghost" onClick={() => setBriefing(true)}>📖 How to play — full briefing</button>
       </div>
 
+      <div className="row">
+        <button className={`mini ${mode === 'hotseat' ? 'on' : ''}`} onClick={() => setMode('hotseat')} title="One device, passed between human captains">👥 Pass-and-play</button>
+        <button className={`mini ${mode === 'solo' ? 'on' : ''}`} onClick={() => setMode('solo')} title="You play one captain; AI captains take the other seats">🤖 Solo vs AI</button>
+      </div>
+
       <label className="row">
         Captains:
         <select value={count} onChange={(e) => setCount(Number(e.target.value))}>
@@ -41,15 +59,27 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
         </select>
       </label>
 
-      {Array.from({ length: count }, (_, i) => (
-        <input
-          key={i}
-          className="name"
-          value={names[i]}
-          placeholder={`Captain ${i + 1}`}
-          onChange={(e) => setNames((ns) => ns.map((n, j) => (j === i ? e.target.value : n)))}
-        />
-      ))}
+      {mode === 'hotseat' ? (
+        Array.from({ length: count }, (_, i) => (
+          <input
+            key={i}
+            className="name"
+            value={names[i]}
+            placeholder={`Captain ${i + 1}`}
+            onChange={(e) => setNames((ns) => ns.map((n, j) => (j === i ? e.target.value : n)))}
+          />
+        ))
+      ) : (
+        <>
+          <input
+            className="name"
+            value={names[0]}
+            placeholder="Your captain name"
+            onChange={(e) => setNames((ns) => ns.map((n, j) => (j === 0 ? e.target.value : n)))}
+          />
+          <p className="hint">You fly the first seat. The other {count - 1} captain{count > 2 ? 's are' : ' is'} AI ({AI_NAMES.slice(0, count - 1).join(', ')}) — no device passing, watch their moves in the log.</p>
+        </>
+      )}
 
       <label className="row">
         <input type="checkbox" checked={sunFury} onChange={(e) => setSunFury(e.target.checked)} />
@@ -65,10 +95,14 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
         <input type="number" value={seed} min={1} onChange={(e) => setSeed(Number(e.target.value) || 1)} />
       </label>
 
-      <button className="primary big" onClick={() => onStart({ playerCount: count, names: names.slice(0, count), sunFury, derelicts, seed })}>
-        Begin the Rally
+      <button className="primary big" onClick={begin}>
+        {mode === 'solo' ? 'Begin — you vs the AI captains' : 'Begin the Rally'}
       </button>
-      <p className="hint">Pass one device around the table. Turn: play any cards → draw to end. Draw a ☀️ without a 🛡️ → flagship disabled. Last flagship flying wins.</p>
+      <p className="hint">
+        {mode === 'solo'
+          ? 'Your hand stays private; the AI plays its turns automatically —Overrides and all.'
+          : 'Pass one device around the table. Turn: play any cards → draw to end. Draw a ☀️ without a 🛡️ → flagship disabled. Last flagship flying wins.'}
+      </p>
 
       {briefing && <Briefing onClose={closeBriefing} sunFury={sunFury} derelicts={derelicts} />}
     </div>

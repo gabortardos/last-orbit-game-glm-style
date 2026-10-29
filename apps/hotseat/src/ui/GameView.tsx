@@ -6,22 +6,26 @@ import Briefing from './Briefing';
 
 interface Props {
   game: GameState;
+  viewer: number; // whose eyes we render through (solo vs AI: always the human's seat)
+  humans: number[]; // human-controlled seats; the others are AI captains
   dispatch: (cmd: Command) => void;
   error: string | null;
   report: MatchReport | null;
   onNewGame: () => void;
 }
 
-export default function GameView({ game, dispatch, error, report, onNewGame }: Props) {
+export default function GameView({ game, viewer, humans, dispatch, error, report, onNewGame }: Props) {
   const [choosing, setChoosing] = useState<CardKind[] | null>(null); // play awaiting target/salvage
   const [help, setHelp] = useState(false);
-  const me = game.players[game.activePlayer];
+  const solo = humans.length === 1;
+  const me = game.players[viewer];
+  const myTurn = game.phase === 'command' && game.activePlayer === viewer;
   const rupturesLeft = game.config.playerCount - 1 - game.rupturesOutOfGame;
   const handKinds = [...new Set(me.hand)];
   const pairs: CardKind[] = handKinds.filter((k) => me.hand.filter((c) => c === k).length >= 2 && CARD_INFO[k].pairable);
 
   const play = (cards: CardKind[], target?: number, salvageKind?: CardKind) => {
-    dispatch({ type: 'PLAY', player: game.activePlayer, cards, target, salvageKind });
+    dispatch({ type: 'PLAY', player: viewer, cards, target, salvageKind });
     setChoosing(null);
   };
 
@@ -59,6 +63,7 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
           <div key={p.id} className={`player ${p.id === game.activePlayer && game.phase === 'command' ? 'active' : ''} ${p.alive ? '' : 'dead'}`}>
             <div className="pname">
               {p.name}
+              {solo && <span className="chip" title={humans.includes(p.id) ? 'you' : 'AI captain'}>{humans.includes(p.id) ? ' 👤 you' : ' 🤖'}</span>}
               {!p.alive && ' 💤'}
               {game.turnsOwed[p.id] > 0 && <span className="debt"> +{game.turnsOwed[p.id]}⏱</span>}
               {!p.alive && game.config.modules.derelicts && !p.transmissionUsed && <span title="Final Transmission armed"> 📡</span>}
@@ -68,9 +73,13 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
         ))}
       </div>
 
-      <LogFeed game={game} />
+      <LogFeed game={game} viewer={viewer} />
 
-      {game.phase === 'command' && (
+      {game.phase === 'command' && !myTurn && (
+        <section className="command thinking">🤖 {game.players[game.activePlayer].name} is plotting a course…</section>
+      )}
+
+      {myTurn && (
         <section className="command">
           <div className="handlabel">{me.name}&apos;s hand — play any number, then draw:</div>
           <div className="hand">
@@ -89,7 +98,7 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
                   title={CARD_INFO[k].blurb + note}
                 >
                   <span className="emoji">{CARD_INFO[k].emoji}</span>
-                  <span>{CARD_INFO[k].name}{n > 1 ? ` ×${n}` : ''}</span>
+                  <span>{CARD_INFO[k].name}{n > 1 ? ` ×${n}` : ''}{CARD_INFO[k].pairable && n === 1 && <span className="lone"> · find its twin</span>}</span>
                 </button>
               );
             })}
@@ -121,14 +130,14 @@ export default function GameView({ game, dispatch, error, report, onNewGame }: P
             </div>
           )}
 
-          <button className="primary big" onClick={() => dispatch({ type: 'END_TURN_DRAW', player: game.activePlayer })}>
+          <button className="primary big" onClick={() => dispatch({ type: 'END_TURN_DRAW', player: viewer })}>
             End turn — draw a card
           </button>
           {error && <div className="error">{error}</div>}
         </section>
       )}
 
-      <Modals game={game} dispatch={dispatch} report={report} onNewGame={onNewGame} />
+      <Modals game={game} dispatch={dispatch} report={report} onNewGame={onNewGame} viewer={viewer} humans={humans} />
       {help && <Briefing onClose={() => setHelp(false)} sunFury={game.config.modules.sunFury} derelicts={game.config.modules.derelicts} />}
     </div>
   );

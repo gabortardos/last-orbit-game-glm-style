@@ -8,6 +8,7 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 
 ## P1 — Core validation 🔄 (current)
 
+- [x] Solo vs AI mode (2026-10-25, D-014) — designer instrument for pre-friend testing
 - [ ] PT-01 (3p vanilla) → iterate
 - [ ] PT-02 (4–5p vanilla) → iterate
 - [ ] Fix rules bugs found; update docs same-commit

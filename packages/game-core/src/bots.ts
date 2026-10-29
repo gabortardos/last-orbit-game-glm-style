@@ -8,9 +8,29 @@ export type BotRng = () => number; // caller-owned [0,1) stream, keeps sims dete
 /** Chooses the next command for "the player who must act now". Returns null when the game is over. */
 export function botCommand(s: GameState, policy: BotPolicy, rng: BotRng): Command | null {
   if (s.phase === 'game_over') return null;
-  if (s.phase === 'reaction') return botReaction(s, policy, rng);
-  if (s.phase === 'choice') return botChoice(s, policy, rng);
+  if (s.phase === 'reaction') {
+    const eligible = eligibleReactorIds(s).filter((id) => !s.pending!.passed.includes(id));
+    return eligible.length ? botReactionFor(s, eligible[0], policy, rng) : null;
+  }
+  if (s.phase === 'choice') return botChoiceFor(s, choiceDecider(s), policy, rng);
   return botCommandPhase(s, policy, rng);
+}
+
+function choiceDecider(s: GameState): number {
+  return s.awaiting?.type === 'give' ? s.awaiting.from : s.activePlayer;
+}
+
+/** Chooses a command for ONE specific captain. Returns null when it is not their decision to make.
+ *  Powers mixed human+bot tables (solo vs AI in the hotseat app); the simulator uses botCommand. */
+export function botCommandFor(s: GameState, player: number, policy: BotPolicy, rng: BotRng): Command | null {
+  if (s.phase === 'game_over') return null;
+  if (s.phase === 'reaction') {
+    if (!s.pending || player === s.pending.initiator) return null;
+    const eligible = eligibleReactorIds(s).filter((id) => !s.pending!.passed.includes(id));
+    return eligible.includes(player) ? botReactionFor(s, player, policy, rng) : null;
+  }
+  if (s.phase === 'choice') return choiceDecider(s) === player ? botChoiceFor(s, player, policy, rng) : null;
+  return s.activePlayer === player ? botCommandPhase(s, policy, rng) : null;
 }
 
 function pick<T>(arr: T[], rng: BotRng): T {
@@ -91,9 +111,7 @@ function lastScanThisTurn(s: GameState, me: number) {
   return undefined;
 }
 
-function botReaction(s: GameState, policy: BotPolicy, rng: BotRng): Command {
-  const eligible = eligibleReactorIds(s).filter((id) => !s.pending?.passed.includes(id));
-  const me = eligible[0]; // decide for the first undecided eligible captain (deterministic)
+function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng): Command {
   const p = s.players[me];
   const pend = s.pending!;
   const hasOverride = p.hand.includes('override');
@@ -113,7 +131,7 @@ function botReaction(s: GameState, policy: BotPolicy, rng: BotRng): Command {
 
 const GIVE_ORDER: CardKind[] = ['coolant', 'hull', 'salvage', 'boarding', 'slingshot', 'requisition', 'scan', 'reversal', 'burn', 'flyby', 'override', 'containment'];
 
-function botChoice(s: GameState, policy: BotPolicy, rng: BotRng): Command {
+function botChoiceFor(s: GameState, player: number, policy: BotPolicy, rng: BotRng): Command {
   if (s.awaiting?.type === 'give') {
     const from = s.players[s.awaiting.from];
     if (policy === 'random') return { type: 'GIVE', player: from.id, card: pick(from.hand, rng) };
@@ -123,7 +141,7 @@ function botChoice(s: GameState, policy: BotPolicy, rng: BotRng): Command {
   // reinsertion: greedy buries the rupture as deep as legally allowed
   const limit = s.config.modules.sunFury ? furyDepthLimit(s.sunFury) : Number.POSITIVE_INFINITY;
   const maxPos = s.deck.length === 0 ? 1 : Math.min(limit, s.deck.length);
-  if (policy === 'random') return { type: 'REINSERT', player: s.activePlayer, positionFromTop: 1 + Math.floor(rng() * maxPos) };
-  return { type: 'REINSERT', player: s.activePlayer, positionFromTop: maxPos };
+  if (policy === 'random') return { type: 'REINSERT', player: player, positionFromTop: 1 + Math.floor(rng() * maxPos) };
+  return { type: 'REINSERT', player: player, positionFromTop: maxPos };
 }
 

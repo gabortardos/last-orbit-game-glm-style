@@ -1,8 +1,8 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  applyCommand, createGame, matchReport,
+  applyCommand, botCommandFor, createGame, eligibleReactorIds, matchReport,
 } from '@last-orbit/game-core';
-import type { CardKind, Command, GameState } from '@last-orbit/game-core';
+import type { BotPolicy, CardKind, Command, GameState } from '@last-orbit/game-core';
 import Setup from './ui/Setup';
 import GameView from './ui/GameView';
 import { DrawReveal, HandoffGate } from './ui/Overlays';
@@ -13,13 +13,22 @@ export interface StartOptions {
   sunFury: boolean;
   derelicts: boolean;
   seed: number;
+  humans: number[]; // seats controlled by humans; the rest are AI captains
 }
+
+const BOT_POLICY: BotPolicy = 'greedy';
+const BOT_THINK_MS = 1100; // command-phase pacing so bot turns are watchable
+const BOT_REACT_MS = 850;
 
 export default function App() {
   const [game, setGame] = useState<GameState | null>(null);
+  const [humans, setHumans] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [gateFor, setGateFor] = useState<number | null>(null); // privacy handoff between captains
+  const [gateFor, setGateFor] = useState<number | null>(null); // privacy handoff between human captains
   const [reveal, setReveal] = useState<{ player: number; card: CardKind } | null>(null); // draw reveal for the drawer's eyes
+  const humansRef = useRef<number[]>([]);
+  const dispatchRef = useRef<(c: Command) => void>(() => {});
+  const botRng = useRef<() => number>(() => Math.random()); // UI bots needn't be deterministic
 
   const start = useCallback((opts: StartOptions) => {
     const g = createGame({
@@ -28,8 +37,10 @@ export default function App() {
       modules: { sunFury: opts.sunFury, derelicts: opts.derelicts },
       seed: opts.seed,
     });
+    humansRef.current = opts.humans;
+    setHumans(opts.humans);
     setGame(g);
-    setGateFor(g.activePlayer);
+    setGateFor(opts.humans.includes(g.activePlayer) ? g.activePlayer : null);
     setReveal(null);
     setError(null);
   }, []);
@@ -44,11 +55,12 @@ export default function App() {
           return cur;
         }
         setError(null);
+        const hs = humansRef.current;
         if (res.state.phase === 'command' && res.state.activePlayer !== cur.activePlayer) {
-          setGateFor(res.state.activePlayer); // device passes to the new active captain
+          setGateFor(hs.includes(res.state.activePlayer) ? res.state.activePlayer : null); // no gate on AI turns
         }
-        if (cmd.type === 'END_TURN_DRAW') {
-          // show the drawer what they drew before the device moves on
+        if (cmd.type === 'END_TURN_DRAW' && hs.includes(cmd.player)) {
+          // show the drawer what they drew before the device moves on (humans only)
           const lastDraw = [...res.state.log].reverse().find((e) => e.type === 'draw');
           const card = lastDraw?.data?.card;
           if (lastDraw?.data?.player === cmd.player && typeof card === 'string') {
@@ -60,10 +72,39 @@ export default function App() {
     },
     [],
   );
+  dispatchRef.current = dispatch;
+
+  // AI captain driver: whenever a bot has a decision to make, make it after a short, watchable delay.
+  useEffect(() => {
+    if (!game || game.phase === 'game_over') return;
+    const hs = humansRef.current;
+    let actor: number | null = null;
+    if (game.phase === 'command') {
+      actor = hs.includes(game.activePlayer) ? null : game.activePlayer;
+    } else if (game.phase === 'reaction') {
+      const pend = game.pending;
+      if (pend) {
+        actor = eligibleReactorIds(game).find(
+          (id) => id !== pend.initiator && !pend.passed.includes(id) && !hs.includes(id),
+        ) ?? null;
+      }
+    } else if (game.phase === 'choice') {
+      const decider = game.awaiting?.type === 'give' ? game.awaiting.from : game.activePlayer;
+      actor = hs.includes(decider) ? null : decider;
+    }
+    if (actor === null) return;
+    const cmd = botCommandFor(game, actor, BOT_POLICY, botRng.current);
+    if (!cmd) return;
+    const t = setTimeout(() => dispatchRef.current(cmd), game.phase === 'reaction' ? BOT_REACT_MS : BOT_THINK_MS);
+    return () => clearTimeout(t);
+  }, [game]);
 
   const report = useMemo(() => (game && game.phase === 'game_over' ? matchReport(game) : null), [game]);
 
   if (!game) return <Setup onStart={start} />;
+
+  // whose eyes the UI shows the table through (solo: always the human's seat)
+  const viewer = humans.includes(game.activePlayer) ? game.activePlayer : humans[0] ?? 0;
 
   return (
     <div className="app">
@@ -73,7 +114,7 @@ export default function App() {
       {reveal && (
         <DrawReveal game={game} reveal={reveal} onDone={() => setReveal(null)} />
       )}
-      <GameView game={game} dispatch={dispatch} error={error} report={report} onNewGame={() => { setGame(null); setGateFor(null); setReveal(null); }} />
+      <GameView game={game} viewer={viewer} humans={humans} dispatch={dispatch} error={error} report={report} onNewGame={() => { setGame(null); setGateFor(null); setReveal(null); }} />
     </div>
   );
 }

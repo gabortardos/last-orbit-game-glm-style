@@ -61,11 +61,11 @@ const reasonText = (r: string): string => ({
 } as Record<string, string>)[r] ?? r;
 
 /** The public event feed, filtered by visibility. */
-export function LogFeed({ game }: { game: GameState }) {
-  const viewer = game.activePlayer;
+export function LogFeed({ game, viewer }: { game: GameState; viewer?: number }) {
+  const v = viewer ?? game.activePlayer;
   const visible = game.log.filter((e) => {
     if (e.visibility === 'public' || e.visibility === 'hidden') return e.visibility === 'public';
-    return e.visibility.only === viewer;
+    return e.visibility.only === v;
   });
   const feed = visible.slice(-40).map(fmtEntry(game)).filter(Boolean);
   const ref = useRef<HTMLDivElement>(null);
@@ -114,10 +114,16 @@ function fmtEntry(game: GameState) {
   };
 }
 
-export function ReactionOverlay({ game, dispatch }: { game: GameState; dispatch: (c: Command) => void }) {
+export function ReactionOverlay({ game, dispatch, humans }: {
+  game: GameState;
+  dispatch: (c: Command) => void;
+  humans?: number[]; // solo vs AI: bots decide on their own; only the human's row is interactive
+}) {
   if (game.phase !== 'reaction' || !game.pending) return null;
   const pending = game.pending;
   const undecided = eligibleReactorIds(game).filter((id) => !pending.passed.includes(id));
+  const solo = humans !== undefined && humans.length === 1;
+  if (solo && !undecided.some((id) => humans.includes(id))) return null; // bots resolve themselves in the log
   return (
     <div className="overlay">
       <div className="modal">
@@ -125,6 +131,14 @@ export function ReactionOverlay({ game, dispatch }: { game: GameState; dispatch:
         <p className="hint">Overrides cancel the previous Override — odd stack cancels the action.</p>
         {undecided.map((id) => {
           const p = game.players[id];
+          if (solo && !humans.includes(id)) {
+            return (
+              <div key={id} className="reactrow">
+                <span className="pname">{p.name} 🤖</span>
+                <span className="botchip">deciding…</span>
+              </div>
+            );
+          }
           const hasCard = p.hand.includes('override');
           return (
             <div key={id} className="reactrow">
@@ -146,8 +160,8 @@ export function ReactionOverlay({ game, dispatch }: { game: GameState; dispatch:
   );
 }
 
-function ScanModal({ game, dispatch }: { game: GameState; dispatch: (c: Command) => void }) {
-  const me = game.activePlayer;
+function ScanModal({ game, dispatch, viewer }: { game: GameState; dispatch: (c: Command) => void; viewer?: number }) {
+  const me = viewer ?? game.activePlayer;
   const [revealed, setRevealed] = useState(false);
   const entry = [...game.log].reverse().find(
     (e) => e.type === 'scan_seen' && e.turn === game.turnCount && typeof e.visibility === 'object' && (e.visibility as { only: number }).only === me,
@@ -171,8 +185,9 @@ function ScanModal({ game, dispatch }: { game: GameState; dispatch: (c: Command)
   );
 }
 
-function ReinsertModal({ game, dispatch }: { game: GameState; dispatch: (c: Command) => void }) {
-  const me = game.activePlayer;
+function ReinsertModal({ game, dispatch, viewer }: { game: GameState; dispatch: (c: Command) => void; viewer?: number }) {
+  const me = viewer ?? game.activePlayer;
+  if (game.activePlayer !== me) return null; // AI reinsertions stay private to the bot
   const limit = game.config.modules.sunFury ? furyDepthLimit(game.sunFury) : Number.POSITIVE_INFINITY;
   const maxPos = game.deck.length === 0 ? 1 : Math.min(limit, game.deck.length);
   const [pos, setPos] = useState(maxPos);
@@ -200,9 +215,10 @@ function ReinsertModal({ game, dispatch }: { game: GameState; dispatch: (c: Comm
   );
 }
 
-function GiveModal({ game, dispatch }: { game: GameState; dispatch: (c: Command) => void }) {
+function GiveModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: Command) => void; humans?: number[] }) {
   if (game.phase !== 'choice' || game.awaiting?.type !== 'give') return null;
   const giver = game.players[game.awaiting.from];
+  if (humans && humans.length === 1 && !humans.includes(giver.id)) return null; // AI gives on its own
   return (
     <div className="overlay">
       <div className="modal">
@@ -254,18 +270,20 @@ function GameOverModal({ game, report, onNewGame }: { game: GameState; report: M
 }
 
 /** Everything that covers the table at special moments. */
-export function Modals({ game, dispatch, report, onNewGame }: {
+export function Modals({ game, dispatch, report, onNewGame, viewer, humans }: {
   game: GameState;
   dispatch: (c: Command) => void;
   report: MatchReport | null;
   onNewGame: () => void;
+  viewer?: number;
+  humans?: number[];
 }) {
   return (
     <>
-      <ReactionOverlay game={game} dispatch={dispatch} />
-      {game.phase === 'command' && <ScanModal game={game} dispatch={dispatch} />}
-      {game.phase === 'choice' && game.awaiting?.type === 'reinsert' && <ReinsertModal game={game} dispatch={dispatch} />}
-      <GiveModal game={game} dispatch={dispatch} />
+      <ReactionOverlay game={game} dispatch={dispatch} humans={humans} />
+      {game.phase === 'command' && <ScanModal game={game} dispatch={dispatch} viewer={viewer} />}
+      {game.phase === 'choice' && game.awaiting?.type === 'reinsert' && <ReinsertModal game={game} dispatch={dispatch} viewer={viewer} />}
+      <GiveModal game={game} dispatch={dispatch} humans={humans} />
       <GameOverModal game={game} report={report} onNewGame={onNewGame} />
     </>
   );

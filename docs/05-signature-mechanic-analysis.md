@@ -32,7 +32,7 @@ Question: what is *Last Orbit's* signature mechanic? Candidates: **Sun Fury** (n
 | Readability | **5** | 2 (hidden estimates) |
 | Digital presentation | **5** (the Sun is the UI) | 3 |
 
-**Verdict:** Sun Fury as the match-level signature; Reactor Charge reconsidered in P2 as the *faction* mechanic (where hidden sacrifices and civilization identity live). Final call after PT-03.
+**Verdict:** Sun Fury as the match-level signature; Reactor Charge reconsidered in P2 as the *faction* mechanic (where hidden sacrifices and civilization identity live). Final call after PT-03. *(P2 prep, 2026-10-25: the re-evaluation menu — drop / currency / hybrid — is drafted in `14` §Reactor Charge; final call unchanged.)*
 
 ## Test plan for Sun Fury (PT-03)
 

@@ -17,9 +17,9 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 
 ## P2 — Modules & factions ⬜
 
-- [ ] PT-03 Sun Fury · PT-04 Derelicts · PT-05 full package + 2p → freeze v0.2
-- [ ] Faction layer design (8 civilizations, one pilot first: Mercury) + Reactor Charge re-evaluation as faction mechanic
-- [ ] Civilization bible v1 (deep design per civ)
+- [ ] PT-03 Sun Fury · PT-04 Derelicts · PT-05 full package + 2p → freeze rules (v0.3+)
+- [ ] Faction layer design (8 civilizations, one pilot first: Mercury) + Reactor Charge re-evaluation as faction mechanic — **design lane OPEN (D-027):** framework + Mercury pilot drafted (`docs/14` v0.3, D-028 PROPOSED); implementation + faction PTs stay gated on PT-01/02
+- [ ] Civilization bible v1 (deep design per civ) — pilot drafted; 7 civs to go
 - **Gate to P3:** frozen rules + at least 1 tested faction; visual brief confirmed.
 
 ## P3 — Visual vertical slice ⬜

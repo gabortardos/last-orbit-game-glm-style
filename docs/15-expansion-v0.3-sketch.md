@@ -55,7 +55,7 @@ Why it's a good fit here:
 2. Exactly the "positive nastiness" Gábor wants (same axis as D-016), with table spectacle: a hot-potato flare orbiting the table, growing.
 3. Thematically native: problems get passed *along the orbit*; the Sun's bad temper is a shared hazard.
 4. Anti-hoarding synergy: holding a Deflector changes everyone's attack calculus (bluff surface), and paying cards to deflect feeds the same economy 🧲 Tractor Snag pressures.
-5. Faction hook (P2): strength/weakness identities can lean on it later (e.g. Mercury speedsters deflect free once per match; Jupiter Stormkin amplify) — to note in doc 14 when that phase opens.
+5. Faction hook (P2): strength/weakness identities can lean on it later (e.g. Mercury speedsters deflect free once per match; Jupiter Stormkin amplify) — noted in doc 14 §Pilot (D-028, PROPOSED).
 
 **Guardrails:** D **requires C** — Ion Surge is its scaling payload; theft attacks must NOT scale (stealing 2–3 cards snowballs the attacker; Uno's +2 destroys rather than profits, for a reason). Sim-gate additions: match length, elimination spread, deflect frequency (bots deflect greedily).
 

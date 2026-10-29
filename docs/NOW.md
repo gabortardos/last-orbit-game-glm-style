@@ -1,5 +1,17 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, afternoon — P2 design lane opened: faction framework + Mercury pilot — 2026-10-25 ✅
+
+**Phase:** P1 gates still pending (round-5 notes → freeze v0.3 → PT-01/02); **P2 design lane now open in parallel (D-027, docs-only)** per Gábor's directive.
+
+**Shipped (docs only — engine/app/kit untouched, gates intact):**
+1. **Faction-power framework v1** (`docs/14`, D-028 PROPOSED): six ship rules — one-sentence template, base-deck counterplay, once-per-match default, v0.3 vocabulary only (D-026 discipline), sim-expressible in `bots.ts`, gated on PT-01/02. Spent powers are public.
+2. **Reactor Charge re-evaluation menu** (`docs/14` §RC; final call stays post-PT-03 per D-003): A drop / B shared currency / C hybrid — lean **A** for the pilot.
+3. **Mercury pilot deep design** (`docs/14` §Pilot): The Flareskips — cast-glass sprinters, Captain Cinder Vale "Twice-Dawn", flagship *The Sudden Dawn*, 5 comedy wells, 7 real-fact hooks (88-day year vs 176-day day; −173→+427 °C; the Sun's takeback sunrise; polar ice; shrinking planet; 85% iron core; BepiColombo's imminent arrival), palette/sound/motion, identity & counters. Power draft: **"Flare Skip"** (once/match free ↪️-redirect; fallback "Slingshot Start").
+4. Cross-refs updated (`05` verdict, `13` roadmap + stale "freeze v0.2" fix, `15` §D hook).
+
+**Next:** Gábor reviews D-028 (Mercury sheet + framework) alongside his round-5 solo notes; when PT-01/02 pass → solo-vs-AI faction pretest → faction PT.
+
 ## Session 1, morning — PT-01 zero-prep kit + D-026 instrument fix — 2026-10-25 ✅
 
 **Phase:** P1 Core validation (v0.3 in; round-5 notes pending — every remaining P1 item is now a human gate).

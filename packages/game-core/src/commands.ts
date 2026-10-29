@@ -138,6 +138,75 @@ export function applyCommand(state: GameState, cmd: Command): ApplyResult {
       skipNoResponders(s); // the window reopens on the new target — re-skip the powerless
       return ok(s);
     }
+    case 'COURT_FAVOR': {
+      // D-031 ♀ Venus: reverse a Requisition aimed at you — the initiator gifts YOU instead.
+      // The window reopens with the initiator as the new "target" (they may ↪️ the tribute
+      // onto a third captain, D-018 theft-redirect style); one 📡 still kills the whole chain.
+      if (s.phase !== 'reaction' || !s.pending) return err('no reaction window open');
+      const pending = s.pending;
+      if (pending.reason !== 'requisition') return err('Court Favor only answers a Requisition');
+      if (pending.target === undefined || cmd.player !== pending.target) return err('only the requisitioned captain may reverse it');
+      const p = s.players[cmd.player];
+      if (!p.alive) return err('derelicts cannot use faction powers');
+      if (p.faction !== 'courtier') return err('no faction power available');
+      if (p.factionPowerUsed) return err('Court Favor already spent this match');
+      if ((pending.deflectors ?? []).includes(cmd.player)) return err('already redirected in this chain');
+      p.factionPowerUsed = true; // spent powers are public (Pillar 4)
+      s.pending = {
+        ...pending,
+        target: pending.initiator, // the demand flips: they are the giver now
+        giftTo: cmd.player, // ...and the Courtier is the beneficiary
+        deflectors: [...(pending.deflectors ?? []), cmd.player],
+        passed: [], // the window reopens for everyone (📡 lives; the initiator may ↪️ it on)
+      };
+      s.stats.courtFavors += 1;
+      addLog(s, 'court_favor', { by: cmd.player, to: pending.initiator, reason: 'requisition' });
+      skipNoResponders(s);
+      return ok(s);
+    }
+    case 'RUST_RUN': {
+      // D-031 ♂ Mars: a free Salvage during your own Command Phase — same reaction window
+      // a ♻️ card opens (one 📡 cancels it, and the power still burns: baitable, like ☿).
+      if (s.phase !== 'command') return err('not in command phase');
+      if (cmd.player !== s.activePlayer) return err('not your turn');
+      const p = s.players[cmd.player];
+      if (p.faction !== 'rustborn') return err('no faction power available');
+      if (p.factionPowerUsed) return err('Salvage Run already spent this match');
+      if (cmd.card === 'rupture' || cmd.card === 'containment') return err('cannot salvage ruptures or containments');
+      if (!s.discard.includes(cmd.card)) return err('that card is not in the discard pile');
+      p.factionPowerUsed = true; // spent at initiation — a cancelled run still burns it
+      s.pending = {
+        initiator: p.id,
+        reason: 'salvage',
+        cards: [], // no card paid — this is the faction flag the resolver counts separately
+        overrides: [],
+        passed: [],
+        salvageKind: cmd.card,
+      };
+      s.stats.overrideWindows += 1;
+      s.stats.rustRuns += 1;
+      s.phase = 'reaction';
+      addLog(s, 'rust_run', { player: p.id, card: cmd.card });
+      skipNoResponders(s); // nobody holding 📡? resolve without a single forced pass
+      return ok(s);
+    }
+    case 'STORM_SHOUT': {
+      // D-031 ♃ Jupiter: you DREW the ☄️ — jettison nothing; a chosen captain jettisons
+      // instead. Only the drawer may shout (drawnBy), once per match, at a captain who
+      // actually holds a card to lose.
+      if (s.phase !== 'choice' || s.awaiting?.type !== 'storm_discard') return err('no storm to shout at');
+      if (s.awaiting.drawnBy !== cmd.player || s.awaiting.player !== cmd.player) return err('only the storm\'s drawer may shout');
+      const p = s.players[cmd.player];
+      if (p.faction !== 'stormkin') return err('no faction power available');
+      if (p.factionPowerUsed) return err('Storm Shout already spent this match');
+      const t = s.players[cmd.target];
+      if (!t || !t.alive || t.id === p.id || t.hand.length === 0) return err('pick another captain holding at least 1 card');
+      p.factionPowerUsed = true; // spent powers are public (Pillar 4)
+      s.awaiting = { type: 'storm_discard', player: t.id }; // no drawnBy → no chain-shouting
+      s.stats.stormShouts += 1;
+      addLog(s, 'storm_shout', { by: p.id, to: t.id });
+      return ok(s);
+    }
     case 'GIVE': {
       if (s.phase !== 'choice' || s.awaiting?.type !== 'give') return err('no gift to resolve');
       if (cmd.player !== s.awaiting.from) return err('not the giver');
@@ -324,7 +393,7 @@ function stepDrawChain(s: GameState): void {
         addLog(s, 'storm_fizzle', { player: p.id });
         continue; // an empty hand shrugs it off; pending wind draws continue
       }
-      s.awaiting = { type: 'storm_discard', player: p.id };
+      s.awaiting = { type: 'storm_discard', player: p.id, ...(p.faction === 'stormkin' && !p.factionPowerUsed ? { drawnBy: p.id } : {}) };
       s.phase = 'choice'; // STORM_DISCARD resumes/ends the chain
       return;
     }

@@ -20,7 +20,8 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [ ] PT-03 Sun Fury · PT-04 Derelicts · PT-05 full package + 2p → freeze rules (v0.3+)
 - [x] Faction layer design (8 civilizations, pilot first: Mercury) + Reactor Charge re-evaluation menu — framework + Mercury pilot **ADOPTED** (D-028, `docs/14`)
 - [x] Faction layer v1 implemented (2026-10-25, D-029): per-seat opt-in ☿ Flare Skip in engine+app+bots; vanilla configs provably unchanged; solo-vs-AI pretest = **PT-F1** (`docs/08`) before faction PTs
-- [ ] Civilization bible v1 (deep design per civ) — pilot deep-drafted + exposed in-app as the **Codex** (D-030); 7 civs to go
+- [x] Faction layer v2 implemented (2026-10-25, D-031): ♀ Court Favor, ♂ Salvage Run, ♃ Storm Shout join ☿ — all once-per-match, spent publicly, AI-flown; 4/8 civilizations playable; Codex carries deep sheets for all four (75 tests green, sim clean)
+- [ ] Civilization bible v1 (deep design per civ) — pilot deep-drafted + exposed in-app as the **Codex** (D-030); deep sheets for the 4 playable civs live in the Codex (D-031); 4 sketch civs to go (🌍 ♄ ♅ ♆)
 - **Gate to P3:** frozen rules + at least 1 tested faction; visual brief confirmed.
 
 ## P3 — Visual vertical slice ⬜

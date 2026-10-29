@@ -1,5 +1,20 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, late evening — faction layer v2: ♀ ♂ ♃ join ☿ — 2026-10-25 ✅
+
+**Phase:** Gábor's parallel faction lane continues (D-031, ADOPTED); vanilla gates (PT-01/02) untouched and still pending.
+
+**Shipped (D-031):**
+1. **Engine (opt-in, vanilla provably unchanged — all 64 pre-existing tests green, untouched):** `COURT_FAVOR` (♀ flips a 🤝 aimed at her: `target→initiator`, `giftTo→courtier`, window reopens — one 📡 voids the exchange, the Favor burns either way) · `RUST_RUN` (♂ takes any discard card for free during his Command Phase through a real reaction window — a 📡 cancels the grab but the run is spent at initiation; no ruptures/containments) · `STORM_SHOUT` (♃ roars a drawn ☄️ at another captain — only the drawer may shout via `drawnBy`, so no chain-shouting). New stats `courtFavors`/`rustRuns`/`stormShouts`; `canCourtFavor()` wired into window logic.
+2. **Bots:** greedy + random policies for all three (♀ never pays tribute; ♂ prioritizes the pile via `RUST_WANTED` before anything else; ♃ roars at the biggest rival hand). Sim clean: 16,500 games.
+3. **App:** Setup fleet pickers for **all seats incl. AI** (classic = default) · per-seat power chips for all four civs (ready/spent, gold) · ♀ "flip the tribute" button in the reaction overlay · ♂ discard picker in the command phase · ♃ target picker inside the storm modal · SFX stingers (`court_favor`/`rust_run`/`storm_shout`).
+4. **Codex rewritten data-driven** (`Sheet[]`/`SheetPara[]`): deep sheets for all four playable civs (form, captain, flagship, power, counterplay, comedy wells, real facts, palette, identity/rivalries) — a new civilization is now one append. Fixed a stray-`]` syntax error from the rewrite.
+5. **Docs:** `08` PT-F1 widened to all four powers (receiving-end watch items) · `11` D-031 · `13` P2 v2 line + bible status · `14` v0.5 (engine-truth section for the three powers) · this file.
+
+**All green:** typecheck · **75/75 tests** (11 new in `engine-faction-v2.test.ts`) · sim.
+
+**Next:** Gábor: ① **PT-F1 pretest, once per faction** (☿ ♀ ♂ ♃) — solo vs AI, mix AI factions into the other seats to feel the powers from the receiving end ② round-5 notes + PT-01 whenever ready. Then: deep-draft the next civ (🌍 ♄ ♅ ♆) or faction PTs after the vanilla PTs.
+
 ## Session 1, evening — faction pilot ships: ☿ Flare Skip in engine+app + in-game Codex — 2026-10-25 ✅
 
 **Phase:** Gábor's directive — dev proceeds without waiting on his test ("don't lock anything… proceed with the next step"); PT-01/02 remain the validation gates, running in parallel instead of blocking.

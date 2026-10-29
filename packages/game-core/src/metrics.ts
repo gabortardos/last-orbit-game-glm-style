@@ -27,6 +27,9 @@ export interface MatchReport {
   forcedDiscards: number; // cards destroyed by ⚡ Ion Surge
   deflections: number; // ↪️ Deflector uses
   flareSkips: number; // ☿ faction power uses (D-029)
+  courtFavors: number; // ♀ faction power uses (D-031)
+  rustRuns: number; // ♂ faction power uses (D-031)
+  stormShouts: number; // ♃ faction power uses (D-031)
   maxGrowth: number; // tallest escalation chain payload growth
   passTurnRate: number; // fraction of turns with zero card plays
   playedCounts: Partial<Record<CardKind, number>>;
@@ -108,6 +111,9 @@ export function matchReport(s: GameState): MatchReport {
     forcedDiscards: s.stats.forcedDiscards,
     deflections: s.stats.deflections,
     flareSkips: s.stats.flareSkips,
+    courtFavors: s.stats.courtFavors,
+    rustRuns: s.stats.rustRuns,
+    stormShouts: s.stats.stormShouts,
     maxGrowth: s.stats.maxGrowth,
     passTurnRate: s.turnCount > 0 ? 1 - turnsWithPlays.size / s.turnCount : 0,
     playedCounts,

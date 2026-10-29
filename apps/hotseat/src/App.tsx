@@ -31,6 +31,7 @@ const LOG_SFX: Record<string, Sfx> = {
   eliminated: 'eliminated', win: 'win',
   storm_hit: 'storm', storm_discard: 'storm', wind_bonus: 'wind',
   deflect: 'deflect', flare_skip: 'deflect', surge_hit: 'surge', forced_discard: 'surge', snag_hit: 'snag', snag_discard: 'snag',
+  court_favor: 'steal', rust_run: 'play', storm_shout: 'storm', // D-031 faction stingers
 };
 
 export default function App() {

@@ -25,9 +25,12 @@ export interface ModuleFlags {
   derelicts: boolean;
 }
 
-/** Faction layer (D-029, P2 pilot): per-seat, optional, off by default.
- *  'flareskip' = Mercury pilot — once per match, free ↪️-redirect when attacked (docs/14 §Pilot). */
-export type FactionId = 'flareskip';
+/** Faction layer (D-029 pilot + D-031 batch): per-seat, optional, off by default.
+ *  'flareskip' = Mercury — once per match, free ↪️-redirect when attacked (docs/14 §Pilot).
+ *  'courtier'  = Venus — once per match, reverse a 🤝 Requisition aimed at you (docs/14 §Courtier).
+ *  'rustborn'  = Mars — once per match, free ♻️-salvage during your Command Phase (docs/14 §Rustborn).
+ *  'stormkin'  = Jupiter — once per match, pass a drawn ☄️ Storm's jettison to another captain (docs/14 §Stormkin). */
+export type FactionId = 'flareskip' | 'courtier' | 'rustborn' | 'stormkin';
 
 export interface GameConfig {
   playerCount: number; // 2..5
@@ -63,12 +66,13 @@ export interface PendingAction {
   salvageKind?: CardKind;
   growth?: number; // Deflector payload growth (0..3) — applies to scaling reasons only
   deflectors?: number[]; // captains who already deflected in this chain (once each)
+  giftTo?: number; // D-031 ♀: set by Court Favor — who receives the requisitioned card (default: initiator)
 }
 
 export type AwaitingChoice =
   | { type: 'give'; from: number; to: number } // Requisition giver picks a card
   | { type: 'reinsert' } // contained rupture reinsertion (active player)
-  | { type: 'storm_discard'; player: number } // drew a ☄️ Storm: choose 1 card to jettison
+  | { type: 'storm_discard'; player: number; drawnBy?: number } // drew a ☄️ Storm: choose 1 card to jettison (drawnBy set only while the drawer may still ♃ Storm Shout — D-031)
   | { type: 'snag_discard'; player: number; count: number }; // 🧲 Tractor Snag: choose cards to discard
 
 export type Phase = 'command' | 'reaction' | 'choice' | 'game_over';
@@ -100,6 +104,9 @@ export interface GameStats {
   forcedDiscards: number; // cards destroyed by ⚡ Ion Surge
   deflections: number; // ↪️ Deflector uses
   flareSkips: number; // ☿ faction power uses (D-029; cardless, counted separately)
+  courtFavors: number; // ♀ faction power uses (D-031)
+  rustRuns: number; // ♂ faction power uses (D-031; counted at initiation — a 📡-cancelled run still burns the power)
+  stormShouts: number; // ♃ faction power uses (D-031)
   maxGrowth: number; // tallest escalation chain payload growth
 }
 
@@ -131,6 +138,9 @@ export type Command =
   | { type: 'PASS'; player: number }
   | { type: 'DEFLECT'; player: number; target: number } // target-only reaction: redirect + payload +1
   | { type: 'FLARE_SKIP'; player: number; target: number } // ☿ Mercury power (D-029): DEFLECT without paying the card, once per match
+  | { type: 'COURT_FAVOR'; player: number } // ♀ Venus power (D-031): reverse a Requisition aimed at you — the initiator gifts you instead, once per match
+  | { type: 'RUST_RUN'; player: number; card: CardKind } // ♂ Mars power (D-031): free Salvage during your Command Phase, once per match (📡 can cancel)
+  | { type: 'STORM_SHOUT'; player: number; target: number } // ♃ Jupiter power (D-031): you drew a ☄️ — another captain jettisons instead, once per match
   | { type: 'GIVE'; player: number; card: CardKind } // resolve Requisition gift
   | { type: 'STORM_DISCARD'; player: number; card: CardKind } // resolve ☄️ Storm jettison
   | { type: 'SNAG_DISCARD'; player: number; cards: CardKind[] } // resolve 🧲 Tractor Snag discards

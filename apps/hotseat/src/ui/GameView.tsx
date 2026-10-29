@@ -1,6 +1,26 @@
 import { useState } from 'react';
 import { CARD_INFO } from '@last-orbit/game-core';
-import type { CardKind, Command, GameState, MatchReport } from '@last-orbit/game-core';
+import type { CardKind, Command, FactionId, GameState, MatchReport } from '@last-orbit/game-core';
+
+/** D-031: every civilization's once-per-match power is a public chip at the table (Pillar 4). */
+const FACTION_CHIP: Record<FactionId, { label: string; title: string }> = {
+  flareskip: {
+    label: '☿ Flare Skip',
+    title: '☿ Mercury — Flare Skip: once per match, when attacked, redirect the attack as if playing ↪️ — no card paid. Spent powers are public.',
+  },
+  courtier: {
+    label: '♀ Court Favor',
+    title: '♀ Venus — Court Favor: once per match, when a 🤝 Requisition targets you, flip it — the initiator gifts YOU 1 card instead (one 📡 still cancels the exchange). Spent powers are public.',
+  },
+  rustborn: {
+    label: '♂ Salvage Run',
+    title: '♂ Mars — Salvage Run: once per match, during your Command Phase, take any card from the discard pile for free (one 📡 can cancel it — the run is spent either way). Spent powers are public.',
+  },
+  stormkin: {
+    label: '♃ Storm Shout',
+    title: '♃ Jupiter — Storm Shout: once per match, when you draw a ☄️ Storm, jettison nothing — another captain jettisons 1 card instead. Spent powers are public.',
+  },
+};
 import { LogFeed, Modals, SoundButton } from './Overlays';
 import Briefing from './Briefing';
 import Codex from './Codex';
@@ -70,12 +90,12 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
             <div className="pname">
               {p.name}
               {solo && <span className="chip" title={humans.includes(p.id) ? 'you' : 'AI captain'}>{humans.includes(p.id) ? ' 👤 you' : ' 🤖'}</span>}
-              {p.faction === 'flareskip' && (
+              {p.faction && (
                 <span
                   className={`chip flare ${p.factionPowerUsed ? 'spent' : 'ready'}`}
-                  title="☿ Mercury — Flare Skip: once per match, when attacked, redirect the attack as if playing ↪️ — no card paid. Spent powers are public."
+                  title={FACTION_CHIP[p.faction].title}
                 >
-                  ☿ Flare Skip {p.factionPowerUsed ? '· spent' : '· ready'}
+                  {FACTION_CHIP[p.faction].label} {p.factionPowerUsed ? '· spent' : '· ready'}
                 </span>
               )}
               {!p.alive && ' 💤'}
@@ -147,6 +167,24 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
                 <button key={p.id} className="mini" onClick={() => play(choosing, p.id)}>{p.name} ({p.hand.length})</button>
               ))}
               <button className="ghost" onClick={() => setChoosing(null)}>Cancel</button>
+            </div>
+          )}
+
+          {/* D-031 ♂ Mars: once-per-match free grab from the discard pile, opened as a
+              reaction window so one 📡 can cancel it (the run is spent either way). */}
+          {me.faction === 'rustborn' && !me.factionPowerUsed && salvageOptions.length > 0 && (
+            <div className="chooser">
+              <span>♂ Salvage Run — take from discard, free (once per match; a 📡 can cancel it):</span>
+              {salvageOptions.map((k) => (
+                <button
+                  key={`rust-${k}`}
+                  className="mini flarebtn"
+                  title={`${CARD_INFO[k].blurb}\n(Faction power: take this card into your hand for free — opens a reaction window first.)`}
+                  onClick={() => dispatch({ type: 'RUST_RUN', player: viewer, card: k })}
+                >
+                  {CARD_INFO[k].emoji} {CARD_INFO[k].name}
+                </button>
+              ))}
             </div>
           )}
 

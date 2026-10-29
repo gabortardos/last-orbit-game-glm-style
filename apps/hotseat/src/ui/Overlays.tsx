@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CARD_INFO, canRespond, eligibleReactorIds, furyDepthLimit, openRespondents } from '@last-orbit/game-core';
+import { CARD_INFO, canCourtFavor, canRespond, eligibleReactorIds, furyDepthLimit, openRespondents } from '@last-orbit/game-core';
 import type { CardKind, Command, GameState, LogEntry, MatchReport } from '@last-orbit/game-core';
 import { isMuted, startAudio, toggleMuted } from '../audio';
 
@@ -185,6 +185,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
           const inChain = (pending.deflectors ?? []).includes(id); // ↪️ and ☿ share the once-per-chain limit
           const canDeflectCard = isTarget && p.alive && p.hand.includes('deflector') && !inChain;
           const canFlare = isTarget && p.alive && p.faction === 'flareskip' && !p.factionPowerUsed && !inChain;
+          const canFavor = isTarget && p.alive && canCourtFavor(game, id); // D-031 ♀: flips a 🤝 back at the initiator
           if (solo && !humans.includes(id)) {
             return (
               <div key={id} className="reactrow">
@@ -239,6 +240,15 @@ export function ReactionOverlay({ game, dispatch, humans }: {
                   onClick={() => setRedirect('flare')}
                 >
                   ☿ Flare Skip — free redirect +1
+                </button>
+              )}
+              {canFavor && (
+                <button
+                  className="mini flarebtn"
+                  title="♀ Venus faction power (once per match): reverse this Requisition — the initiator gifts YOU 1 card instead (no card paid). One 📡 still cancels the whole exchange, and the Favor is spent either way; the initiator may ↪️ the tribute onward."
+                  onClick={() => dispatch({ type: 'COURT_FAVOR', player: id })}
+                >
+                  ♀ Court Favor — flip the tribute
                 </button>
               )}
               {!isInitiator && (
@@ -358,6 +368,12 @@ function StormModal({ game, dispatch, humans }: { game: GameState; dispatch: (c:
   const victim = game.players[game.awaiting.player];
   if (humans && humans.length === 1 && !humans.includes(victim.id)) return null; // AI storms resolve in the log
   const soloVictim = humans !== undefined && humans.length === 1 && humans.includes(victim.id);
+  // D-031 ♃: only the captain who actually DREW the storm may roar it away (drawnBy);
+  // a shouted-at victim has no drawnBy → no chain-shouting.
+  const shoutTargets = game.players.filter((q) => q.alive && q.id !== victim.id && q.hand.length > 0);
+  const canShout = game.awaiting.drawnBy === victim.id
+    && victim.faction === 'stormkin' && !victim.factionPowerUsed
+    && shoutTargets.length > 0;
   return (
     <div className="overlay">
       <div className="modal">
@@ -371,6 +387,23 @@ function StormModal({ game, dispatch, humans }: { game: GameState; dispatch: (c:
             <h3>☄️ Micrometeoroid Storm</h3>
             <p className="hint">Pass the device to <b>{victim.name}</b> — they jettison 1 card of their choice.</p>
           </>
+        )}
+        {canShout && (
+          <div className="shoutrow">
+            <span className="hint">
+              <b>♃ Storm Shout</b> (once per match) — jettison nothing and roar it at:
+            </span>
+            {shoutTargets.map((q) => (
+              <button
+                key={q.id}
+                className="mini flarebtn"
+                title={`They jettison 1 card of their choice instead of you. Cannot be deflected; the shout is public once spent.`}
+                onClick={() => dispatch({ type: 'STORM_SHOUT', player: victim.id, target: q.id })}
+              >
+                {q.name} ({q.hand.length})
+              </button>
+            ))}
+          </div>
         )}
         <div className="hand">
           {[...new Set(victim.hand)].map((k) => (

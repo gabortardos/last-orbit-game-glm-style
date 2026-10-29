@@ -6,7 +6,12 @@ import Codex from './Codex';
 import { SoundButton } from './Overlays';
 
 const AI_NAMES = ['Vega', 'Sirius', 'Altair', 'Rigel', 'Deneb'];
-const FACTION_LABEL: Record<FactionId, string> = { flareskip: '☿ Mercury · Flare Skip' };
+const FACTION_LABEL: Record<FactionId, string> = {
+  flareskip: '☿ Mercury · Flare Skip',
+  courtier: '♀ Venus · Court Favor',
+  rustborn: '♂ Mars · Salvage Run',
+  stormkin: '♃ Jupiter · Storm Shout',
+};
 
 export default function Setup({ onStart }: { onStart: (o: StartOptions) => void }) {
   const [mode, setMode] = useState<'hotseat' | 'solo'>('hotseat');
@@ -98,20 +103,25 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
 
       <div className="fleetrow">
         <span className="flabel">Fleets (optional — classic seats play the tested vanilla game):</span>
-        {(mode === 'hotseat' ? Array.from({ length: count }, (_, i) => i) : [0]).map((i) => (
+        {(mode === 'hotseat' ? Array.from({ length: count }, (_, i) => i) : Array.from({ length: count }, (_, i) => i)).map((i) => (
           <label key={i} className="fleetpick">
             <select
               value={factions[i] ?? ''}
               onChange={(e) => setFactions((fs) => fs.map((f, j) => (j === i ? ((e.target.value || null) as FactionId | null) : f)))}
             >
-              <option value="">{mode === 'hotseat' ? (names[i] || `Captain ${i + 1}`) : 'Your fleet'} — classic</option>
+              <option value="">{mode === 'hotseat' ? (names[i] || `Captain ${i + 1}`) : i === 0 ? 'Your fleet' : `${AI_NAMES[i - 1]} (AI)`} — classic</option>
               {Object.entries(FACTION_LABEL).map(([id, label]) => (
                 <option key={id} value={id}>{label}</option>
               ))}
             </select>
           </label>
         ))}
-        <span className="hint">☿ Flare Skip: once per match, when attacked, redirect it for free (payload still grows)</span>
+        <span className="hint">
+          Faction powers — all opt-in, once per match, spent publicly: ☿ Flare Skip: when attacked, redirect it for free (payload still grows) ·
+          ♀ Court Favor: when requisitioned, flip it — they gift you instead ·
+          ♂ Salvage Run: take any discard card for free on your turn (📡-able) ·
+          ♃ Storm Shout: when you draw a storm, another captain jettisons instead. AI captains fly these too.
+        </span>
       </div>
 
       <label className="row">

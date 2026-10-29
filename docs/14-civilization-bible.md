@@ -1,4 +1,4 @@
-# 14 — Civilization Bible (v0.4 — Mercury pilot implemented as opt-in layer, D-028/D-029/D-030)
+# 14 — Civilization Bible (v0.5 — four playable factions: ☿ ♀ ♂ ♃, D-028→D-031)
 
 Eight playable civilizations. Direction table below inherits the master-prompt concepts — **critiqued, not final**. Deep design (biology, captain, flagship, comedy premise, play-style, real-planet hooks, colours/materials/motion/sound, anti-one-joke flexibility) begins in P2, one civilization at a time (pilot: Mercury).
 
@@ -47,6 +47,16 @@ Every faction power must pass all six, or it doesn't ship:
 
 **Current lean: A for the pilot** (Mercury ships once-per-match). Revisit B/C only if faction playtests report "powers feel same-y/flat."
 
+## Faction v2 — Court Favor · Salvage Run · Storm Shout (IMPLEMENTED, D-031)
+
+The same opt-in per-seat layer as ☿ (Setup → fleet picker; classic = default; vanilla configs provably unchanged). Full deep sheets live in the **in-app Codex** (D-030/D-031, data-driven `Sheet[]` in `Codex.tsx` — a new civilization is one append); this section records the *engine* truth each sheet must match:
+
+- **♀ The Cloud Courtiers (Venus) — "Court Favor":** once per match, when a 🤝 Requisition targets you, reverse it — the initiator gifts **you** 1 card instead (no card paid). The window reopens on the flipped demand: one 📡 voids the whole exchange (the Favor is spent either way — baitable, like ☿), and the initiator may ↪️ the tribute onto a third captain (D-018 theft-redirect style). Counterplay: don't requisition a loaded Court — board (⚔) or surge (⚡) them; there's nothing to flip.
+- **♂ The Rustborn (Mars) — "Salvage Run":** once per match, during your own Command Phase, take any card from the discard pile for free — routed through the standard reaction window, so one 📡 cancels the grab *and the run still burns* (spent at initiation, not success). No ruptures/containments (they aren't cargo). Counterplay: hold your 📡 for the run; against a Rustborn your discard pile is a shop window — strip it yourself with ♻️ first. Bots prioritize via `RUST_WANTED`.
+- **♃ The Stormkin (Jupiter) — "Storm Shout":** once per match, when you **draw** a ☄️ Micrometeoroid Storm, jettison nothing — roar it at another captain holding ≥1 card and they jettison 1 instead. Only the drawer may shout (`drawnBy` marker) — a shouted-at victim cannot roar it onward; no chain-shouting, no deflecting the roar. Counterplay: it's public once spent — count storms, keep hands lean late-game so the shout roars at nothing.
+
+All three follow the framework above: opt-in, once-per-match, v0.3 vocabulary only (🤝/♻-window/☄️/📡 — no new cards), sim-expressible (greedy + random bot policies shipped), spent powers public. Stats: `courtFavors`, `rustRuns`, `stormShouts` (plus `flareSkips`).
+
 ## Pilot — The Flareskips (Mercury) · deep design draft (D-028 PROPOSED)
 
 *First civilization designed; proves the pipeline. The art sheet itself stays a P3 deliverable (`06`); this is the design layer.*
@@ -70,6 +80,7 @@ The Sun = chaotic environmental antagonist (never playable). Moons, Pluto, comet
 
 ## Change log
 
+- v0.5 (2026-10-25): faction layer **v2** (D-031) — ♀ Court Favor, ♂ Salvage Run, ♃ Storm Shout implemented in engine+app+bots alongside ☿; four of eight civilizations playable. Deep sheets for all four playable civs live in the in-app Codex (data-driven `Sheet[]`). 11 new tests (`engine-faction-v2.test.ts`, 75 total green).
 - v0.4 (2026-10-25): D-028 **ADOPTED** (Gábor sign-off). Flare Skip implemented in engine+app as an opt-in per-seat layer (D-029; framework rule 6 amended for the pilot); solo-vs-AI pretest defined as PT-F1 (`docs/08`). The bible is now readable on the game screen as the in-app **Codex** (D-030).
 - v0.3 (2026-10-25): P2 design lane opened (D-027). Added faction-power framework + Reactor Charge re-evaluation menu; Mercury pilot (The Flareskips) deep-drafted against the full checklist. All PROPOSED (D-028) pending Gábor's sign-off; implementation gated on PT-01/02.
 - v0.2: stub created — 8-civ direction table, per-civ checklist, casting rules.

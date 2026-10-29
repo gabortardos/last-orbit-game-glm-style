@@ -76,7 +76,8 @@ export function createGame(config: GameConfig): GameState {
       overrideWindows: 0, overridesPlayed: 0, transmissionsUsed: 0, cancelledActions: 0,
       maxOverrideStack: 0, flybysPlayed: 0, maxDebt: 0, drawsTotal: 0, reshuffles: 0,
       steals: 0, fizzles: 0, scansPlayed: 0, salvagesPlayed: 0,
-      scrapsPlayed: 0, forcedDiscards: 0, deflections: 0, flareSkips: 0, maxGrowth: 0,
+      scrapsPlayed: 0, forcedDiscards: 0, deflections: 0, flareSkips: 0,
+      courtFavors: 0, rustRuns: 0, stormShouts: 0, maxGrowth: 0,
     },
   };
   addLog(s, 'game_start', { playerCount: n, modules: s.config.modules, seed, first: s.activePlayer });
@@ -121,6 +122,19 @@ export function canFlareSkip(s: GameState, id: number): boolean {
 }
 
 /**
+ * D-031 ♀ Venus "Court Favor": true when `id` may reverse the current 🤝 Requisition —
+ * they are its target, alive, faction pilot, power unspent, and they have not already
+ * redirected/reversed in this chain (shared once-per-captain-per-chain limit with ↪️/☿).
+ */
+export function canCourtFavor(s: GameState, id: number): boolean {
+  const pending = s.pending;
+  if (!pending || pending.reason !== 'requisition' || pending.target !== id) return false;
+  const p = s.players[id];
+  return p.alive && p.faction === 'courtier' && !p.factionPowerUsed
+    && !(pending.deflectors ?? []).includes(id);
+}
+
+/**
  * True when the captain can actually DO something in the current reaction window:
  * hold a Comms Override, be the current target with an unused Deflector (§4.6) or an
  * unspent ☿ Flare Skip (D-029), or be a Derelict with an armed Final Transmission.
@@ -142,7 +156,8 @@ export function canRespond(s: GameState, id: number): boolean {
   if (!p.alive) return s.config.modules.derelicts && !p.transmissionUsed;
   if (p.hand.includes('override')) return true;
   return (pending.target === id && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id))
-    || canFlareSkip(s, id);
+    || canFlareSkip(s, id)
+    || canCourtFavor(s, id);
 }
 
 /** D-022: everyone the open reaction window must wait on a decision from — every

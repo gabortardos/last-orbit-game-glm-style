@@ -1,5 +1,5 @@
 import { CARD_INFO, TARGETED, furyDepthLimit } from './cards';
-import { canFlareSkip, nextAliveId, openRespondents } from './engine';
+import { canCourtFavor, canFlareSkip, nextAliveId, openRespondents } from './engine';
 import type { CardKind, Command, GameState } from './types';
 
 export type BotPolicy = 'random' | 'greedy';
@@ -49,6 +49,9 @@ function othersWithCards(s: GameState, me: number, min = 1): number[] {
 /** Reasons that count as attacks — the "you are attacked" trigger for ↪️ and ☿ Flare Skip. */
 const ATTACK_REASONS = ['boarding', 'pair', 'requisition', 'ion_surge', 'tractor'];
 
+/** ♂ Mars Salvage Run: what the Rustborn want from a discard pile, best first (D-031). */
+const RUST_WANTED: CardKind[] = ['override', 'deflector', 'boarding', 'requisition', 'ion_surge', 'tractor', 'coolant', 'hull', 'salvage', 'scan', 'reversal', 'flyby', 'burn', 'slingshot'];
+
 function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command {
   const me = s.activePlayer;
   const hand = s.players[me].hand;
@@ -58,6 +61,11 @@ function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command 
 
   if (policy === 'random') {
     const anyOther = othersWithCards(s, me, 0);
+    // D-031 ♂: the free salvage is worth a spin when something decent is down there
+    if (s.players[me].faction === 'rustborn' && !s.players[me].factionPowerUsed && rng() < 0.25) {
+      const kind = RUST_WANTED.find((k) => s.discard.includes(k));
+      if (kind) return { type: 'RUST_RUN', player: me, card: kind };
+    }
     if (rng() < 0.3 && anyOther.length > 0 && (singles.length > 0 || pairKind)) {
       const playPair = pairKind && (singles.length === 0 || rng() < 0.25);
       if (playPair) {
@@ -86,6 +94,11 @@ function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command 
   const scanned = lastScanThisTurn(s, me);
   const topKnown = scanned ? (scanned.data?.cards as CardKind[] | undefined)?.[0] : undefined;
   if (!scanned && singles.includes('scan')) return { type: 'PLAY', player: me, cards: ['scan'] };
+  // D-031 ♂: free salvage before anything else — the junk pile is a Rustborn birthright
+  if (s.players[me].faction === 'rustborn' && !s.players[me].factionPowerUsed) {
+    const kind = RUST_WANTED.find((k) => s.discard.includes(k));
+    if (kind) return { type: 'RUST_RUN', player: me, card: kind };
+  }
   if (topKnown === 'rupture') {
     for (const avoid of ['burn', 'flyby', 'reversal', 'slingshot'] as const) {
       if (singles.includes(avoid)) return { type: 'PLAY', player: me, cards: [avoid] };
@@ -152,6 +165,10 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
       const others = s.players.filter((q) => q.alive && q.id !== me);
       if (others.length > 0) return { type: 'FLARE_SKIP', player: me, target: pick(others, rng).id };
     }
+    // D-031 ♀: sometimes the tribute flips — it costs no card either
+    if (canCourtFavor(s, me) && s.players[pend.initiator].hand.length > 0 && rng() < 0.6) {
+      return { type: 'COURT_FAVOR', player: me };
+    }
     if (!canOnlyDeflect && p.alive && pend.target === me && p.hand.includes('deflector') && rng() < 0.3) {
       const others = s.players.filter((q) => q.alive && q.id !== me);
       if (others.length > 0) return { type: 'DEFLECT', player: me, target: pick(others, rng).id };
@@ -160,6 +177,10 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
   }
 
   // greedy: attacked → free Flare Skip first (D-029 — saves the ↪️ card for a later chain),
+  // and requisitioned → the Court flips it (D-031 — a Courtier never pays tribute)
+  if (canCourtFavor(s, me) && s.players[pend.initiator].hand.length > 0) {
+    return { type: 'COURT_FAVOR', player: me };
+  }
   // then a held Deflector; either way pass the problem to the biggest rival hand
   if (
     p.alive && pend.target === me && ATTACK_REASONS.includes(pend.reason) && canFlareSkip(s, me)
@@ -200,6 +221,21 @@ function botChoiceFor(s: GameState, player: number, policy: BotPolicy, rng: BotR
     return { type: 'GIVE', player: from.id, card: kind };
   }
   if (s.awaiting?.type === 'storm_discard') {
+    // D-031 ♃: the drawer may roar the storm at someone else's cargo (greedy: biggest rival hand)
+    if (s.awaiting.drawnBy === player) {
+      const shouter = s.players[player];
+      if (shouter.faction === 'stormkin' && !shouter.factionPowerUsed) {
+        const victims = s.players.filter((q) => q.alive && q.id !== player && q.hand.length > 0);
+        if (victims.length > 0) {
+          if (policy === 'random') {
+            if (rng() < 0.5) return { type: 'STORM_SHOUT', player, target: pick(victims, rng).id };
+          } else {
+            const to = victims.reduce((x, y) => (y.hand.length >= x.hand.length ? y : x));
+            return { type: 'STORM_SHOUT', player, target: to.id };
+          }
+        }
+      }
+    }
     // jettison the least valuable card (same order as gifts)
     const from = s.players[s.awaiting.player];
     if (policy === 'random') return { type: 'STORM_DISCARD', player: from.id, card: pick(from.hand, rng) };

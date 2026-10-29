@@ -73,6 +73,8 @@ button { font: inherit; }
 .card.unplayable { opacity: 0.45; cursor: not-allowed; }
 .card.pair { border-style: dashed; }
 .chooser { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+/* D-031: ♃ Storm Shout picker inside the storm modal — same shape as a chooser row. */
+.shoutrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 0; border-top: 1px dashed var(--gold); }
 
 /* ---------- overlays ---------- */
 .overlay { position: fixed; inset: 0; background: #05070fcc; display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px calc(var(--railw) + 40px) 16px 16px; } /* modals center in the space left of the log rail */

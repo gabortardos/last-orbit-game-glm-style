@@ -63,7 +63,8 @@ function executeEffect(s: GameState, pending: PendingAction): void {
         addLog(s, 'fizzle', { reason: 'requisition', target: t?.id, initiator: initiator.id });
         s.phase = 'command';
       } else {
-        s.awaiting = { type: 'give', from: t.id, to: initiator.id };
+        // D-031 ♀ Court Favor flips the flow: the initiator gives the Courtier instead.
+        s.awaiting = { type: 'give', from: t.id, to: pending.giftTo ?? initiator.id };
         s.phase = 'choice';
       }
       break;
@@ -74,7 +75,8 @@ function executeEffect(s: GameState, pending: PendingAction): void {
       if (idx >= 0) {
         s.discard.splice(idx, 1);
         initiator.hand.push(kind);
-        s.stats.salvagesPlayed += 1;
+        // cards.length === 0 → the ♂ free Salvage Run (power counted at initiation, D-031)
+        if (pending.cards.length > 0) s.stats.salvagesPlayed += 1;
         addLog(s, 'salvage_take', { player: initiator.id, card: kind });
       } else {
         s.stats.fizzles += 1;

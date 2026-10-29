@@ -7,8 +7,9 @@ Born from PT-00 round 3 (2026-10-25): *more dangers, and as absolutely equal oth
 1. **One lethal draw-threat only.** ☀️ Solar Rupture stays the only card that eliminates on draw. Multiple kill-card types dilute dread and slow resolution (reference-genre lesson).
 2. **Every danger is answerable** — by a choice, a held card, or an Override window. No "lose and watch" effects.
 3. **Fits existing ceremony.** Resolves inside the draw step or a normal play. No new phases, no new screens.
-4. **Symmetry.** Each danger ships with an opportunity of equal deck-weight — luck must swing both ways.
+4. **Symmetry.** Each danger ships with an opportunity of equal deck-weight — luck must swing both ways. *(Applies to the **luck axis**: draw-step dangers. For the **agency axis** — cards played *at* someone — the counterweights are Override parity, the victim's own counterplay, and hand-slot opportunity cost: every attack card held is not a 🛡️.)*
 5. **Sim-gated.** Any candidate runs through 2×3,000 bot games before humans see it: seat fairness, match length and elimination spread must stay within noise of the v0.2 baseline.
+6. **Nasty-but-never-fatal, and fun to sit through.** Mischief hurts, it never eliminates; the victim should always understand what happened and get a revenge path (Override today, Final Transmission later).
 
 ## Candidate Pair A — draw-step friction (recommended)
 
@@ -21,6 +22,20 @@ Cost: ~zero new UI (draw reveal already exists — both cards show there), one n
 
 Components were "never met / couldn't use" in solo play. UI hint added same day ("· find its twin"). Structural option: raise ❄️/🔩 from 2+2 to 3+3 copies (deck 48 → 52 with Pair A) so pairs actually assemble. Sim-verifiable (pair-play rate, steal count).
 
+## Candidate C — mischief: nasty-but-never-fatal (Gábor's note, PT-00 round 3)
+
+> "Players love when they can be tricky and — in a positive way — be nasty with each other."
+
+v0.2 nastiness is all theft (Boarding, Requisition, pairs) or turn-skipping (Flyby). The gap: **destruction and harassment** — pain that doesn't profit the attacker, it just hurts the victim. Different economy, meaner feeling, and it makes holding a big hand risky.
+
+- ⚡ **Ion Surge** (×2): *Play: target captain discards 1 random card from their hand.* Pure spite — the card is destroyed, nothing comes to you. Non-fatal, Overrideable, one log line, empty hand fizzles. Random = maximum " positively nasty" spice.
+- 🧲 **Tractor Snag** (×2): *Play: target captain discards down to 3 cards (their choice).* The anti-hoarding tool — the watch-list already flags Scan/Containment hoarding as a risk; this is the in-fiction answer. Their choice → answerable, less feel-bad than Ion Surge, fun to watch ("what do they give up?").
+- No luck-axis counterpart needed: these are agency-axis (see guardrail 4) — Override parity is the counterweight, and both feed the revenge fantasy (Derelicts module turns every victim into a later ghost signal).
+
+**Deck math warning:** the full v0.3 menu (A 4 cards + B 4 cards + C 4 cards) takes the deck 44 → 56 and dilutes rupture density 6.8% → 5.4%. Rule: if the sim gate shows projected match length creeping past ~15 min, **substitute** rather than add (candidate trims: −1 Gravity Slingshot, −1 Deep-Space Scan — both high-copy action cards).
+
+**Deferred mischief (revisit with factions):** 📡 Signal Jamming (peek at a hand + lock one card type for a turn — needs per-player restriction state) · 🎯 Targeting Toll (pay 1 card to act next turn) · taker-chooses theft (rejected at D-002 as too swingy).
+
 ## Deferred (complexity budget — revisit with P2 factions)
 
 - Attach-style dangers (e.g. Radiation Leak: "while attached, you draw 2") — new state + new UI.
@@ -29,6 +44,7 @@ Components were "never met / couldn't use" in solo play. UI hint added same day 
 
 ## Proposed path
 
-1. Gábor picks: **(a)** Pair A only · **(b)** Pair A + component density · **(c)** other direction / veto.
+1. Gábor picks a menu item: **(a)** A only · **(b)** A+B · **(c)** A+C · **(d)** A+B+C · **(e)** veto / other direction.
+   Staging recommendation if undecided: ship **(b)** first (sim-gated), then C as a second wave after solo-vs-AI feel tests — one new axis at a time keeps cause-and-effect readable in playtests.
 2. Implement → 28+ tests extended → sim gate (doc 10 deltas) → solo-vs-AI feel test.
 3. If clean → freeze into rules v0.3 for PT-01 with friends.

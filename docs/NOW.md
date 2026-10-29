@@ -9,7 +9,7 @@
 ### Next actions (in order)
 
 1. **Gábor:** refresh http://localhost:5173 → Setup → **🤖 Solo vs AI** (3–5 captains recommended) → play full matches vs the bots. Note: anything that feels unfair, unclear, or boring — that's PT data now.
-2. **Gábor decision D-015:** (a) Storm+Wind only · (b) + components 3+3 · (c) veto (`docs/15`).
+2. **Gábor decision D-015/D-016** (menu in `docs/15`): (a) Storm+Wind · (b) +Components 3+3 · (c) +Ion Surge & Tractor Snag · (d) all · (e) veto.
 3. Implement chosen v0.3 cards → extend tests → sim gate vs baseline (`docs/10`).
 4. Schedule **PT-01** (3 humans, in person, hotseat mode — it's ready today; remote friends = P4 online).
 

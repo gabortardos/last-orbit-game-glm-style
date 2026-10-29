@@ -1,5 +1,18 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, morning — PT-01 zero-prep kit + D-026 instrument fix — 2026-10-25 ✅
+
+**Phase:** P1 Core validation (v0.3 in; round-5 notes pending — every remaining P1 item is now a human gate).
+
+**Shipped:**
+1. **`docs/16-playtest-kit.md` — print & run PT-01/02:** facilitator run sheet (4-min teach-in script using the app's premise copy verbatim, during-match observation checklist, post-match question set + export/archive steps + pass/revise/reject), paper-mode rulings where paper differs (real-time 📡 shouts, ↪️ payload token, private peeks), and a **54-card cut sheet + 2 table aid cards** verified card-for-card against `BASE_DECK` v0.3 (46) + 6 🛡️ + N−1 ☀️.
+2. **D-026:** PT-01/02 "vanilla" = v0.3 core deck with modules off (docs/08 said "v0.2" — that deck no longer exists in the app; paper/app/sim now provably measure the same game). docs/08 instrument + deck lines updated.
+3. Housekeeping: stale v0.2-era deck-count comments fixed in `cards.ts`/`engine.ts` (46, comment-only); known-issue #9 re-tried (EK official page still 429 — stays open).
+
+**All green:** typecheck · **55/55 tests** · build (comment-only code change).
+
+**Next:** ① Gábor's round-5 solo notes (bounce-backs, anytime-❓, music v3) → **freeze v0.3** · ② run **PT-01** with the kit (`docs/16`) — app or paper, 3 humans, ~30 min total per session incl. questions · then PT-02 (4–5p) → P1 gate.
+
 ## Session 1, dawn — P1 chore: CI live + PT-01 export completeness — 2026-10-25 ✅
 
 **Phase:** P1 Core validation (v0.3 in; round-5 notes pending).

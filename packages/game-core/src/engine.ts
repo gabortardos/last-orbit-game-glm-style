@@ -36,7 +36,7 @@ export function createGame(config: GameConfig): GameState {
     eliminatedAtTurn: null,
   }));
 
-  // 1) shuffle the 38 base cards, deal 4 each; 2) 1 containment each;
+  // 1) shuffle the 46 base cards, deal 4 each; 2) 1 containment each;
   // 3) insert N-1 ruptures + leftover containments; 4) shuffle.
   const first = shuffled(BASE_DECK, seed);
   let rngState = first.state;

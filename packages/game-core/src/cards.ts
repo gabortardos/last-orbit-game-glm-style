@@ -3,7 +3,10 @@ import type { CardKind } from './types';
 export const FURY_CAP = 5;
 export const DEBT_CAP = 6;
 
-/** The 48 cards dealt from / shuffled before inserting ruptures + containments. */
+/**
+ * The 46 base cards shuffled and dealt from before inserting ruptures + leftover
+ * containments (v0.3 post-trim, D-019: 38 in v0.2 → 46 after the expansion menu).
+ */
 export const BASE_DECK: readonly CardKind[] = [
   ...Array(5).fill('override'),
   ...Array(4).fill('flyby'),

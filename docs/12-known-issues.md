@@ -13,6 +13,6 @@
 
 7. `game-core` reinsertion position hidden from log for other players but present (god-mode) in the event log — sim uses it; UI must filter. Documented in engine.
 8. Bots' knowledge model is same-turn only (greedy plays Scan then decides; no cross-turn memory) — adequate for v0.2 sim; improve in P2 if needed.
-9. Citation gap: official EK rules page was rate-limited (HTTP 429) during session 1; re-verify at next doc pass (see `reference/exploding-kittens-notes.md`).
+9. Citation gap: official EK rules page was rate-limited (HTTP 429) during session 1; **re-tried 2026-10-25 — still 429** (page unreachable from this network). The UltraBoardGames mirror + Wikipedia summaries stand as sources; keep open, retry at the next doc pass (see `reference/exploding-kittens-notes.md`).
 10. App metrics export is a manual JSON download; no persistence yet.
 11. ~~No CI yet~~ **Resolved 2026-10-25 (D-025):** GitHub Actions runs `typecheck` + `test` + `build` on every push to main and on PRs (Node 22). Sim stays local/run-on-demand.

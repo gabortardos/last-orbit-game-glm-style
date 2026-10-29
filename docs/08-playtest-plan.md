@@ -1,12 +1,12 @@
 # 08 — Playtest Plan: first five sessions (v0.2, 2026-10-25)
 
-Instrument: `apps/hotseat` (auto-logs metrics; export JSON per match) OR paper deck printed from `04-card-catalogue.md`. Both acceptable; digital preferred (accurate metrics).
+Instrument: `apps/hotseat` (auto-logs metrics; export JSON per match) OR the printable paper deck in `docs/16-playtest-kit.md`. Both acceptable; digital preferred (accurate metrics). Zero-prep facilitation (teach-in script, observation sheet, paper rulings): `docs/16`.
 
 ## PT-01 — Vanilla core, 3 players (gate: is the loop fun?)
 
 - **Hypothesis:** the core loop (play→draw, ruptures, reinsertion) is fun with ZERO modules.
 - **Excluded:** Sun Fury, Derelicts, factions, combos beyond component pairs.
-- **Deck:** v0.2 (N=3). **Duration target:** 8–15 min.
+- **Deck:** v0.3 core (46 actions, modules off — D-026; matches the app's toggles-off config and the sim's vanilla rows). **Duration target:** 8–15 min.
 - **Metrics:** match length; turns/player; first-elimination turn; eliminated downtime; card usage; dead cards; steal/override frequencies; comeback flag.
 - **Subjective (1–5):** fun, tension, clarity, agency, humour, "would replay".
 - **Pass:** fun ≥4, clarity ≥4, replay ≥4/5 for ≥2 of 3 testers. **Revise:** any metric 3–3.5. **Reject:** fun <3 → core loop redesign (return to ledger).

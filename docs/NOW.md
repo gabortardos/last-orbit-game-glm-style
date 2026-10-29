@@ -11,7 +11,7 @@
 ### Next actions (in order)
 
 1. **Gábor:** refresh http://localhost:5173 → 🤖 Solo vs AI → check the six fixes feel right (especially the reaction window: does the live ✅/🚫 state + "flip" copy make override parity obvious?). Round 5 notes → `docs/09`.
-2. **Gábor decision D-015/D-016** (`docs/15` menu, B now = Scrap): **(a)** Storm+Wind · **(b)** +Scrap · **(c)** +Ion Surge & Tractor Snag · **(d)** all · **(e)** veto.
+2. **Gábor decision D-015/D-016/D-018** (`docs/15` menu): **(a)** Storm+Wind · **(b)** +Scrap · **(c)** +Ion Surge & Tractor Snag · **(d)** a+b+c · **(f)** a+c+**Deflectors** (Uno-style redirect+escalate — Gábor's proposal, drafted as Candidate D) · **(g)** all · **(e)** veto. **D requires C.**
 3. Implement chosen cards → extend tests beyond 28 → sim gate vs v0.2 baseline → solo-vs-AI feel test → freeze rules v0.3 → schedule PT-01.
 
 ### PT-00 status
@@ -21,6 +21,10 @@ Rounds 1–4 closed (onboarding → fixed; music/reveal/tooltips → done; solo 
 ### Watch-list (do not forget)
 
 Salvage power (unmeasured by bots) · Scan hoarding · Fury pacing at depth 5 (Fury≥4 in 85–99% of games) · Derelict kingmaking · 2p viability (13 min, comeback needs 2p proxy) · human pass-turn behaviour (bots turtle 72%) · bot difficulty: greedy only — more policies are cheap if solo feels too easy/hard.
+
+### Where the faction layer lives (Gábor asked, round-4 addendum)
+
+Player specialties/strengths/weaknesses = **P2 "Modules & factions"** in `docs/13-roadmap.md`. Material ready: `docs/14-civilization-bible.md` (8 civs direction table; per-civ checklist incl. captain personality + strength/weakness/play-style identity + faction power draft), `docs/02` opportunity #4, D-011 combo revisit. Gate order per standing rule: PT-01/02 vanilla core first (asymmetry must not mask core problems), then pilot faction **Mercury**; solo-vs-AI can pre-test faction balance cheaply once drafted. Escalation (Candidate D) is a natural faction lever later — noted in `docs/15` D.
 
 ## Session 1, evening continuation — 2026-10-25 ✅
 

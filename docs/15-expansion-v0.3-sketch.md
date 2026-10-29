@@ -39,7 +39,29 @@ v0.2 nastiness is all theft (Boarding, Requisition, pairs) or turn-skipping (Fly
 - 🧲 **Tractor Snag** (×2): *Play: target captain discards down to 3 cards (their choice).* The anti-hoarding tool — the watch-list already flags Scan/Containment hoarding as a risk; this is the in-fiction answer. Their choice → answerable, less feel-bad than Ion Surge, fun to watch ("what do they give up?").
 - No luck-axis counterpart needed: these are agency-axis (see guardrail 4) — Override parity is the counterweight, and both feed the revenge fantasy (Derelicts module turns every victim into a later ghost signal).
 
-**Deck math warning (corrected round 4):** at 4 captains the deck is ~47 cards (38 base + 6 🛡️ + 3 ☀️). The full menu (A +4 cards, C +4 cards; B adds 0 if Scrap reuses existing Components) takes it 47 → 55 and dilutes rupture density 6.4% → 5.5%. Rule: if the sim gate shows projected match length creeping past ~15 min, **substitute** rather than add (candidate trims: −1 Gravity Slingshot, −1 Deep-Space Scan — both high-copy action cards).
+## Candidate D — escalation: pass the problem forward (designer's Uno note, round-4 addendum)
+
+> "Like in the card game Uno: a player triggers an attack like +2 or +4, and the next player can counteract by doubling down and passing the problem forward to another player." — Gábor
+
+What it adds: today the reaction window is binary (Override cancels, or the action happens). D gives the **current target** a third button: don't cancel — **redirect and amplify**.
+
+- ↪️ **Deflector** (reaction card, ×2): *When you are the target of an attack, play this from your hand: choose any other living captain as the new target; the attack's payload grows by 1 (⚡ Ion Surge discards +1 card; non-scaling attacks like 🤝/🏴‍☠️ theft simply redirect without growing).*
+- Chain rules: each captain may deflect **once per chain**; payload caps at +3; the window reopens on the new target after every hop (same reopen rule as Overrides — everyone can still react).
+- **One Override cancels the entire chain** — attacker and deflectors all lose their played cards. Stacking is therefore a gamble: the bigger the problem grows, the more motivated the table is to kill it. Self-balancing.
+- 2p: redirect bounces straight back to the attacker +1 — "I'm not taking this" tennis; the once-per-captain cap keeps it finite.
+
+Why it's a good fit here:
+1. The reaction window already exists in engine + UI (round-4 clarity pass) — D is one more button in it, not a new system.
+2. Exactly the "positive nastiness" Gábor wants (same axis as D-016), with table spectacle: a hot-potato flare orbiting the table, growing.
+3. Thematically native: problems get passed *along the orbit*; the Sun's bad temper is a shared hazard.
+4. Anti-hoarding synergy: holding a Deflector changes everyone's attack calculus (bluff surface), and paying cards to deflect feeds the same economy 🧲 Tractor Snag pressures.
+5. Faction hook (P2): strength/weakness identities can lean on it later (e.g. Mercury speedsters deflect free once per match; Jupiter Stormkin amplify) — to note in doc 14 when that phase opens.
+
+**Guardrails:** D **requires C** — Ion Surge is its scaling payload; theft attacks must NOT scale (stealing 2–3 cards snowballs the attacker; Uno's +2 destroys rather than profits, for a reason). Sim-gate additions: match length, elimination spread, deflect frequency (bots deflect greedily).
+
+Cost: small engine change (pending payload grows + target swap; window logic unchanged); ReactionOverlay gains one button, visible to the current target only. Deck +2.
+
+**Deck math warning (corrected round 4, incl. D):** at 4 captains the deck is ~47 cards (38 base + 6 🛡️ + 3 ☀️). The full menu (A +4, C +4, D +2; B adds 0 if Scrap reuses existing Components) takes it 47 → 57 and dilutes rupture density 6.4% → 5.3%. Rule: if the sim gate shows projected match length creeping past ~15 min, **substitute** rather than add (candidate trims: −1 Gravity Slingshot, −1 Deep-Space Scan — both high-copy action cards).
 
 **Deferred mischief (revisit with factions):** 📡 Signal Jamming (peek at a hand + lock one card type for a turn — needs per-player restriction state) · 🎯 Targeting Toll (pay 1 card to act next turn) · taker-chooses theft (rejected at D-002 as too swingy).
 
@@ -51,7 +73,7 @@ v0.2 nastiness is all theft (Boarding, Requisition, pairs) or turn-skipping (Fly
 
 ## Proposed path
 
-1. Gábor picks a menu item: **(a)** A only · **(b)** A+B · **(c)** A+C · **(d)** A+B+C · **(e)** veto / other direction.
-   Staging recommendation if undecided: ship **(b)** first (sim-gated), then C as a second wave after solo-vs-AI feel tests — one new axis at a time keeps cause-and-effect readable in playtests.
+1. Gábor picks from the menu (mix freely, but **D requires C**): **(a)** A only · **(b)** A+B · **(c)** A+C · **(d)** A+B+C · **(f)** A+C+D · **(g)** A+B+C+D · **(e)** veto / other direction.
+   Staging recommendation if undecided: ship **(b)** first (sim-gated, zero new interaction surface), then the mischief wave **C+D** as a second release after solo-vs-AI feel tests — one new axis at a time keeps cause-and-effect readable in playtests.
 2. Implement → 28+ tests extended → sim gate (doc 10 deltas) → solo-vs-AI feel test.
 3. If clean → freeze into rules v0.3 for PT-01 with friends.

@@ -59,3 +59,7 @@ Append-only. Never delete entries. One block per session.
   6. **"Why pass the device vs the AI?" (bug)** — the handoff gate fired on the human's own turn starts in solo mode. Gate is now pass-and-play-only (≥2 human seats); DrawReveal and Requisition-give copy are solo-aware too.
   7. **"What does Fury mean?"** — the HUD tooltip was an unreadable title-attribute. Fury HUD is now a button that opens the Mission Briefing; Setup hint expanded; `fury_up` log lines state the current reinsertion limit ("within the top 15/10/7/5").
 - Ratings: deferred to next round (fix-first session).
+
+**Round-4 addendum (same day, designer feedback):**
+- Proposal: **Uno-style attack escalation** — "when a player triggers an attack, the next player can counteract by doubling down and passing the problem forward to another player." Drafted as **Candidate D** (↪️ Deflector: redirect + payload +1; once per captain per chain; one Override cancels the whole chain) → `docs/15`, **D-018 PROPOSED** (requires C; theft never scales).
+- Question: where do player characteristics / strengths / weaknesses live in the plan? → **P2 "Modules & factions"** (`docs/13-roadmap.md`): 8 civilizations, pilot Mercury; per-civ checklist already includes "Captain: personality" and "Strength/weakness/play-style identity & counter-relationships" (`docs/14-civilization-bible.md`). Sequenced after PT-01/02 by the gate rule (core problems must not hide behind asymmetry); solo-vs-AI can pre-test the pilot faction cheaply when P2 opens.

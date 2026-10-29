@@ -83,7 +83,7 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
 
       <label className="row">
         <input type="checkbox" checked={sunFury} onChange={(e) => setSunFury(e.target.checked)} />
-        <span>🌞 Sun Fury <span className="hint">— every containment enrages the Sun; late ruptures get harder to bury</span></span>
+        <span>🌞 Sun Fury <span className="hint">— every contained ☀️ +1 Fury; from Fury 2, a contained ☀️ must go back within the top 15 cards (then 10, 7, 5) — the Sun ends the race faster</span></span>
       </label>
       <label className="row">
         <input type="checkbox" checked={derelicts} onChange={(e) => setDerelicts(e.target.checked)} />

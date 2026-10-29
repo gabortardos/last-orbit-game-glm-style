@@ -18,9 +18,10 @@ export function SoundButton({ className = 'ghost' }: { className?: string }) {
 }
 
 /** Shows the drawer what they drew, before the device passes on. */
-export function DrawReveal({ game, reveal, onDone }: {
+export function DrawReveal({ game, reveal, solo, onDone }: {
   game: GameState;
   reveal: { player: number; card: CardKind };
+  solo?: boolean; // solo vs AI: nobody to pass to — the bots take it from here
   onDone: () => void;
 }) {
   const p = game.players[reveal.player];
@@ -32,7 +33,7 @@ export function DrawReveal({ game, reveal, onDone }: {
         <h3>🃏 {p.name} drew:</h3>
         <div className="drawcard"><span className="emoji">{info.emoji}</span> <b>{info.name}</b></div>
         <p className="hint">{info.blurb}</p>
-        <p className="hint dim">{stillMe ? 'You owe another turn — stay at the controls.' : `Next up: ${game.players[game.activePlayer]?.name ?? '—'} — then pass the device.`}</p>
+        <p className="hint dim">{stillMe ? 'You owe another turn — stay at the controls.' : solo ? `Next up: ${game.players[game.activePlayer]?.name ?? '—'} 🤖 — watch their move in the log.` : `Next up: ${game.players[game.activePlayer]?.name ?? '—'} — then pass the device.`}</p>
         <button className="primary" onClick={onDone}>Got it</button>
       </div>
     </div>
@@ -95,13 +96,18 @@ function fmtEntry(game: GameState) {
       case 'pending_cancelled': return `Action cancelled by override.`;
       case 'draw': return `${name(d.player)} draws a card (${d.deckLeft} left in deck)`;
       case 'rupture_reveal': return `☀️ SOLAR RUPTURE tears open on ${name(d.player)}'s flagship!`;
-      case 'fury_up': return `🌞 The Sun rages — Fury ${d.fury}/5`;
+      case 'fury_up': {
+        const f = Number(d.fury);
+        const lim = f >= 2 ? furyDepthLimit(f) : null;
+        return `🌞 The Sun rages — Fury ${f}/5${lim ? ` (contained ☀️ must go back within the top ${lim} cards)` : ''}`;
+      }
       case 'contained': return `🛡️ ${name(d.player)} contains the rupture!`;
       case 'eliminated': return `💥 ${name(d.player)}'s flagship is disabled and towed home.`;
       case 'flyby_debt': return `🚀 ${name(d.player)} owes ${d.amount} turn(s) — Forced Flyby!`;
       case 'turn_skipped': return `${name(d.player)} ends a turn without drawing.`;
       case 'direction': return `↔️ Play direction reversed!`;
-      case 'steal': return `🪝 ${name(d.to)} steals a card from ${name(d.from)}.`;
+      case 'steal': return `🪝 ${name(d.to)} steals a random card from ${name(d.from)}!`;
+      case 'steal_card': return `🪝 You got: ${CARD_INFO[d.card as CardKind].name}.`;
       case 'give': return `🤝 ${name(d.from)} gives a card to ${name(d.to)}.`;
       case 'fizzle': return `…their hand is empty. Nothing happens.`;
       case 'scan_seen': return `🔭 You saw the top ${(d.cards as CardKind[]).length} cards.`;
@@ -124,11 +130,27 @@ export function ReactionOverlay({ game, dispatch, humans }: {
   const undecided = eligibleReactorIds(game).filter((id) => !pending.passed.includes(id));
   const solo = humans !== undefined && humans.length === 1;
   if (solo && !undecided.some((id) => humans.includes(id))) return null; // bots resolve themselves in the log
+  const stack = pending.overrides.length;
+  const cancelled = stack % 2 === 1; // odd stack = action is cancelled
+  const target = pending.target !== undefined ? game.players[pending.target] : null;
   return (
     <div className="overlay">
       <div className="modal">
-        <h3>{game.players[pending.initiator].name} plays {reasonText(pending.reason)}</h3>
-        <p className="hint">Overrides cancel the previous Override — odd stack cancels the action.</p>
+        <h3>
+          {game.players[pending.initiator].name} plays {reasonText(pending.reason)}
+          {target && <> — target: <b>{target.name}</b></>}
+        </h3>
+        <p className={`stackline ${cancelled ? 'red' : 'green'}`}>
+          {stack === 0
+            ? '✅ No Overrides yet — as it stands, the action WILL happen.'
+            : cancelled
+              ? `🚫 ${stack} Override${stack > 1 ? 's' : ''} — as it stands, the action is CANCELLED.`
+              : `✅ ${stack} Overrides — they flip each other out: the action WILL happen.`}
+        </p>
+        <p className="hint">
+          Every Override <b>flips</b> the outcome (even = happens, odd = cancelled). After each Override everyone
+          else may respond again — that&apos;s why you&apos;re still asked: your Override could flip it back.
+        </p>
         {undecided.map((id) => {
           const p = game.players[id];
           if (solo && !humans.includes(id)) {
@@ -149,9 +171,13 @@ export function ReactionOverlay({ game, dispatch, humans }: {
                 title={p.alive && !hasCard ? 'No Comms Override in hand' : p.alive ? 'Play Comms Override' : 'Spend Final Transmission'}
                 onClick={() => dispatch({ type: 'OVERRIDE', player: id })}
               >
-                {p.alive ? '📡 Override' : '📡 Final Transmission'}
+                {p.alive
+                  ? (cancelled ? '📡 Override — restore it' : '📡 Override — CANCEL it')
+                  : '📡 Final Transmission'}
               </button>
-              <button className="ghost" onClick={() => dispatch({ type: 'PASS', player: id })}>Pass</button>
+              <button className="ghost" onClick={() => dispatch({ type: 'PASS', player: id })}>
+                {cancelled ? 'Keep it cancelled' : 'Let it happen'}
+              </button>
             </div>
           );
         })}
@@ -219,11 +245,22 @@ function GiveModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: 
   if (game.phase !== 'choice' || game.awaiting?.type !== 'give') return null;
   const giver = game.players[game.awaiting.from];
   if (humans && humans.length === 1 && !humans.includes(giver.id)) return null; // AI gives on its own
+  const taker = game.players[game.awaiting.to];
+  const soloGiver = humans !== undefined && humans.length === 1 && humans.includes(giver.id);
   return (
     <div className="overlay">
       <div className="modal">
-        <h3>🤝 Emergency Requisition</h3>
-        <p className="hint">Pass the device to <b>{giver.name}</b> — they choose 1 card to give to {game.players[game.awaiting.to].name}.</p>
+        {soloGiver ? (
+          <>
+            <h3>🤝 {taker.name} requisitions your supplies</h3>
+            <p className="hint">Choose 1 card to hand over — your choice, but it&apos;s going to {taker.name}.</p>
+          </>
+        ) : (
+          <>
+            <h3>🤝 Emergency Requisition</h3>
+            <p className="hint">Pass the device to <b>{giver.name}</b> — they choose 1 card to give to {taker.name}.</p>
+          </>
+        )}
         <div className="hand">
           {[...new Set(giver.hand)].map((k) => (
             <button key={k} className="card" title={CARD_INFO[k].blurb} onClick={() => dispatch({ type: 'GIVE', player: giver.id, card: k })}>

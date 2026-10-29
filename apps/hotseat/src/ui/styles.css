@@ -117,6 +117,12 @@ button { font: inherit; }
 .botchip { color: var(--dim); font-style: italic; font-size: 0.85rem; }
 .lone { color: var(--dim); font-size: 0.7rem; }
 
+/* ---------- reaction window clarity (PT-00 round 4) ---------- */
+.stackline { font-size: 0.95rem; margin: 2px 0 8px; }
+.stackline.red { color: #ff9f8a; }
+.stackline.green { color: #9fe0a0; }
+.hud .fury { background: none; border: none; color: inherit; cursor: pointer; font: inherit; padding: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }

@@ -49,7 +49,9 @@ function executeEffect(s: GameState, pending: PendingAction): void {
         const card = t.hand.splice(pick.value, 1)[0];
         initiator.hand.push(card);
         s.stats.steals += 1;
-        addLog(s, 'steal', { from: t.id, to: initiator.id, card, via: pending.reason }, { only: initiator.id });
+        // who robbed whom is public (the victim must know); the loot itself is private (PT-00 r4)
+        addLog(s, 'steal', { from: t.id, to: initiator.id, via: pending.reason });
+        addLog(s, 'steal_card', { to: initiator.id, card }, { only: initiator.id });
       }
       s.phase = 'command';
       break;

@@ -101,7 +101,7 @@ export function applyCommand(state: GameState, cmd: Command): ApplyResult {
       if (i < 0) return err('card not in hand');
       from.hand.splice(i, 1);
       s.players[s.awaiting.to].hand.push(cmd.card);
-      addLog(s, 'give', { from: from.id, to: s.awaiting.to, card: cmd.card }, { only: s.awaiting.to });
+      addLog(s, 'give', { from: from.id, to: s.awaiting.to, card: cmd.card }); // the exchange is public; the card shows only in each hand
       s.awaiting = null;
       s.phase = 'command';
       return ok(s);

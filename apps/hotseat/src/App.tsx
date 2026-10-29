@@ -6,6 +6,8 @@ import type { BotPolicy, CardKind, Command, GameState } from '@last-orbit/game-c
 import Setup from './ui/Setup';
 import GameView from './ui/GameView';
 import { DrawReveal, HandoffGate } from './ui/Overlays';
+import { sfx } from './audio';
+import type { Sfx } from './audio';
 
 export interface StartOptions {
   playerCount: number;
@@ -19,6 +21,14 @@ export interface StartOptions {
 const BOT_POLICY: BotPolicy = 'greedy';
 const BOT_THINK_MS = 1100; // command-phase pacing so bot turns are watchable
 const BOT_REACT_MS = 850;
+
+/** Public log events that get a quiet stinger (audio.ts). */
+const LOG_SFX: Record<string, Sfx> = {
+  play: 'play', override: 'override', transmission: 'override', pending_cancelled: 'cancelled',
+  steal: 'steal', steal_card: 'steal', give: 'give', flyby_debt: 'flyby',
+  rupture_reveal: 'rupture', contained: 'contained', fury_up: 'fury',
+  eliminated: 'eliminated', win: 'win',
+};
 
 export default function App() {
   const [game, setGame] = useState<GameState | null>(null);
@@ -40,7 +50,7 @@ export default function App() {
     humansRef.current = opts.humans;
     setHumans(opts.humans);
     setGame(g);
-    setGateFor(opts.humans.includes(g.activePlayer) ? g.activePlayer : null);
+    setGateFor(opts.humans.length > 1 && opts.humans.includes(g.activePlayer) ? g.activePlayer : null); // solo: no device passing
     setReveal(null);
     setError(null);
   }, []);
@@ -57,7 +67,8 @@ export default function App() {
         setError(null);
         const hs = humansRef.current;
         if (res.state.phase === 'command' && res.state.activePlayer !== cur.activePlayer) {
-          setGateFor(hs.includes(res.state.activePlayer) ? res.state.activePlayer : null); // no gate on AI turns
+          // handoff gate is a pass-and-play privacy tool only — never in solo vs AI
+          setGateFor(hs.length > 1 && hs.includes(res.state.activePlayer) ? res.state.activePlayer : null);
         }
         if (cmd.type === 'END_TURN_DRAW' && hs.includes(cmd.player)) {
           // show the drawer what they drew before the device moves on (humans only)
@@ -101,6 +112,17 @@ export default function App() {
 
   const report = useMemo(() => (game && game.phase === 'game_over' ? matchReport(game) : null), [game]);
 
+  // sound design: quiet stingers follow the public event log
+  const seenLog = useRef(0);
+  useEffect(() => {
+    if (!game) { seenLog.current = 0; return; }
+    for (const e of game.log.slice(seenLog.current)) {
+      const k = LOG_SFX[e.type];
+      if (k) sfx(k);
+    }
+    seenLog.current = game.log.length;
+  }, [game]);
+
   if (!game) return <Setup onStart={start} />;
 
   // whose eyes the UI shows the table through (solo: always the human's seat)
@@ -112,7 +134,7 @@ export default function App() {
         <HandoffGate game={game} player={gateFor} onDone={() => setGateFor(null)} />
       )}
       {reveal && (
-        <DrawReveal game={game} reveal={reveal} onDone={() => setReveal(null)} />
+        <DrawReveal game={game} reveal={reveal} solo={humans.length === 1} onDone={() => setReveal(null)} />
       )}
       <GameView game={game} viewer={viewer} humans={humans} dispatch={dispatch} error={error} report={report} onNewGame={() => { setGame(null); setGateFor(null); setReveal(null); }} />
     </div>

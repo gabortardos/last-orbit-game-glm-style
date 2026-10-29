@@ -18,14 +18,15 @@ Append-only. Statuses: PROPOSED · ADOPTED · APPROVED (Gábor) · REVERSED (wit
 | D-012 | 2026-10-25 | Session-1 scope = D ("docs + repo + hotseat prototype + Monte Carlo report") | **APPROVED** | Gábor chose maximum scope |
 | D-013 | 2026-10-25 | Hotseat app ships an onboarding layer: auto-opening Mission Briefing (premise, goal, turn flow, rupture loop, override parity, modules, card reference), per-card effect tooltips via `CARD_INFO.blurb`, goal reminders on Setup + handoff gate + in-game ❓ Help | ADOPTED | PT-00 blocker: without context a new player "cannot have a valuable test" — first real playtest finding |
 | D-014 | 2026-10-25 | Hotseat app gets **Solo vs AI mode**: one human seat, remaining seats played by greedy bots (`botCommandFor`, ~1 s pacing, private info stays private); pass-and-play mode unchanged | ADOPTED | PT-00 round 3: solo hotseat yields no real data when the designer controls all seats |
-| D-015 | 2026-10-25 | v0.3 expansion direction: ☄️ Micrometeoroid Storm + 🌟 Solar Wind draw-step pair (equal weight), optional component density 3+3 — sketch in `docs/15-expansion-v0.3-sketch.md` | **PROPOSED** | Gábor: "other dangers and absolutely equal other opportunities… maintain integrity and gameplay flow and joy"; sim-gated before humans |
+| D-015 | 2026-10-25 | v0.3 expansion direction: ☄️ Micrometeoroid Storm + 🌟 Solar Wind draw-step pair (equal weight), optional lone-Component floor use — sketch in `docs/15-expansion-v0.3-sketch.md` *(revised round 4: "density 3+3" was a miscount — the deck already has 4+4; Candidate B is now "Scrap")* | **PROPOSED** | Gábor: "other dangers and absolutely equal other opportunities… maintain integrity and gameplay flow and joy"; sim-gated before humans |
 | D-016 | 2026-10-25 | v0.3 mischief axis: ⚡ Ion Surge (target discards 1 random card) + 🧲 Tractor Snag (target discards down to 3, their choice) — nasty-but-never-fatal, Overrideable | **PROPOSED** | Gábor's design note: "players love being tricky and — in a positive way — nasty with each other"; fills the destruction/harassment gap (v0.2 attacks are all theft) |
+| D-017 | 2026-10-25 | Clarity pass on interaction surfaces: reaction window shows live Override parity + the attack target, buttons state their effect; theft events public (card identity private); handoff gate = pass-and-play only; audio v2 (lower bed, Am–F–C–G cycle, sub pulse, log-driven stingers); Fury HUD opens the briefing | ADOPTED | PT-00 round 4: override parity, attack targets and Fury were undecipherable in solo vs AI; "why pass the device vs AI?" |
 
 ## Pending decisions (need Gábor)
 
 - Final game title (working title provisional).
 - PT-01 timing & tester recruitment (3 humans).
-- D-015/D-016 combined pick (`docs/15` menu): **(a)** A only · **(b)** A+B · **(c)** A+C · **(d)** A+B+C · **(e)** veto/other.
+- D-015/D-016 combined pick (`docs/15` menu; B revised round 4): **(a)** A only · **(b)** A+B · **(c)** A+C · **(d)** A+B+C · **(e)** veto/other.
 
 ## Resolved
 

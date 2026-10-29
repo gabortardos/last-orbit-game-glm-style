@@ -1,5 +1,27 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, night continuation — 2026-10-25 ✅
+
+**Phase:** P1 Core validation. PT-00 round 4 (solo vs AI) feedback triaged and fixed in one pass (D-017).
+
+**Built this session:** reaction-window clarity (live ✅/🚫 Override-parity state, attack target named, effect-labeled buttons) · theft visibility (who-robbed-whom public, loot identity private — new `steal_card` line) · solo mode de-gated (no more "pass the device" vs AI anywhere; DrawReveal + Requisition copy solo-aware) · audio v2 (bed 0.16→0.10, Am–F–C–G pad cycle, sub heartbeat, 11 log-driven stingers) · Fury explained (HUD button → briefing, richer Setup hint, log lines state the reinsertion limit) · doc 15 Candidate B corrected: deck already has 4+4 Components — the fix is a lone-Component floor use (**🔧 Scrap**: discard 1 Component to peek at the top deck card), not density.
+
+**All green:** typecheck · 28/28 tests · build.
+
+### Next actions (in order)
+
+1. **Gábor:** refresh http://localhost:5173 → 🤖 Solo vs AI → check the six fixes feel right (especially the reaction window: does the live ✅/🚫 state + "flip" copy make override parity obvious?). Round 5 notes → `docs/09`.
+2. **Gábor decision D-015/D-016** (`docs/15` menu, B now = Scrap): **(a)** Storm+Wind · **(b)** +Scrap · **(c)** +Ion Surge & Tractor Snag · **(d)** all · **(e)** veto.
+3. Implement chosen cards → extend tests beyond 28 → sim gate vs v0.2 baseline → solo-vs-AI feel test → freeze rules v0.3 → schedule PT-01.
+
+### PT-00 status
+
+Rounds 1–4 closed (onboarding → fixed; music/reveal/tooltips → done; solo instrument limit → solo vs AI built; round 4 clarity/privacy/audio fixes → D-017). Round 5 = next solo pass, then v0.3 candidates.
+
+### Watch-list (do not forget)
+
+Salvage power (unmeasured by bots) · Scan hoarding · Fury pacing at depth 5 (Fury≥4 in 85–99% of games) · Derelict kingmaking · 2p viability (13 min, comeback needs 2p proxy) · human pass-turn behaviour (bots turtle 72%) · bot difficulty: greedy only — more policies are cheap if solo feels too easy/hard.
+
 ## Session 1, evening continuation — 2026-10-25 ✅
 
 **Phase:** P1 Core validation (pre-PT-01). Solo vs AI is now the primary designer instrument.

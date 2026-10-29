@@ -18,9 +18,16 @@ Born from PT-00 round 3 (2026-10-25): *more dangers, and as absolutely equal oth
 
 Cost: ~zero new UI (draw reveal already exists — both cards show there), one new branch in the draw step. Deck 44 → 48.
 
-## Candidate B — component density (fixes PT-00 confusion)
+## Candidate B — component floor use (fixes PT-00 confusion; **revised round 4**)
 
-Components were "never met / couldn't use" in solo play. UI hint added same day ("· find its twin"). Structural option: raise ❄️/🔩 from 2+2 to 3+3 copies (deck 48 → 52 with Pair A) so pairs actually assemble. Sim-verifiable (pair-play rate, steal count).
+Fact check (round 4): the deck already carries **4 ❄️ + 4 🔩** (8 of ~47 cards ≈ 17%) — the original "raise 2+2 → 3+3" idea was a miscount, and density was never the problem. Bots assemble pairs fine (~1.1 pair-plays/game in sims). Why a human fired zero in solo: a **lone Component is dead weight that bot Requisitions strip first** (their GIVE_ORDER hands Components over before anything else), and a pair needs both twins in one hand across several turns of theft pressure.
+
+Fix direction — give a **lone Component a floor use** so it's never a pure dead card:
+
+- 🔧 **Scrap** (leading option): *Play a single Component as your action: discard it to view the top card of the deck (privately).* Cheap, thematic (strip the part for parts), feeds the scan/burn/dodge loop, and makes every drawn Component a real choice: info now vs. pair-steal later.
+- Alternative (pairs naturally with Candidate C): *When an effect forces you to discard at random (⚡ Ion Surge), you may discard a Component instead.* Turns Components into partial insurance — more decision, more to remember.
+
+Sim-verifiable: lone-Component scrap rate, pair-play rate, burn-after-scrap rate.
 
 ## Candidate C — mischief: nasty-but-never-fatal (Gábor's note, PT-00 round 3)
 
@@ -32,7 +39,7 @@ v0.2 nastiness is all theft (Boarding, Requisition, pairs) or turn-skipping (Fly
 - 🧲 **Tractor Snag** (×2): *Play: target captain discards down to 3 cards (their choice).* The anti-hoarding tool — the watch-list already flags Scan/Containment hoarding as a risk; this is the in-fiction answer. Their choice → answerable, less feel-bad than Ion Surge, fun to watch ("what do they give up?").
 - No luck-axis counterpart needed: these are agency-axis (see guardrail 4) — Override parity is the counterweight, and both feed the revenge fantasy (Derelicts module turns every victim into a later ghost signal).
 
-**Deck math warning:** the full v0.3 menu (A 4 cards + B 4 cards + C 4 cards) takes the deck 44 → 56 and dilutes rupture density 6.8% → 5.4%. Rule: if the sim gate shows projected match length creeping past ~15 min, **substitute** rather than add (candidate trims: −1 Gravity Slingshot, −1 Deep-Space Scan — both high-copy action cards).
+**Deck math warning (corrected round 4):** at 4 captains the deck is ~47 cards (38 base + 6 🛡️ + 3 ☀️). The full menu (A +4 cards, C +4 cards; B adds 0 if Scrap reuses existing Components) takes it 47 → 55 and dilutes rupture density 6.4% → 5.5%. Rule: if the sim gate shows projected match length creeping past ~15 min, **substitute** rather than add (candidate trims: −1 Gravity Slingshot, −1 Deep-Space Scan — both high-copy action cards).
 
 **Deferred mischief (revisit with factions):** 📡 Signal Jamming (peek at a hand + lock one card type for a turn — needs per-player restriction state) · 🎯 Targeting Toll (pay 1 card to act next turn) · taker-chooses theft (rejected at D-002 as too swingy).
 

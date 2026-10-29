@@ -49,9 +49,13 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
         <span>Turn <b>{game.turnCount}</b></span>
         <span>Direction <b>{game.direction === 1 ? '↻' : '↺'}</b></span>
         {game.config.modules.sunFury && (
-          <span className="fury" title="Sun Fury: every containment +1; limits how deep a contained rupture may be buried">
+          <button
+            className="fury"
+            onClick={() => setHelp(true)}
+            title={`Sun Fury ${game.sunFury}/5 — every contained ☀️ enrages the Sun (+1). From Fury 2, a contained ☀️ must be reinserted within the top 15 cards (Fury 3 → 10, 4 → 7, 5 → 5) — burying it deep gets harder as the Sun gets angrier. Click for the briefing.`}
+          >
             Fury {Array.from({ length: 5 }, (_, i) => <span key={i} className={i < game.sunFury ? 'pip on' : 'pip'}>●</span>)}
-          </span>
+          </button>
         )}
         <SoundButton />
         <button className="ghost" onClick={() => setHelp(true)} title="Rules, goal and card reference">❓ Help</button>

@@ -38,7 +38,7 @@ A captain with no playable desires may simply draw. Hand size has no cap; an emp
 ## 4. Reaction Window & Comms Override
 
 1. When an action card (or Component pair) is played, it becomes a **pending action**. A window opens for **every other living captain**, in any order.
-2. Each eligible captain may **Pass** or play a **Comms Override** (from hand). A **Derelict** (module: on) may instead spend their single **Final Transmission**.
+2. Each eligible captain may **Pass** or play a **Comms Override** (from hand). A **Derelict** (module: on) may instead spend their single **Final Transmission**. Captains with **no possible response** (no Override in hand; not the current target holding an unused Deflector; no armed Final Transmission) are **skipped automatically** — a forced pass carries no decision, so the window never waits on one (D-020).
 3. Each Override/Transmission cancels the previous Override. After every eligible captain has passed with no new Override, the stack resolves: **odd number of Overrides → pending action is cancelled** (cards still discarded); **even → action executes**. The window then closes; play continues.
 4. **Cannot be overridden:** drawing a card, revealing a Solar Rupture, playing a Containment Field, ending/starting turns. Everything else can.
 5. A cancelled action never happens; its targets are not affected. Cards played into the window (actions and Overrides) are always discarded regardless of outcome.
@@ -110,6 +110,7 @@ Play card(s) → window → resolve → (turn ended?) → no: play more / draw �
 
 ## Change log
 
+- v0.3, round-5 refinements (2026-10-25): reaction windows auto-skip captains with no possible response — no forced "let it happen" clicks (D-020) · app: flight log pinned as a side rail, never covered by other windows (D-021).
 - v0.3: expansion pack (pick g) — ☄️ Storm + 🌟 Solar Wind draw-step events · 🔧 Scrap floor use for lone Components · ⚡ Ion Surge + 🧲 Tractor Snag destruction attacks · ↪️ Deflector escalation (§4.6, E-13…E-17) · sim-gate trim −1 Scan, −1 Slingshot (D-019) → 46 action cards.
 - v0.2: reaction-window formalization; flyby interest rule + cap 6; mandatory containment (E-5); salvage restrictions; reversal-in-2p ruling; reshuffle edge; Sun Fury & Derelict modules.
 - v0.1: first draft (master prompt hypothesis).

@@ -7,6 +7,7 @@
   --gold: #ffb84d;
   --danger: #ff5d5d;
   --ok: #59d98c;
+  --railw: 340px; /* flight-log side rail width (D-021) */
 }
 
 * { box-sizing: border-box; }
@@ -55,9 +56,13 @@ button { font: inherit; }
 .debt { color: var(--gold); }
 .pinfo { color: var(--dim); font-size: 0.85rem; }
 
-.log { background: var(--panel); border-radius: 12px; padding: 10px 14px; height: 170px; overflow-y: auto; font-size: 0.88rem; display: flex; flex-direction: column; gap: 3px; }
+/* Flight log: pinned side rail, always visible — overlays must never cover it (D-021). */
+.log { position: fixed; top: 12px; right: 12px; bottom: 12px; width: var(--railw); z-index: 120; background: var(--panel); border: 1px solid #232b47; border-radius: 12px; padding: 10px 14px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 18px 60px #000a; }
+.loghead { color: var(--gold); font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid #232b47; padding-bottom: 6px; }
+.logbody { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .logline { color: var(--dim); }
 .logline.loud { color: var(--ink); font-weight: 600; }
+.app { padding-right: calc(var(--railw) + 24px); } /* keep the table clear of the rail */
 
 .command { background: var(--panel); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; position: sticky; bottom: 10px; }
 .handlabel { color: var(--dim); font-size: 0.9rem; }
@@ -70,7 +75,7 @@ button { font: inherit; }
 .chooser { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
 /* ---------- overlays ---------- */
-.overlay { position: fixed; inset: 0; background: #05070fcc; display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+.overlay { position: fixed; inset: 0; background: #05070fcc; display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px calc(var(--railw) + 40px) 16px 16px; } /* modals center in the space left of the log rail */
 .modal { background: var(--panel); border: 1px solid #2c3554; border-radius: 16px; padding: 22px 26px; max-width: 460px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 18px 60px #000a; }
 .modal.wide { max-width: 560px; }
 .modal h2, .modal h3 { margin: 0; color: var(--gold); }
@@ -125,4 +130,15 @@ button { font: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
+}
+
+/* ---------- flight-log rail responsiveness (D-021) ---------- */
+@media (max-width: 1240px) {
+  :root { --railw: 280px; }
+}
+@media (max-width: 880px) {
+  :root { --railw: 0px; }
+  .app { padding-right: 0; }
+  .overlay { padding: 16px; }
+  .log { position: static; width: auto; height: 200px; box-shadow: none; } /* back in flow on small screens */
 }

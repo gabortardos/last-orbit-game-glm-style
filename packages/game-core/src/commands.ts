@@ -1,10 +1,28 @@
 import { DEFLECT_CAP, SCALING, TARGETED, furyDepthLimit, isComponent } from './cards';
-import { addLog, cloneState, eligibleReactorIds, eliminate, endTurnAndAdvance } from './engine';
+import { addLog, canRespond, cloneState, eligibleReactorIds, eliminate, endTurnAndAdvance } from './engine';
 import { resolvePending } from './resolve';
 import { shuffled } from './rng';
 import type { ApplyResult, CardKind, Command, GameState } from './types';
 
 const CARD_PLAYABLE: CardKind[] = ['flyby', 'burn', 'scan', 'slingshot', 'requisition', 'boarding', 'reversal', 'salvage', 'ion_surge', 'tractor'];
+
+/**
+ * D-020: auto-passes every eligible captain who cannot actually respond (no Override,
+ * not the target with an unused Deflector, no armed Final Transmission). When nobody
+ * can respond, the window resolves immediately — the app never waits on a forced
+ * "let it happen". Call at every point the window (re)opens: PLAY, OVERRIDE, DEFLECT.
+ */
+function skipNoResponders(s: GameState): void {
+  const pending = s.pending;
+  if (!pending) return;
+  const eligible = eligibleReactorIds(s);
+  const passed = pending.passed.slice();
+  for (const id of eligible) {
+    if (!passed.includes(id) && !canRespond(s, id)) passed.push(id);
+  }
+  s.pending = { ...pending, passed };
+  if (s.pending.passed.length >= eligible.length) resolvePending(s);
+}
 
 /** Validates and applies a command to a cloned state. Pure: input state is never mutated. */
 export function applyCommand(state: GameState, cmd: Command): ApplyResult {
@@ -44,6 +62,7 @@ export function applyCommand(state: GameState, cmd: Command): ApplyResult {
       s.stats.overridesPlayed += 1;
       s.stats.maxOverrideStack = Math.max(s.stats.maxOverrideStack, overrides.length);
       addLog(s, 'override', { player: cmd.player, stack: overrides.length, viaCard });
+      skipNoResponders(s); // the window reopens — re-skip captains with nothing to add
       return ok(s);
     }
     case 'PASS': {
@@ -83,6 +102,7 @@ export function applyCommand(state: GameState, cmd: Command): ApplyResult {
       s.stats.deflections += 1;
       s.stats.maxGrowth = Math.max(s.stats.maxGrowth, growth);
       addLog(s, 'deflect', { by: cmd.player, to: cmd.target, reason: pending.reason, growth });
+      skipNoResponders(s); // the window reopens on the new target — re-skip the powerless
       return ok(s);
     }
     case 'GIVE': {
@@ -213,6 +233,7 @@ function cmdPlay(s: GameState, cmd: Extract<Command, { type: 'PLAY' }>): ApplyRe
   s.stats.overrideWindows += 1;
   s.phase = 'reaction';
   addLog(s, 'play', { player: p.id, cards: cards.slice(), target: cmd.target, salvage: cmd.salvageKind });
+  skipNoResponders(s); // nobody able to respond? resolve without a single forced pass
   return ok(s);
 }
 

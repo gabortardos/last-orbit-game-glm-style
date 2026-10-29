@@ -107,6 +107,21 @@ export function eligibleReactorIds(s: GameState): number[] {
   return out;
 }
 
+/**
+ * True when the captain can actually DO something in the current reaction window:
+ * hold a Comms Override, be the current target with an unused Deflector (§4.6),
+ * or be a Derelict with an armed Final Transmission. Everyone else is auto-passed —
+ * a forced pass carries no decision, so the window never waits on it (D-020).
+ */
+export function canRespond(s: GameState, id: number): boolean {
+  const pending = s.pending;
+  if (!pending || id === pending.initiator) return false;
+  const p = s.players[id];
+  if (!p.alive) return s.config.modules.derelicts && !p.transmissionUsed;
+  if (p.hand.includes('override')) return true;
+  return pending.target === id && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id);
+}
+
 /** Ends the current turn and starts the next (consuming owed turns when asked). */
 export function endTurnAndAdvance(s: GameState, consumeDebt: boolean): void {
   if (s.winner !== null) {

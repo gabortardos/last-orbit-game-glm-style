@@ -206,10 +206,10 @@ describe('↪️ Deflector (escalation)', () => {
     expect(s.pending?.target).toBe(c);
     expect(s.pending?.growth).toBe(1);
     expect(s.pending?.deflectors).toEqual([b]);
-    expect(s.pending?.passed).toEqual([]); // window reopened
+    expect(s.pending?.passed).toEqual([b, d]); // b's Deflector is spent and d never had one — both auto-passed (D-020); only c can still act
     s = ok(applyCommand(s, { type: 'DEFLECT', player: c, target: d }));
-    expect(s.pending?.growth).toBe(2);
-    s = passAll(s);
+    // both deflectors spent, nobody holds an Override → the window self-resolves (D-020)
+    expect(s.pending).toBeNull();
     expect(s.players[d].hand).toHaveLength(1); // 1 + growth 2 = 3 jettisoned
     expect(s.stats.deflections).toBe(2);
     expect(s.stats.maxGrowth).toBe(2);
@@ -269,7 +269,9 @@ describe('↪️ Deflector (escalation)', () => {
     s0.players[c].hand = ['flyby', 'coolant', 'hull'];
     let s = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['boarding'], target: b }));
     s = ok(applyCommand(s, { type: 'DEFLECT', player: b, target: c }));
-    expect(s.pending?.growth).toBe(0); // theft never scales (D-018)
+    // theft never scales (D-018) and — nobody left able to respond — the window self-resolves (D-020)
+    expect(s.pending).toBeNull();
+    expect(s.stats.maxGrowth).toBe(0);
     s = passAll(s);
     expect(s.players[c].hand).toHaveLength(2); // robbed instead of b
     expect(s.players[a].hand).toHaveLength(2); // scan + the loot
@@ -295,7 +297,7 @@ describe('↪️ Deflector (escalation)', () => {
     const s0 = rig(5);
     const a = s0.activePlayer;
     const [b, c, d, e] = [0, 1, 2, 3, 4].filter((i) => i !== a);
-    s0.players[a].hand = ['ion_surge', 'scan', 'burn', 'flyby', 'slingshot'];
+    s0.players[a].hand = ['ion_surge', 'scan', 'burn', 'flyby', 'slingshot', 'coolant'];
     s0.players[b].hand = ['deflector'];
     s0.players[c].hand = ['deflector'];
     s0.players[d].hand = ['deflector'];
@@ -305,9 +307,93 @@ describe('↪️ Deflector (escalation)', () => {
     s = ok(applyCommand(s, { type: 'DEFLECT', player: c, target: d }));
     s = ok(applyCommand(s, { type: 'DEFLECT', player: d, target: e }));
     s = ok(applyCommand(s, { type: 'DEFLECT', player: e, target: a })); // growth 4 → capped at 3
-    expect(s.pending?.growth).toBe(3);
-    s = passAll(s);
-    expect(s.players[a].hand).toEqual([]); // jettisoned 1 + 3
+    // every deflector is spent and nobody holds an Override → the window self-resolves (D-020)
+    expect(s.phase).toBe('command');
+    expect(s.pending).toBeNull();
     expect(s.stats.maxGrowth).toBe(3);
+    s = passAll(s);
+    expect(s.players[a].hand).toHaveLength(1); // 6 cards − ⚡ played − (1 + 3 capped) jettisoned
+    expect(s.stats.maxGrowth).toBe(3);
+  });
+});
+
+describe('reaction window auto-skip (D-020)', () => {
+  it('resolves immediately when nobody can respond — no forced passes', () => {
+    const s0 = rig(3);
+    const a = s0.activePlayer;
+    s0.players[a].hand = ['flyby'];
+    for (const p of s0.players) if (p.id !== a) p.hand = ['burn']; // nothing to respond with
+    const s1 = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['flyby'] }));
+    expect(s1.phase).toBe('command');
+    expect(s1.pending).toBeNull();
+    expect(s1.activePlayer).not.toBe(a); // flyby resolved and ended the turn
+    expect(s1.log.some((e) => e.type === 'flyby_debt')).toBe(true);
+  });
+
+  it('only asks captains who can respond; the powerless are auto-passed', () => {
+    const s0 = rig(3);
+    const a = s0.activePlayer;
+    const others = s0.players.filter((p) => p.id !== a).map((p) => p.id);
+    s0.players[a].hand = ['scan'];
+    s0.players[others[0]].hand = ['burn']; // no response possible
+    s0.players[others[1]].hand = ['override'];
+    const s1 = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['scan'] }));
+    expect(s1.phase).toBe('reaction');
+    expect(s1.pending?.passed).toContain(others[0]);
+    expect(s1.pending?.passed).not.toContain(others[1]);
+    expect(applyCommand(s1, { type: 'PASS', player: others[0] }).ok).toBe(false); // already auto-passed
+  });
+
+  it('keeps a target holding a Deflector; after they deflect, the chain can self-resolve', () => {
+    const s0 = rig(3);
+    const a = s0.activePlayer;
+    const [t1, t2] = s0.players.filter((p) => p.id !== a).map((p) => p.id);
+    s0.players[a].hand = ['boarding'];
+    s0.players[t1].hand = ['deflector'];
+    s0.players[t2].hand = ['burn'];
+    const s1 = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['boarding'], target: t1 }));
+    expect(s1.phase).toBe('reaction');
+    expect(s1.pending?.passed).toContain(t2); // bystander skipped
+    expect(s1.pending?.passed).not.toContain(t1); // target still holds a live Deflector
+    const s2 = ok(applyCommand(s1, { type: 'DEFLECT', player: t1, target: t2 }));
+    expect(s2.phase).toBe('command'); // new target powerless, deflector spent → resolves instantly
+    expect(s2.pending).toBeNull();
+    expect(s2.log.some((e) => e.type === 'deflect')).toBe(true);
+    expect(s2.log.some((e) => e.type === 'steal')).toBe(true); // boarding executed on the new target
+  });
+
+  it('a chosen PASS from an Override holder is still legal and closes the window', () => {
+    const s0 = rig(2);
+    const a = s0.activePlayer;
+    const b = s0.players.find((p) => p.id !== a)!.id;
+    s0.players[a].hand = ['scan'];
+    s0.players[b].hand = ['override'];
+    const s1 = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['scan'] }));
+    expect(s1.phase).toBe('reaction'); // b CAN respond, so the window waits
+    const s2 = ok(applyCommand(s1, { type: 'PASS', player: b })); // deliberate pass, card kept
+    expect(s2.phase).toBe('command');
+    expect(s2.players[b].hand).toContain('override');
+    expect(s2.log.some((e) => e.type === 'scan_seen')).toBe(true);
+  });
+
+  it('Derelicts with an armed Final Transmission are still asked; only the powerless are skipped', () => {
+    const s0 = createGame({ playerCount: 3, modules: { sunFury: false, derelicts: true }, seed: 5 });
+    const a = s0.activePlayer;
+    const [dead, alive] = s0.players.filter((p) => p.id !== a).map((p) => p.id);
+    s0.players[a].hand = ['scan'];
+    s0.players[dead].alive = false; // derelict, transmission armed
+    s0.players[dead].hand = [];
+    s0.players[alive].hand = ['burn']; // powerless bystander
+    const s1 = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['scan'] }));
+    expect(s1.phase).toBe('reaction');
+    expect(s1.pending?.passed).toContain(alive);
+    expect(s1.pending?.passed).not.toContain(dead);
+    const s2 = ok(applyCommand(s1, { type: 'OVERRIDE', player: dead })); // Final Transmission
+    // transmission now spent + bystander powerless → the window self-resolves: action cancelled (D-020)
+    expect(s2.pending).toBeNull();
+    expect(s2.phase).toBe('command');
+    expect(s2.players[dead].transmissionUsed).toBe(true);
+    expect(s2.log.some((e) => e.type === 'pending_cancelled')).toBe(true);
+    expect(s2.log.some((e) => e.type === 'scan_seen')).toBe(false);
   });
 });

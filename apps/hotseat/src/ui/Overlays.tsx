@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CARD_INFO, eligibleReactorIds, furyDepthLimit } from '@last-orbit/game-core';
+import { CARD_INFO, canRespond, eligibleReactorIds, furyDepthLimit } from '@last-orbit/game-core';
 import type { CardKind, Command, GameState, LogEntry, MatchReport } from '@last-orbit/game-core';
 import { isMuted, startAudio, toggleMuted } from '../audio';
 
@@ -75,11 +75,14 @@ export function LogFeed({ game, viewer }: { game: GameState; viewer?: number }) 
     ref.current?.scrollTo({ top: ref.current.scrollHeight });
   }, [feed.length]);
   return (
-    <div className="log" ref={ref}>
-      {feed.map((line, i) => (
-        <div key={i} className={`logline ${line.startsWith('☀️') || line.startsWith('💥') || line.startsWith('🏆') ? 'loud' : ''}`}>{line}</div>
-      ))}
-    </div>
+    <aside className="log" aria-label="flight log">
+      <div className="loghead">📜 Flight log</div>
+      <div className="logbody" ref={ref}>
+        {feed.map((line, i) => (
+          <div key={i} className={`logline ${line.startsWith('☀️') || line.startsWith('💥') || line.startsWith('🏆') ? 'loud' : ''}`}>{line}</div>
+        ))}
+      </div>
+    </aside>
   );
 }
 
@@ -140,6 +143,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
   if (game.phase !== 'reaction' || !game.pending) return null;
   const pending = game.pending;
   const undecided = eligibleReactorIds(game).filter((id) => !pending.passed.includes(id));
+  const standingDown = eligibleReactorIds(game).filter((id) => pending.passed.includes(id) && !canRespond(game, id));
   const solo = humans !== undefined && humans.length === 1;
   if (solo && !undecided.some((id) => humans.includes(id))) return null; // bots resolve themselves in the log
   const stack = pending.overrides.length;
@@ -163,10 +167,15 @@ export function ReactionOverlay({ game, dispatch, humans }: {
           Every Override <b>flips</b> the outcome (even = happens, odd = cancelled). After each Override everyone
           else may respond again — that&apos;s why you&apos;re still asked: your Override could flip it back.
         </p>
-        {(pending.deflectors?.length ?? 0) > 0 && (
+        {pending.deflectors?.length ? (
           <p className="hint">
-            ↪️ Deflected {pending.deflectors!.length}× — each hop grows the payload (destruction +1; theft only
+            ↪️ Deflected {pending.deflectors.length}× — each hop grows the payload (destruction +1; theft only
             moves). One Override still kills the <b>whole chain</b>, cards and all.
+          </p>
+        ) : null}
+        {standingDown.length > 0 && (
+          <p className="hint dim">
+            💤 Standing down — no response possible (no 📡, no ↪️ for them): {standingDown.map((id) => game.players[id].name).join(', ')}.
           </p>
         )}
         {undecided.map((id) => {

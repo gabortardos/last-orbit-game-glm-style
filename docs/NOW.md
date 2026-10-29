@@ -1,5 +1,17 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, small hours — round-5 UX refinements (designer request) — 2026-10-25 ✅
+
+**Phase:** P1 Core validation (v0.3 in, awaiting Gábor's round-5 solo feel test).
+
+**Designer asked for two refinements before round 5 — both shipped:**
+1. **No forced "let it happen" clicks (D-020, engine-level):** reaction windows auto-skip captains with no possible response (no 📡 in hand, not the 🎯 target with an unused ↪️, no armed Final Transmission). Nobody able to respond → the action resolves instantly, no overlay. Skipped captains show as "💤 standing down". New `canRespond` export; auto-pass runs whenever a window opens or reopens (PLAY / OVERRIDE / DEFLECT).
+2. **Flight log never covered (D-021, UI):** the log is a pinned side rail (z-above overlays, modals centre in the remaining space, reflows inline below 880px) — history stays visible during reaction/override/draw/help/game-over windows.
+
+**All green:** typecheck · **52/52 tests** (47 → 52: new D-020 suite; 3 deflect tests updated for self-resolving windows) · build · sim (report byte-identical — auto-pass is outcome-neutral for bots).
+
+**Next:** unchanged — Gábor's round-5 solo-vs-AI notes (localhost:5173, refresh), then freeze v0.3 → PT-01. New round-5 watch question: does the standing-down line + always-visible log make bot turns easy enough to follow?
+
 ## Session 1, late night — v0.3 expansion built — 2026-10-25 ✅
 
 **Phase:** P1 Core validation. **Rules are now v0.3** (expansion pack in). Gábor answered the two open design questions and picked menu **(g) — all candidates** (D-015/016/018 ADOPTED).

@@ -35,6 +35,13 @@ Instrument: `apps/hotseat` (auto-logs metrics; export JSON per match) OR the pri
 - Includes: 2× 2-player, 2× 4–5-player full-package matches; final metrics sweep vs sim predictions.
 - **Pass:** all PT-01/03/04 criteria hold together; 2p fun ≥3.5. Then: **freeze v0.2 → open faction design (P2).**
 
+## PT-F1 — Faction pilot pretest, solo vs AI (gate: does the pilot power earn its seat?)
+
+- **Hypothesis:** a once-per-match free redirect gives Mercury real identity (tempo–dodge) without new complexity; bait-out counterplay and the public spent state keep it fair.
+- **Instrument (D-029):** the app, solo vs AI, human seat = ☿ Mercury (Setup → fleet picker), 3 captains, 2–3 matches. Watch: did the power fire? strong-but-baitable or dull? did it ever confuse anyone? did the ready/spent chip stay legible?
+- **Pass:** fires on average ≥ once per match, no "too strong" read, no rules confusion → keep Flare Skip and draft the next civilization. **Too strong or dull:** switch to the drafted fallback **"Slingshot Start"** (once per match, at your turn's start draw 2 then discard 1) and re-run.
+- Sequencing note: per Gábor's directive this pretest runs **in parallel** with the pending vanilla gates — PT-01/02 still validate the core game, and faction *playtests* still wait for them.
+
 ## Recording
 
 Every session appends to `09-playtest-log.md` (template there) same day. Metrics JSON exports archived under `docs/balance/raw/` (add folder when first export exists). Decisions flowing from tests go to `11-decision-log.md`.

@@ -139,7 +139,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
   dispatch: (c: Command) => void;
   humans?: number[]; // solo vs AI: bots decide on their own; only the human's row is interactive
 }) {
-  const [deflecting, setDeflecting] = useState(false);
+  const [redirect, setRedirect] = useState<'card' | 'flare' | null>(null); // ↪️ Deflector or ☿ Flare Skip chooser
   if (game.phase !== 'reaction' || !game.pending) return null;
   const pending = game.pending;
   const undecided = openRespondents(game); // includes a bounced-back initiator holding a live ↪️ (D-022)
@@ -182,7 +182,9 @@ export function ReactionOverlay({ game, dispatch, humans }: {
         {undecided.map((id) => {
           const p = game.players[id];
           const isTarget = pending.target === id;
-          const canDeflect = isTarget && p.alive && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id);
+          const inChain = (pending.deflectors ?? []).includes(id); // ↪️ and ☿ share the once-per-chain limit
+          const canDeflectCard = isTarget && p.alive && p.hand.includes('deflector') && !inChain;
+          const canFlare = isTarget && p.alive && p.faction === 'flareskip' && !p.factionPowerUsed && !inChain;
           if (solo && !humans.includes(id)) {
             return (
               <div key={id} className="reactrow">
@@ -191,22 +193,28 @@ export function ReactionOverlay({ game, dispatch, humans }: {
               </div>
             );
           }
-          if (deflecting && isTarget) {
+          if (redirect && isTarget) {
+            const flare = redirect === 'flare';
             return (
               <div key={id} className="reactrow">
-                <span className="pname">{p.name} ↪️</span>
-                <span className="hint">Send it at:</span>
+                <span className="pname">{p.name} {flare ? '☿' : '↪️'}</span>
+                <span className="hint">{flare ? 'Flare Skip — send it at (free, once per match):' : 'Send it at:'}</span>
                 {game.players.filter((q) => q.alive && q.id !== id).map((q) => (
                   <button
                     key={q.id}
                     className="mini"
                     title={`The attack hits ${q.name} instead${(pending.reason === 'ion_surge' || pending.reason === 'tractor') ? ' and grows by 1' : ''}.`}
-                    onClick={() => { setDeflecting(false); dispatch({ type: 'DEFLECT', player: id, target: q.id }); }}
+                    onClick={() => {
+                      setRedirect(null);
+                      dispatch(flare
+                        ? { type: 'FLARE_SKIP', player: id, target: q.id }
+                        : { type: 'DEFLECT', player: id, target: q.id });
+                    }}
                   >
                     {q.name} ({q.hand.length})
                   </button>
                 ))}
-                <button className="ghost" onClick={() => setDeflecting(false)}>Cancel</button>
+                <button className="ghost" onClick={() => setRedirect(null)}>Cancel</button>
               </div>
             );
           }
@@ -215,13 +223,22 @@ export function ReactionOverlay({ game, dispatch, humans }: {
           return (
             <div key={id} className="reactrow">
               <span className="pname">{p.name}{p.alive ? '' : ' (derelict)'}{isTarget ? ' 🎯' : ''}{isInitiator ? ' ⚔️' : ''}</span>
-              {canDeflect && (
+              {canDeflectCard && (
                 <button
                   className="mini"
                   title="Send this attack at any other captain instead — its payload grows by 1 (⚡ discards +1 card; 🧲 keeps 1 fewer). Once per captain per chain; a single Override still cancels everything."
-                  onClick={() => setDeflecting(true)}
+                  onClick={() => setRedirect('card')}
                 >
                   ↪️ Deflect — pass it on +1
+                </button>
+              )}
+              {canFlare && (
+                <button
+                  className="mini flarebtn"
+                  title="☿ Mercury faction power (once per match): redirect this attack as if playing ↪️ — paying no card (the payload still grows; chain and 📡 rules apply). After this, you are visibly just fast."
+                  onClick={() => setRedirect('flare')}
+                >
+                  ☿ Flare Skip — free redirect +1
                 </button>
               )}
               {!isInitiator && (

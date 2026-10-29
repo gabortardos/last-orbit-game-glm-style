@@ -80,6 +80,7 @@ A captain with no playable desires may simply draw. Hand size has no cap; an emp
 
 - **Sun Fury** — as §6.2. Public 0–5 track; +1 per containment; defines reinsertion depth.
 - **Derelict Interference** — eliminated captains become Derelicts: they hold one **Final Transmission** (free Override usable in any Reaction Window, once per game). Derelicts cannot win, draw, hold cards, or be targeted.
+- **Faction layer (P2 pilot, optional — D-029):** per-seat, off by default (a seat with no faction is a classic captain). ☿ Mercury **Flare Skip**: once per match, when you are the target of an attack, redirect it as if playing ↪️ — paying no card. The payload still grows, §4.6 chain rules and Override parity apply, and the spent power is public.
 
 ## 8. Edge cases & rulings
 
@@ -100,6 +101,7 @@ A captain with no playable desires may simply draw. Hand size has no cap; an emp
 - **E-15 ↪️ Deflector (v0.3):** living targets only (Derelicts cannot deflect); payload growth caps at **+3** per chain; with 2 captains the only legal redirect is back at the attacker — and the attacker may send it right back (a bounce war, D-022) until someone runs out of Deflectors or the cap bites.
 - **E-16 🧲 Tractor Snag (v0.3):** fizzles against a hand at or below the keep-count; the victim discards exactly (hand − keep) cards of their choice. Growth lowers the keep-count (3 → 2 → 1 → 0).
 - **E-17 ⚡ Ion Surge (v0.3):** fizzles on an empty hand; destruction stops early if the hand empties mid-surge. Jettisoned cards are destroyed publicly (identities visible in the discard).
+- **E-18 ☿ Flare Skip (faction pilot, v0.3+):** follows every ↪️ Deflector rule (E-15) except no card is paid and it is once per match per captain; it shares the once-per-captain-per-chain limit with ↪️; a bounced-back attacker may use it (D-022 mirrored); Override parity is unaffected — one 📡 still cancels the whole chain.
 
 ## 9. Victory
 
@@ -111,6 +113,7 @@ Play card(s) → window → resolve → (turn ended?) → no: play more / draw �
 
 ## Change log
 
+- v0.3 faction pilot (2026-10-25): optional per-seat faction layer (D-029) — ☿ Mercury Flare Skip (§7, E-18); classic seats and vanilla configs unchanged (D-030: the civilization bible is readable in-app as the Codex).
 - v0.3, round-5 refinements 2 (2026-10-25): a Deflector bounced back at the attacker may be deflected on again by them (D-022 — the code had over-restricted §4.6) · app: the briefing is reachable at any moment via the always-on ❓ (D-023) · audio v3, four new bed layers (D-024).
 - v0.3, round-5 refinements (2026-10-25): reaction windows auto-skip captains with no possible response — no forced "let it happen" clicks (D-020) · app: flight log pinned as a side rail, never covered by other windows (D-021).
 - v0.3: expansion pack (pick g) — ☄️ Storm + 🌟 Solar Wind draw-step events · 🔧 Scrap floor use for lone Components · ⚡ Ion Surge + 🧲 Tractor Snag destruction attacks · ↪️ Deflector escalation (§4.6, E-13…E-17) · sim-gate trim −1 Scan, −1 Slingshot (D-019) → 46 action cards.

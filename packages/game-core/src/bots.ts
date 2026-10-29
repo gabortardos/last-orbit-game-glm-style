@@ -1,5 +1,5 @@
 import { CARD_INFO, TARGETED, furyDepthLimit } from './cards';
-import { nextAliveId, openRespondents } from './engine';
+import { canFlareSkip, nextAliveId, openRespondents } from './engine';
 import type { CardKind, Command, GameState } from './types';
 
 export type BotPolicy = 'random' | 'greedy';
@@ -45,6 +45,9 @@ function pick<T>(arr: T[], rng: BotRng): T {
 function othersWithCards(s: GameState, me: number, min = 1): number[] {
   return s.players.filter((p) => p.alive && p.id !== me && p.hand.length >= min).map((p) => p.id);
 }
+
+/** Reasons that count as attacks — the "you are attacked" trigger for ↪️ and ☿ Flare Skip. */
+const ATTACK_REASONS = ['boarding', 'pair', 'requisition', 'ion_surge', 'tractor'];
 
 function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command {
   const me = s.activePlayer;
@@ -144,6 +147,11 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
 
   if (policy === 'random') {
     if (!p.alive) return { type: !canOnlyDeflect && rng() < 0.3 ? 'OVERRIDE' : 'PASS', player: me }; // Final Transmission
+    // D-029: the free redirect is worth grabbing when attacked (it costs no card)
+    if (canFlareSkip(s, me) && ATTACK_REASONS.includes(pend.reason) && rng() < 0.6) {
+      const others = s.players.filter((q) => q.alive && q.id !== me);
+      if (others.length > 0) return { type: 'FLARE_SKIP', player: me, target: pick(others, rng).id };
+    }
     if (!canOnlyDeflect && p.alive && pend.target === me && p.hand.includes('deflector') && rng() < 0.3) {
       const others = s.players.filter((q) => q.alive && q.id !== me);
       if (others.length > 0) return { type: 'DEFLECT', player: me, target: pick(others, rng).id };
@@ -151,10 +159,19 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
     return { type: !canOnlyDeflect && hasOverride && rng() < 0.3 ? 'OVERRIDE' : 'PASS', player: me };
   }
 
-  // greedy: attacked and holding a Deflector → pass the problem to the biggest rival hand
-  const attackReasons = ['boarding', 'pair', 'requisition', 'ion_surge', 'tractor'];
+  // greedy: attacked → free Flare Skip first (D-029 — saves the ↪️ card for a later chain),
+  // then a held Deflector; either way pass the problem to the biggest rival hand
   if (
-    p.alive && pend.target === me && attackReasons.includes(pend.reason)
+    p.alive && pend.target === me && ATTACK_REASONS.includes(pend.reason) && canFlareSkip(s, me)
+  ) {
+    const others = s.players.filter((q) => q.alive && q.id !== me);
+    if (others.length > 0) {
+      const to = others.reduce((x, y) => (y.hand.length >= x.hand.length ? y : x));
+      return { type: 'FLARE_SKIP', player: me, target: to.id };
+    }
+  }
+  if (
+    p.alive && pend.target === me && ATTACK_REASONS.includes(pend.reason)
     && p.hand.includes('deflector') && !(pend.deflectors ?? []).includes(me)
   ) {
     const others = s.players.filter((q) => q.alive && q.id !== me);
@@ -167,7 +184,7 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
   // greedy: protect yourself from flyby debt and theft; occasional spite
   const noOwnAction = !canOnlyDeflect;
   const debtVictim = noOwnAction && pend.reason === 'flyby' && nextAliveId(s, s.activePlayer) === me;
-  const victim = noOwnAction && attackReasons.includes(pend.reason) && pend.target === me;
+  const victim = noOwnAction && ATTACK_REASONS.includes(pend.reason) && pend.target === me;
   if (noOwnAction && p.alive && hasOverride && (debtVictim || victim || rng() < 0.15)) return { type: 'OVERRIDE', player: me };
   if (noOwnAction && !p.alive && rng() < 0.25) return { type: 'OVERRIDE', player: me }; // Final Transmission
   return { type: 'PASS', player: me };

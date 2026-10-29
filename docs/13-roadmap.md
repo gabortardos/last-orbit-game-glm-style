@@ -15,11 +15,12 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [x] Chore: GitHub remote + CI (test/typecheck) (2026-10-25, D-025)
 - **Gate to P2:** PT-01/02 pass criteria met; v0.2 rules stable.
 
-## P2 — Modules & factions ⬜
+## P2 — Modules & factions 🔄 (parallel dev lane per Gábor's directive, 2026-10-25)
 
 - [ ] PT-03 Sun Fury · PT-04 Derelicts · PT-05 full package + 2p → freeze rules (v0.3+)
-- [ ] Faction layer design (8 civilizations, one pilot first: Mercury) + Reactor Charge re-evaluation as faction mechanic — **design lane OPEN (D-027):** framework + Mercury pilot drafted (`docs/14` v0.3, D-028 PROPOSED); implementation + faction PTs stay gated on PT-01/02
-- [ ] Civilization bible v1 (deep design per civ) — pilot drafted; 7 civs to go
+- [x] Faction layer design (8 civilizations, pilot first: Mercury) + Reactor Charge re-evaluation menu — framework + Mercury pilot **ADOPTED** (D-028, `docs/14`)
+- [x] Faction layer v1 implemented (2026-10-25, D-029): per-seat opt-in ☿ Flare Skip in engine+app+bots; vanilla configs provably unchanged; solo-vs-AI pretest = **PT-F1** (`docs/08`) before faction PTs
+- [ ] Civilization bible v1 (deep design per civ) — pilot deep-drafted + exposed in-app as the **Codex** (D-030); 7 civs to go
 - **Gate to P3:** frozen rules + at least 1 tested faction; visual brief confirmed.
 
 ## P3 — Visual vertical slice ⬜

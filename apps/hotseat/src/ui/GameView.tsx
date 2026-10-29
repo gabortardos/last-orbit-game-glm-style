@@ -3,6 +3,7 @@ import { CARD_INFO } from '@last-orbit/game-core';
 import type { CardKind, Command, GameState, MatchReport } from '@last-orbit/game-core';
 import { LogFeed, Modals, SoundButton } from './Overlays';
 import Briefing from './Briefing';
+import Codex from './Codex';
 
 interface Props {
   game: GameState;
@@ -17,6 +18,7 @@ interface Props {
 export default function GameView({ game, viewer, humans, dispatch, error, report, onNewGame }: Props) {
   const [choosing, setChoosing] = useState<CardKind[] | null>(null); // play awaiting target/salvage
   const [help, setHelp] = useState(false);
+  const [civs, setCivs] = useState(false);
   const solo = humans.length === 1;
   const me = game.players[viewer];
   const myTurn = game.phase === 'command' && game.activePlayer === viewer;
@@ -57,6 +59,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
             Fury {Array.from({ length: 5 }, (_, i) => <span key={i} className={i < game.sunFury ? 'pip on' : 'pip'}>●</span>)}
           </button>
         )}
+        <button className="ghost" onClick={() => setCivs(true)} title="The eight civilizations of the Grand Solar Rally — lore, comedy wells, real planet facts">📖 Civs</button>
         <button className="ghost" onClick={() => setHelp(true)} title="Rules, goal and card reference">❓ Help</button>
         <button className="ghost" onClick={onNewGame}>New game</button>
       </header>
@@ -67,6 +70,14 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
             <div className="pname">
               {p.name}
               {solo && <span className="chip" title={humans.includes(p.id) ? 'you' : 'AI captain'}>{humans.includes(p.id) ? ' 👤 you' : ' 🤖'}</span>}
+              {p.faction === 'flareskip' && (
+                <span
+                  className={`chip flare ${p.factionPowerUsed ? 'spent' : 'ready'}`}
+                  title="☿ Mercury — Flare Skip: once per match, when attacked, redirect the attack as if playing ↪️ — no card paid. Spent powers are public."
+                >
+                  ☿ Flare Skip {p.factionPowerUsed ? '· spent' : '· ready'}
+                </span>
+              )}
               {!p.alive && ' 💤'}
               {game.turnsOwed[p.id] > 0 && <span className="debt"> +{game.turnsOwed[p.id]}⏱</span>}
               {!p.alive && game.config.modules.derelicts && !p.transmissionUsed && <span title="Final Transmission armed"> 📡</span>}
@@ -152,9 +163,11 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
           even mid-reaction, so card meanings are never more than one tap away */}
       <div className="cornerctl">
         <SoundButton />
+        <button className="ghost" onClick={() => setCivs(true)} title="Civilization codex — open any time, even mid-window">📖</button>
         <button className="ghost" onClick={() => setHelp(true)} title="Rules & card reference — open any time, even mid-window">❓</button>
       </div>
       {help && <Briefing onClose={() => setHelp(false)} sunFury={game.config.modules.sunFury} derelicts={game.config.modules.derelicts} />}
+      {civs && <Codex onClose={() => setCivs(false)} />}
     </div>
   );
 }

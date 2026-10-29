@@ -1,5 +1,18 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, evening — faction pilot ships: ☿ Flare Skip in engine+app + in-game Codex — 2026-10-25 ✅
+
+**Phase:** Gábor's directive — dev proceeds without waiting on his test ("don't lock anything… proceed with the next step"); PT-01/02 remain the validation gates, running in parallel instead of blocking.
+
+**Shipped (D-028 → ADOPTED; D-029/D-030 logged):**
+1. **Engine (opt-in, vanilla provably unchanged):** per-seat `config.factions` (absent/null = classic — all 55 pre-existing tests untouched & green) · `FLARE_SKIP` command mirrors ↪️ DEFLECT minus the card (once per match; shares the once-per-chain limit; growth on destruction only; spent state public) · `canFlareSkip()` wired into window logic (waits on flare-capable targets, D-022 bounce covered) · bots use it (greedy: free redirect before spending a ↪️; random 60%) · `flareSkips` stat + report field. **9 new tests → 64/64.**
+2. **App:** Setup fleet picker (default classic) · public "☿ Flare Skip ready/spent" chips at every seat · reaction-window "free redirect +1" button with target chooser · **Civilization Codex** (`docs/14` on the game screen: 8 civ cards + Mercury deep sheet) reachable from Setup, HUD, and the always-on corner controls (D-023 pattern). Stale "rules v0.2" tagline fixed → v0.3.
+3. **Docs:** `03` §7 faction bullet + E-18 + changelog · `08` PT-F1 pretest section · `11` D-028 ADOPTED + D-029/D-030 · `13` P2 = parallel lane · `14` rule-6 amendment + v0.4 changelog.
+
+**All green:** typecheck · **64/64 tests** · build.
+
+**Next:** Gábor: ① **PT-F1 pretest** — solo vs AI as ☿ Mercury (Setup → fleet), 2–3 matches; note whether the power fires, feels strong-but-baitable or dull (fallback "Slingshot Start" waits) ② round-5 notes + PT-01 whenever ready — the vanilla path is untouched and waiting. Then: next civ deep-draft in `docs/14`; faction PTs after the vanilla PTs.
+
 ## Session 1, afternoon — P2 design lane opened: faction framework + Mercury pilot — 2026-10-25 ✅
 
 **Phase:** P1 gates still pending (round-5 notes → freeze v0.3 → PT-01/02); **P2 design lane now open in parallel (D-027, docs-only)** per Gábor's directive.

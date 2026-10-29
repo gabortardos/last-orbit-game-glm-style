@@ -123,6 +123,22 @@ button { font: inherit; }
 .thinking { text-align: center; color: var(--dim); font-style: italic; padding: 12px 0; }
 .chip { font-size: 0.72rem; color: var(--dim); }
 .botchip { color: var(--dim); font-style: italic; font-size: 0.85rem; }
+
+/* Faction layer (D-029) + civilization codex (D-030) */
+.chip.flare { border: 1px solid var(--gold); border-radius: 8px; padding: 0 6px; }
+.chip.flare.ready { color: var(--gold); }
+.chip.flare.spent { color: var(--dim); border-color: var(--dim); text-decoration: line-through; }
+.flarebtn { border-color: var(--gold); color: var(--gold); }
+.fleetrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0; }
+.fleetrow .flabel { font-size: 0.85rem; color: var(--dim); }
+.fleetpick select { font: inherit; }
+.civgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.civcard { border: 1px solid #ffffff22; border-radius: 10px; padding: 10px 12px; }
+.civcard h4 { margin: 0 0 6px; color: var(--gold); font-size: 0.95rem; }
+.civcard p { margin: 0 0 4px; font-size: 0.85rem; line-height: 1.4; }
+.civcard.pilot { border-color: var(--gold); }
+.civcard .civtag { color: var(--gold); font-size: 0.78rem; }
+.civglyph { font-size: 1.05rem; }
 .lone { color: var(--dim); font-size: 0.7rem; }
 
 /* ---------- reaction window clarity (PT-00 round 4) ---------- */

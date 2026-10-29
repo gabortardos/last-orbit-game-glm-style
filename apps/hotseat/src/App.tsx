@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   applyCommand, botCommandFor, createGame, matchReport, openRespondents,
 } from '@last-orbit/game-core';
-import type { BotPolicy, CardKind, Command, GameState } from '@last-orbit/game-core';
+import type { BotPolicy, CardKind, Command, FactionId, GameState } from '@last-orbit/game-core';
 import Setup from './ui/Setup';
 import GameView from './ui/GameView';
 import { DrawReveal, HandoffGate } from './ui/Overlays';
@@ -16,6 +16,7 @@ export interface StartOptions {
   derelicts: boolean;
   seed: number;
   humans: number[]; // seats controlled by humans; the rest are AI captains
+  factions?: (FactionId | null)[]; // per-seat fleets (D-029); undefined/null seat = classic vanilla
 }
 
 const BOT_POLICY: BotPolicy = 'greedy';
@@ -29,7 +30,7 @@ const LOG_SFX: Record<string, Sfx> = {
   rupture_reveal: 'rupture', contained: 'contained', fury_up: 'fury',
   eliminated: 'eliminated', win: 'win',
   storm_hit: 'storm', storm_discard: 'storm', wind_bonus: 'wind',
-  deflect: 'deflect', surge_hit: 'surge', forced_discard: 'surge', snag_hit: 'snag', snag_discard: 'snag',
+  deflect: 'deflect', flare_skip: 'deflect', surge_hit: 'surge', forced_discard: 'surge', snag_hit: 'snag', snag_discard: 'snag',
 };
 
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
       playerNames: opts.names,
       modules: { sunFury: opts.sunFury, derelicts: opts.derelicts },
       seed: opts.seed,
+      factions: opts.factions,
     });
     humansRef.current = opts.humans;
     setHumans(opts.humans);

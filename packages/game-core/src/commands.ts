@@ -106,6 +106,38 @@ export function applyCommand(state: GameState, cmd: Command): ApplyResult {
       skipNoResponders(s); // the window reopens on the new target — re-skip the powerless
       return ok(s);
     }
+    case 'FLARE_SKIP': {
+      // D-029 ☿ Mercury pilot: a Deflector redirect without paying the card — once per match.
+      // Chain rules are exactly ↪️'s: growth on destruction, once per captain per chain,
+      // the window reopens on the new target, and one 📡 still kills the whole chain.
+      if (s.phase !== 'reaction' || !s.pending) return err('no reaction window open');
+      const pending = s.pending;
+      if (pending.target === undefined) return err('only attacks with a target can be deflected');
+      if (cmd.player !== pending.target) return err('only the current target may deflect');
+      const p = s.players[cmd.player];
+      if (!p.alive) return err('derelicts cannot deflect');
+      if (p.faction !== 'flareskip') return err('no faction power available');
+      if (p.factionPowerUsed) return err('Flare Skip already spent this match');
+      if ((pending.deflectors ?? []).includes(cmd.player)) return err('already deflected in this chain');
+      const t = s.players[cmd.target];
+      if (!t || !t.alive || cmd.target === cmd.player) return err('invalid deflection target');
+      p.factionPowerUsed = true; // spent powers are public (Pillar 4)
+      const growth = (SCALING as readonly string[]).includes(pending.reason)
+        ? Math.min(DEFLECT_CAP, (pending.growth ?? 0) + 1)
+        : pending.growth ?? 0;
+      s.pending = {
+        ...pending,
+        target: cmd.target,
+        growth,
+        deflectors: [...(pending.deflectors ?? []), cmd.player],
+        passed: [], // the window reopens for everyone on the new target
+      };
+      s.stats.flareSkips += 1;
+      s.stats.maxGrowth = Math.max(s.stats.maxGrowth, growth);
+      addLog(s, 'flare_skip', { by: cmd.player, to: cmd.target, reason: pending.reason, growth });
+      skipNoResponders(s); // the window reopens on the new target — re-skip the powerless
+      return ok(s);
+    }
     case 'GIVE': {
       if (s.phase !== 'choice' || s.awaiting?.type !== 'give') return err('no gift to resolve');
       if (cmd.player !== s.awaiting.from) return err('not the giver');

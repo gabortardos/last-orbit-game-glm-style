@@ -25,11 +25,16 @@ export interface ModuleFlags {
   derelicts: boolean;
 }
 
+/** Faction layer (D-029, P2 pilot): per-seat, optional, off by default.
+ *  'flareskip' = Mercury pilot — once per match, free ↪️-redirect when attacked (docs/14 §Pilot). */
+export type FactionId = 'flareskip';
+
 export interface GameConfig {
   playerCount: number; // 2..5
   modules: ModuleFlags;
   seed: number;
   playerNames?: string[];
+  factions?: (FactionId | null)[]; // per-seat factions; absent/null seat = classic (vanilla)
 }
 
 export interface PlayerState {
@@ -39,6 +44,8 @@ export interface PlayerState {
   hand: CardKind[];
   transmissionUsed: boolean; // Derelict Final Transmission (module)
   eliminatedAtTurn: number | null;
+  faction: FactionId | null; // D-029: null = classic captain, no power
+  factionPowerUsed: boolean; // spent powers are public (Pillar 4)
 }
 
 export type PendingReason =
@@ -92,6 +99,7 @@ export interface GameStats {
   scrapsPlayed: number; // Components scrapped for a peek
   forcedDiscards: number; // cards destroyed by ⚡ Ion Surge
   deflections: number; // ↪️ Deflector uses
+  flareSkips: number; // ☿ faction power uses (D-029; cardless, counted separately)
   maxGrowth: number; // tallest escalation chain payload growth
 }
 
@@ -122,6 +130,7 @@ export type Command =
   | { type: 'OVERRIDE'; player: number }
   | { type: 'PASS'; player: number }
   | { type: 'DEFLECT'; player: number; target: number } // target-only reaction: redirect + payload +1
+  | { type: 'FLARE_SKIP'; player: number; target: number } // ☿ Mercury power (D-029): DEFLECT without paying the card, once per match
   | { type: 'GIVE'; player: number; card: CardKind } // resolve Requisition gift
   | { type: 'STORM_DISCARD'; player: number; card: CardKind } // resolve ☄️ Storm jettison
   | { type: 'SNAG_DISCARD'; player: number; cards: CardKind[] } // resolve 🧲 Tractor Snag discards

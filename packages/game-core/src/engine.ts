@@ -34,6 +34,8 @@ export function createGame(config: GameConfig): GameState {
     hand: [],
     transmissionUsed: false,
     eliminatedAtTurn: null,
+    faction: config.factions?.[i] ?? null, // D-029: faction layer is opt-in; absent = classic vanilla
+    factionPowerUsed: false,
   }));
 
   // 1) shuffle the 46 base cards, deal 4 each; 2) 1 containment each;
@@ -53,7 +55,7 @@ export function createGame(config: GameConfig): GameState {
   rngState = startPick.state;
 
   const s: GameState = {
-    config: { ...config, modules: { ...config.modules } },
+    config: { ...config, modules: { ...config.modules }, ...(config.factions ? { factions: config.factions.slice() } : {}) },
     rngState,
     players,
     deck: final.deck,
@@ -74,7 +76,7 @@ export function createGame(config: GameConfig): GameState {
       overrideWindows: 0, overridesPlayed: 0, transmissionsUsed: 0, cancelledActions: 0,
       maxOverrideStack: 0, flybysPlayed: 0, maxDebt: 0, drawsTotal: 0, reshuffles: 0,
       steals: 0, fizzles: 0, scansPlayed: 0, salvagesPlayed: 0,
-      scrapsPlayed: 0, forcedDiscards: 0, deflections: 0, maxGrowth: 0,
+      scrapsPlayed: 0, forcedDiscards: 0, deflections: 0, flareSkips: 0, maxGrowth: 0,
     },
   };
   addLog(s, 'game_start', { playerCount: n, modules: s.config.modules, seed, first: s.activePlayer });
@@ -107,25 +109,40 @@ export function eligibleReactorIds(s: GameState): number[] {
   return out;
 }
 
+/** D-029 ☿ Flare Skip: true when this captain may fire their once-per-match free ↪️-redirect
+ *  right now — they are the current target, alive, faction pilot, power unspent, and they
+ *  have not already redirected in this chain (the limit is shared with ↪️, docs/14 §Pilot). */
+export function canFlareSkip(s: GameState, id: number): boolean {
+  const pending = s.pending;
+  if (!pending || pending.target !== id) return false;
+  const p = s.players[id];
+  return p.alive && p.faction === 'flareskip' && !p.factionPowerUsed
+    && !(pending.deflectors ?? []).includes(id);
+}
+
 /**
  * True when the captain can actually DO something in the current reaction window:
- * hold a Comms Override, be the current target with an unused Deflector (§4.6),
- * or be a Derelict with an armed Final Transmission. Everyone else is auto-passed —
- * a forced pass carries no decision, so the window never waits on it (D-020).
+ * hold a Comms Override, be the current target with an unused Deflector (§4.6) or an
+ * unspent ☿ Flare Skip (D-029), or be a Derelict with an armed Final Transmission.
+ * Everyone else is auto-passed — a forced pass carries no decision, so the window
+ * never waits on it (D-020).
  */
 export function canRespond(s: GameState, id: number): boolean {
   const pending = s.pending;
   if (!pending) return false;
   const p = s.players[id];
   // The initiator never Overrides their own action — but when a Deflector bounces
-  // the attack back at them they ARE the current target and may deflect it on (D-022).
+  // the attack back at them they ARE the current target and may deflect it on (D-022)
+  // with a ↪️ card or their unspent Flare Skip.
   if (id === pending.initiator) {
     return pending.target === id && p.alive
-      && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id);
+      && !(pending.deflectors ?? []).includes(id)
+      && (p.hand.includes('deflector') || canFlareSkip(s, id));
   }
   if (!p.alive) return s.config.modules.derelicts && !p.transmissionUsed;
   if (p.hand.includes('override')) return true;
-  return pending.target === id && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id);
+  return (pending.target === id && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id))
+    || canFlareSkip(s, id);
 }
 
 /** D-022: everyone the open reaction window must wait on a decision from — every

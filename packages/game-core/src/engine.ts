@@ -115,11 +115,33 @@ export function eligibleReactorIds(s: GameState): number[] {
  */
 export function canRespond(s: GameState, id: number): boolean {
   const pending = s.pending;
-  if (!pending || id === pending.initiator) return false;
+  if (!pending) return false;
   const p = s.players[id];
+  // The initiator never Overrides their own action — but when a Deflector bounces
+  // the attack back at them they ARE the current target and may deflect it on (D-022).
+  if (id === pending.initiator) {
+    return pending.target === id && p.alive
+      && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id);
+  }
   if (!p.alive) return s.config.modules.derelicts && !p.transmissionUsed;
   if (p.hand.includes('override')) return true;
   return pending.target === id && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id);
+}
+
+/** D-022: everyone the open reaction window must wait on a decision from — every
+ *  eligible reactor who hasn't passed, plus the initiator when a Deflector bounced
+ *  the attack back at them and they still hold an unused Deflector of their own. */
+export function respondentIds(s: GameState): number[] {
+  if (!s.pending) return [];
+  const ids = eligibleReactorIds(s);
+  if (canRespond(s, s.pending.initiator)) ids.push(s.pending.initiator);
+  return ids;
+}
+
+/** The subset of `respondentIds` the window is still waiting on right now. */
+export function openRespondents(s: GameState): number[] {
+  if (!s.pending) return [];
+  return respondentIds(s).filter((id) => !s.pending!.passed.includes(id));
 }
 
 /** Ends the current turn and starts the next (consuming owed turns when asked). */

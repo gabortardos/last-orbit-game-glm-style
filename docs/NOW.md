@@ -1,5 +1,18 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, small hours+ — round-5 refinements pass 2 (designer request) — 2026-10-25 ✅
+
+**Phase:** P1 Core validation (v0.3 in, awaiting Gábor's round-5 solo feel test).
+
+**Three designer asks, all shipped:**
+1. **Help anywhere (D-023):** a 🔊+❓ cluster floats above every overlay, so the Mission Briefing (full card reference included) opens at any moment — mid-reaction included. The briefing sits above all other modals.
+2. **Audio v3 (D-024):** "still a bit empty" → + per-chord bass swells, a slow chord-tone lead through the space echo, a high shimmer 5th, a solar-wind noise bed, pluck fifths. Master level unchanged.
+3. **Deflector bounce-back (D-022):** a bounced attacker holding an unused ↪️ is now asked (deflect it on or take the hit) — engine (`canRespond`, new `respondentIds`/`openRespondents`), PASS/resolution, both bot policies, the reaction overlay and the solo driver all aligned; still never Override-your-own-action. This was the real cause of "why can't they deflect the deflection": bots bounce at the biggest hand (usually the human) and the old code silently skipped the attacker.
+
+**All green:** typecheck · **55/55 tests** (52 → 55: bounce-war, initiator-skip, initiator-pass suites) · build · sim (16,500 games; 2p tallest escalation 1→2, everything else within noise — report updated, lengths/seats hold).
+
+**Next:** unchanged — Gábor's round-5 solo-vs-AI notes → freeze v0.3 → **PT-01** (3 humans hotseat, metrics JSON export per docs/08 — the export button is already in the game-over modal). New round-5 watch questions: does the anytime-❓ actually get used? Is the bed fuller without turning busy? Do bounce-backs feel fun rather than gotcha?
+
 ## Session 1, small hours — round-5 UX refinements (designer request) — 2026-10-25 ✅
 
 **Phase:** P1 Core validation (v0.3 in, awaiting Gábor's round-5 solo feel test).

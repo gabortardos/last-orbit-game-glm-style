@@ -1,5 +1,5 @@
 import { CARD_INFO, TARGETED, furyDepthLimit } from './cards';
-import { eligibleReactorIds, nextAliveId } from './engine';
+import { nextAliveId, openRespondents } from './engine';
 import type { CardKind, Command, GameState } from './types';
 
 export type BotPolicy = 'random' | 'greedy';
@@ -9,8 +9,9 @@ export type BotRng = () => number; // caller-owned [0,1) stream, keeps sims dete
 export function botCommand(s: GameState, policy: BotPolicy, rng: BotRng): Command | null {
   if (s.phase === 'game_over') return null;
   if (s.phase === 'reaction') {
-    const eligible = eligibleReactorIds(s).filter((id) => !s.pending!.passed.includes(id));
-    return eligible.length ? botReactionFor(s, eligible[0], policy, rng) : null;
+    // openRespondents includes the bounced initiator when they may still deflect (D-022)
+    const open = openRespondents(s);
+    return open.length ? botReactionFor(s, open[0], policy, rng) : null;
   }
   if (s.phase === 'choice') return botChoiceFor(s, choiceDecider(s), policy, rng);
   return botCommandPhase(s, policy, rng);
@@ -29,9 +30,9 @@ function choiceDecider(s: GameState): number {
 export function botCommandFor(s: GameState, player: number, policy: BotPolicy, rng: BotRng): Command | null {
   if (s.phase === 'game_over') return null;
   if (s.phase === 'reaction') {
-    if (!s.pending || player === s.pending.initiator) return null;
-    const eligible = eligibleReactorIds(s).filter((id) => !s.pending!.passed.includes(id));
-    return eligible.includes(player) ? botReactionFor(s, player, policy, rng) : null;
+    if (!s.pending) return null;
+    // a bounced-back initiator may still deflect, but never Override their own action (D-022)
+    return openRespondents(s).includes(player) ? botReactionFor(s, player, policy, rng) : null;
   }
   if (s.phase === 'choice') return choiceDecider(s) === player ? botChoiceFor(s, player, policy, rng) : null;
   return s.activePlayer === player ? botCommandPhase(s, policy, rng) : null;
@@ -138,14 +139,16 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
   const p = s.players[me];
   const pend = s.pending!;
   const hasOverride = p.hand.includes('override');
+  // D-022: a bounced-back initiator may only deflect — never Override their own action
+  const canOnlyDeflect = me === pend.initiator;
 
   if (policy === 'random') {
-    if (!p.alive) return { type: rng() < 0.3 ? 'OVERRIDE' : 'PASS', player: me }; // Final Transmission
-    if (p.alive && pend.target === me && p.hand.includes('deflector') && rng() < 0.3) {
+    if (!p.alive) return { type: !canOnlyDeflect && rng() < 0.3 ? 'OVERRIDE' : 'PASS', player: me }; // Final Transmission
+    if (!canOnlyDeflect && p.alive && pend.target === me && p.hand.includes('deflector') && rng() < 0.3) {
       const others = s.players.filter((q) => q.alive && q.id !== me);
       if (others.length > 0) return { type: 'DEFLECT', player: me, target: pick(others, rng).id };
     }
-    return { type: hasOverride && rng() < 0.3 ? 'OVERRIDE' : 'PASS', player: me };
+    return { type: !canOnlyDeflect && hasOverride && rng() < 0.3 ? 'OVERRIDE' : 'PASS', player: me };
   }
 
   // greedy: attacked and holding a Deflector → pass the problem to the biggest rival hand
@@ -162,10 +165,11 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
   }
 
   // greedy: protect yourself from flyby debt and theft; occasional spite
-  const debtVictim = pend.reason === 'flyby' && nextAliveId(s, s.activePlayer) === me;
-  const victim = attackReasons.includes(pend.reason) && pend.target === me;
-  if (p.alive && hasOverride && (debtVictim || victim || rng() < 0.15)) return { type: 'OVERRIDE', player: me };
-  if (!p.alive && rng() < 0.25) return { type: 'OVERRIDE', player: me }; // Final Transmission
+  const noOwnAction = !canOnlyDeflect;
+  const debtVictim = noOwnAction && pend.reason === 'flyby' && nextAliveId(s, s.activePlayer) === me;
+  const victim = noOwnAction && attackReasons.includes(pend.reason) && pend.target === me;
+  if (noOwnAction && p.alive && hasOverride && (debtVictim || victim || rng() < 0.15)) return { type: 'OVERRIDE', player: me };
+  if (noOwnAction && !p.alive && rng() < 0.25) return { type: 'OVERRIDE', player: me }; // Final Transmission
   return { type: 'PASS', player: me };
 }
 

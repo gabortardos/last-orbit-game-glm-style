@@ -57,7 +57,6 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
             Fury {Array.from({ length: 5 }, (_, i) => <span key={i} className={i < game.sunFury ? 'pip on' : 'pip'}>●</span>)}
           </button>
         )}
-        <SoundButton />
         <button className="ghost" onClick={() => setHelp(true)} title="Rules, goal and card reference">❓ Help</button>
         <button className="ghost" onClick={onNewGame}>New game</button>
       </header>
@@ -148,6 +147,13 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
       )}
 
       <Modals game={game} dispatch={dispatch} report={report} onNewGame={onNewGame} viewer={viewer} humans={humans} />
+
+      {/* D-023: sound + help float above every window — the briefing is reachable at any moment,
+          even mid-reaction, so card meanings are never more than one tap away */}
+      <div className="cornerctl">
+        <SoundButton />
+        <button className="ghost" onClick={() => setHelp(true)} title="Rules & card reference — open any time, even mid-window">❓</button>
+      </div>
       {help && <Briefing onClose={() => setHelp(false)} sunFury={game.config.modules.sunFury} derelicts={game.config.modules.derelicts} />}
     </div>
   );

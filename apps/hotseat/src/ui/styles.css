@@ -76,6 +76,9 @@ button { font: inherit; }
 
 /* ---------- overlays ---------- */
 .overlay { position: fixed; inset: 0; background: #05070fcc; display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px calc(var(--railw) + 40px) 16px 16px; } /* modals center in the space left of the log rail */
+.overlay.top { z-index: 150; } /* the briefing floats above every other window (D-023) */
+/* Always-reachable controls (D-023): 🔊 + ❓ hover above every overlay, beside the log rail */
+.cornerctl { position: fixed; top: 12px; right: calc(var(--railw) + 24px); z-index: 130; display: flex; gap: 8px; }
 .modal { background: var(--panel); border: 1px solid #2c3554; border-radius: 16px; padding: 22px 26px; max-width: 460px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 18px 60px #000a; }
 .modal.wide { max-width: 560px; }
 .modal h2, .modal h3 { margin: 0; color: var(--gold); }

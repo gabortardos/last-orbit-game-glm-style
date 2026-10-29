@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  applyCommand, botCommandFor, createGame, eligibleReactorIds, matchReport,
+  applyCommand, botCommandFor, createGame, matchReport, openRespondents,
 } from '@last-orbit/game-core';
 import type { BotPolicy, CardKind, Command, GameState } from '@last-orbit/game-core';
 import Setup from './ui/Setup';
@@ -96,12 +96,8 @@ export default function App() {
     if (game.phase === 'command') {
       actor = hs.includes(game.activePlayer) ? null : game.activePlayer;
     } else if (game.phase === 'reaction') {
-      const pend = game.pending;
-      if (pend) {
-        actor = eligibleReactorIds(game).find(
-          (id) => id !== pend.initiator && !pend.passed.includes(id) && !hs.includes(id),
-        ) ?? null;
-      }
+      // openRespondents includes the bounced initiator when they may still deflect (D-022)
+      actor = openRespondents(game).find((id) => !hs.includes(id)) ?? null;
     } else if (game.phase === 'choice') {
       const aw = game.awaiting;
       // who must answer the pending choice: give → giver; storm/snag → the victim; reinsert → active player

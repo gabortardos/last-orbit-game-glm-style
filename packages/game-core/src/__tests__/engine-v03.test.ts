@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyCommand, createGame } from '../index';
+import { applyCommand, createGame, openRespondents } from '../index';
 import type { CardKind, GameState } from '../index';
 import { NOMOD, ok, passAll } from './helpers';
 
@@ -314,6 +314,61 @@ describe('↪️ Deflector (escalation)', () => {
     s = passAll(s);
     expect(s.players[a].hand).toHaveLength(1); // 6 cards − ⚡ played − (1 + 3 capped) jettisoned
     expect(s.stats.maxGrowth).toBe(3);
+  });
+
+  it('in 2p the attacker may deflect the bounce right back (D-022)', () => {
+    const s0 = rig(2);
+    const a = s0.activePlayer;
+    const b = 1 - a;
+    s0.players[a].hand = ['ion_surge', 'deflector', 'scan', 'burn', 'coolant', 'hull'];
+    s0.players[b].hand = ['deflector', 'burn', 'coolant'];
+    let s = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['ion_surge'], target: b }));
+    s = ok(applyCommand(s, { type: 'DEFLECT', player: b, target: a })); // bounce — growth 1
+    // the window now waits on the bounced initiator: they are the target and hold an unused ↪️
+    expect(s.pending).not.toBeNull();
+    expect(s.pending?.target).toBe(a);
+    expect(openRespondents(s)).toEqual([a]);
+    s = ok(applyCommand(s, { type: 'DEFLECT', player: a, target: b })); // pass the problem right back — growth 2
+    // both deflectors are spent → nobody can respond → the chain self-resolves on b
+    expect(s.pending).toBeNull();
+    expect(s.stats.deflections).toBe(2);
+    expect(s.stats.maxGrowth).toBe(2);
+    expect(s.players[b].hand).toHaveLength(0); // 3 − ↪️ spent − (1 + growth 2) jettisoned
+    expect(s.players[a].hand).toHaveLength(4); // ⚡ played + ↪️ spent, otherwise untouched
+  });
+
+  it('a bounced initiator holding no Deflector is skipped instantly — even with a 📡 in hand', () => {
+    const s0 = rig(2);
+    const a = s0.activePlayer;
+    const b = 1 - a;
+    s0.players[a].hand = ['ion_surge', 'override', 'scan', 'burn'];
+    s0.players[b].hand = ['deflector', 'coolant'];
+    let s = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['ion_surge'], target: b }));
+    s = ok(applyCommand(s, { type: 'DEFLECT', player: b, target: a }));
+    // an Override never lets you cancel your own action (§4.1) → nothing to decide → resolved
+    expect(s.pending).toBeNull();
+    expect(s.log.some((e) => e.type === 'override')).toBe(false);
+    expect(s.players[a].hand).toHaveLength(1); // ⚡ played − (1 + growth 1) jettisoned
+  });
+
+  it('a bounced initiator may simply take the hit — the window waits for their choice (3p)', () => {
+    const s0 = rig(3);
+    const a = s0.activePlayer;
+    const b = (a + 1) % 3;
+    const c = (a + 2) % 3;
+    s0.players[a].hand = ['ion_surge', 'deflector', 'scan', 'burn', 'coolant'];
+    s0.players[b].hand = ['deflector'];
+    s0.players[c].hand = ['burn', 'flyby'];
+    let s = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['ion_surge'], target: b }));
+    expect(s.pending?.passed).toEqual([c]); // c is powerless (D-020); b still holds a live ↪️
+    s = ok(applyCommand(s, { type: 'DEFLECT', player: b, target: a })); // bounce at the attacker
+    expect(s.pending).not.toBeNull(); // the attacker holds a ↪️ — their call now
+    expect(openRespondents(s)).toEqual([a]);
+    expect(applyCommand(s, { type: 'OVERRIDE', player: a }).ok).toBe(false); // never their own action
+    s = ok(applyCommand(s, { type: 'PASS', player: a })); // "let it happen" must be accepted
+    expect(s.pending).toBeNull();
+    expect(s.players[a].hand).toHaveLength(2); // ⚡ played, ↪️ kept, (1 + growth 1) jettisoned
+    expect(s.phase).toBe('command');
   });
 });
 

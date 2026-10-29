@@ -1,5 +1,5 @@
 import { DEFLECT_CAP, SCALING, TARGETED, furyDepthLimit, isComponent } from './cards';
-import { addLog, canRespond, cloneState, eligibleReactorIds, eliminate, endTurnAndAdvance } from './engine';
+import { addLog, canRespond, cloneState, eliminate, endTurnAndAdvance, respondentIds } from './engine';
 import { resolvePending } from './resolve';
 import { shuffled } from './rng';
 import type { ApplyResult, CardKind, Command, GameState } from './types';
@@ -15,13 +15,13 @@ const CARD_PLAYABLE: CardKind[] = ['flyby', 'burn', 'scan', 'slingshot', 'requis
 function skipNoResponders(s: GameState): void {
   const pending = s.pending;
   if (!pending) return;
-  const eligible = eligibleReactorIds(s);
+  const ids = respondentIds(s); // includes the bounced initiator when they can still deflect (D-022)
   const passed = pending.passed.slice();
-  for (const id of eligible) {
+  for (const id of ids) {
     if (!passed.includes(id) && !canRespond(s, id)) passed.push(id);
   }
   s.pending = { ...pending, passed };
-  if (s.pending.passed.length >= eligible.length) resolvePending(s);
+  if (ids.every((id) => passed.includes(id))) resolvePending(s);
 }
 
 /** Validates and applies a command to a cloned state. Pure: input state is never mutated. */
@@ -68,10 +68,11 @@ export function applyCommand(state: GameState, cmd: Command): ApplyResult {
     case 'PASS': {
       if (s.phase !== 'reaction' || !s.pending) return err('no reaction window open');
       const pending = s.pending;
-      if (!eligibleReactorIds(s).includes(cmd.player)) return err('not eligible to respond');
+      if (!respondentIds(s).includes(cmd.player)) return err('not eligible to respond');
       if (pending.passed.includes(cmd.player)) return err('already passed');
-      s.pending = { ...pending, passed: [...pending.passed, cmd.player] };
-      if (s.pending.passed.length >= eligibleReactorIds(s).length) resolvePending(s);
+      const passed = [...pending.passed, cmd.player];
+      s.pending = { ...pending, passed };
+      if (respondentIds(s).every((id) => passed.includes(id))) resolvePending(s);
       return ok(s);
     }
     case 'DEFLECT': {

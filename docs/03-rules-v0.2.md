@@ -46,6 +46,7 @@ A captain with no playable desires may simply draw. Hand size has no cap; an emp
    - Choose **any other living captain**: the attack is redirected at them.
    - Its payload **grows by 1** — ⚡ Ion Surge discards +1 card; 🧲 Tractor Snag lets the new target keep 1 fewer. Theft (🤝/🪝/Component pairs) redirects but **never grows** (D-018).
    - Each captain may deflect **once per chain**; the window reopens for everyone after each Deflector.
+   - The attacker is no exception: if a Deflector bounces the attack back at them, they may spend their own Deflector to send it on again (D-022) — they still may never Override their own action.
    - Override parity counts across the whole chain: **one Override cancels the entire chain** — attacker's and deflectors' cards are all spent. Growing the problem gives the table a bigger reason to kill it.
 
 ## 5. Card effects (summary — full text in `04-card-catalogue.md`)
@@ -96,7 +97,7 @@ A captain with no playable desires may simply draw. Hand size has no cap; an emp
 - **E-12 Deck count and rupture count are public and exact.** The app always displays them.
 - **E-13 🌟 Solar Wind (v0.3):** the extra draw happens immediately and is consumed by whatever comes next — even a ☀️ (contain normally, then the turn ends) or a ☄️ (jettison, then the turn ends). No draw is ever left owed across turns.
 - **E-14 ☄️ Storm against an empty hand** fizzles (Storm discarded, nothing else). The jettison choice cannot be declined — a hit always costs a card if you hold any.
-- **E-15 ↪️ Deflector (v0.3):** living targets only (Derelicts cannot deflect); payload growth caps at **+3** per chain; with 2 captains the only legal redirect is back at the attacker.
+- **E-15 ↪️ Deflector (v0.3):** living targets only (Derelicts cannot deflect); payload growth caps at **+3** per chain; with 2 captains the only legal redirect is back at the attacker — and the attacker may send it right back (a bounce war, D-022) until someone runs out of Deflectors or the cap bites.
 - **E-16 🧲 Tractor Snag (v0.3):** fizzles against a hand at or below the keep-count; the victim discards exactly (hand − keep) cards of their choice. Growth lowers the keep-count (3 → 2 → 1 → 0).
 - **E-17 ⚡ Ion Surge (v0.3):** fizzles on an empty hand; destruction stops early if the hand empties mid-surge. Jettisoned cards are destroyed publicly (identities visible in the discard).
 
@@ -110,6 +111,7 @@ Play card(s) → window → resolve → (turn ended?) → no: play more / draw �
 
 ## Change log
 
+- v0.3, round-5 refinements 2 (2026-10-25): a Deflector bounced back at the attacker may be deflected on again by them (D-022 — the code had over-restricted §4.6) · app: the briefing is reachable at any moment via the always-on ❓ (D-023) · audio v3, four new bed layers (D-024).
 - v0.3, round-5 refinements (2026-10-25): reaction windows auto-skip captains with no possible response — no forced "let it happen" clicks (D-020) · app: flight log pinned as a side rail, never covered by other windows (D-021).
 - v0.3: expansion pack (pick g) — ☄️ Storm + 🌟 Solar Wind draw-step events · 🔧 Scrap floor use for lone Components · ⚡ Ion Surge + 🧲 Tractor Snag destruction attacks · ↪️ Deflector escalation (§4.6, E-13…E-17) · sim-gate trim −1 Scan, −1 Slingshot (D-019) → 46 action cards.
 - v0.2: reaction-window formalization; flyby interest rule + cap 6; mandatory containment (E-5); salvage restrictions; reversal-in-2p ruling; reshuffle edge; Sun Fury & Derelict modules.

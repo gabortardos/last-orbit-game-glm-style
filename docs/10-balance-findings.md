@@ -55,6 +55,7 @@ New-mechanic health checks (trimmed run, all configs):
 4. **Pass-turn rate 72% → 68%** — bots have more worth doing; human read pending PT-01.
 5. **Comebacks 34–41% → 37–43%** — slightly up (destruction creates underdog moments). Seats stay uniform (max seat share within ~1pp of 1/N everywhere) ✔.
 6. **Match length is the cost of content** — +6–8 median turns vs v0.2 at every count, still inside the 10–20 min band; 2p at 14.7 min stays on the watch-list (already flagged as the weakest count).
+7. **Bounce wars live (D-022 re-run)** — the attacker may now deflect a bounced attack onward; 2p tallest escalation 1→2 while every other metric sits within noise (medians 14.7–15.0 min, seats uniform). Rare enough to be a story, not a tax.
 
 **Verdict: v0.3 ships to solo-vs-AI round 5, then PT-01.**
 

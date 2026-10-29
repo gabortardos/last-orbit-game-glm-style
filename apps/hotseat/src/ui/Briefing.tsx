@@ -15,7 +15,7 @@ export default function Briefing({ onClose, sunFury = true, derelicts = true }: 
     ['Components', ['coolant', 'hull']],
   ];
   return (
-    <div className="overlay">
+    <div className="overlay top">
       <div className="modal wide briefing">
         <h2>📖 Mission Briefing</h2>
         <div className="briefing-scroll">

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CARD_INFO, canRespond, eligibleReactorIds, furyDepthLimit } from '@last-orbit/game-core';
+import { CARD_INFO, canRespond, eligibleReactorIds, furyDepthLimit, openRespondents } from '@last-orbit/game-core';
 import type { CardKind, Command, GameState, LogEntry, MatchReport } from '@last-orbit/game-core';
 import { isMuted, startAudio, toggleMuted } from '../audio';
 
@@ -142,7 +142,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
   const [deflecting, setDeflecting] = useState(false);
   if (game.phase !== 'reaction' || !game.pending) return null;
   const pending = game.pending;
-  const undecided = eligibleReactorIds(game).filter((id) => !pending.passed.includes(id));
+  const undecided = openRespondents(game); // includes a bounced-back initiator holding a live ↪️ (D-022)
   const standingDown = eligibleReactorIds(game).filter((id) => pending.passed.includes(id) && !canRespond(game, id));
   const solo = humans !== undefined && humans.length === 1;
   if (solo && !undecided.some((id) => humans.includes(id))) return null; // bots resolve themselves in the log
@@ -170,7 +170,8 @@ export function ReactionOverlay({ game, dispatch, humans }: {
         {pending.deflectors?.length ? (
           <p className="hint">
             ↪️ Deflected {pending.deflectors.length}× — each hop grows the payload (destruction +1; theft only
-            moves). One Override still kills the <b>whole chain</b>, cards and all.
+            moves). Even the attacker may deflect when it bounces back at them. One Override still kills the{' '}
+            <b>whole chain</b>, cards and all.
           </p>
         ) : null}
         {standingDown.length > 0 && (
@@ -210,9 +211,10 @@ export function ReactionOverlay({ game, dispatch, humans }: {
             );
           }
           const hasCard = p.hand.includes('override');
+          const isInitiator = id === pending.initiator; // deflect-only when the attack bounces back at them (D-022)
           return (
             <div key={id} className="reactrow">
-              <span className="pname">{p.name}{p.alive ? '' : ' (derelict)'}{isTarget ? ' 🎯' : ''}</span>
+              <span className="pname">{p.name}{p.alive ? '' : ' (derelict)'}{isTarget ? ' 🎯' : ''}{isInitiator ? ' ⚔️' : ''}</span>
               {canDeflect && (
                 <button
                   className="mini"
@@ -222,16 +224,18 @@ export function ReactionOverlay({ game, dispatch, humans }: {
                   ↪️ Deflect — pass it on +1
                 </button>
               )}
-              <button
-                className="mini"
-                disabled={p.alive && !hasCard}
-                title={p.alive && !hasCard ? 'No Comms Override in hand' : p.alive ? 'Play Comms Override' : 'Spend Final Transmission'}
-                onClick={() => dispatch({ type: 'OVERRIDE', player: id })}
-              >
-                {p.alive
-                  ? (cancelled ? '📡 Override — restore it' : '📡 Override — CANCEL it')
-                  : '📡 Final Transmission'}
-              </button>
+              {!isInitiator && (
+                <button
+                  className="mini"
+                  disabled={p.alive && !hasCard}
+                  title={p.alive && !hasCard ? 'No Comms Override in hand' : p.alive ? 'Play Comms Override' : 'Spend Final Transmission'}
+                  onClick={() => dispatch({ type: 'OVERRIDE', player: id })}
+                >
+                  {p.alive
+                    ? (cancelled ? '📡 Override — restore it' : '📡 Override — CANCEL it')
+                    : '📡 Final Transmission'}
+                </button>
+              )}
               <button className="ghost" onClick={() => dispatch({ type: 'PASS', player: id })}>
                 {cancelled ? 'Keep it cancelled' : 'Let it happen'}
               </button>

@@ -12,7 +12,7 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [ ] PT-01 (3p vanilla) → iterate
 - [ ] PT-02 (4–5p vanilla) → iterate
 - [ ] Fix rules bugs found; update docs same-commit
-- [ ] Chore: GitHub remote + CI (test/typecheck)
+- [x] Chore: GitHub remote + CI (test/typecheck) (2026-10-25, D-025)
 - **Gate to P2:** PT-01/02 pass criteria met; v0.2 rules stable.
 
 ## P2 — Modules & factions ⬜

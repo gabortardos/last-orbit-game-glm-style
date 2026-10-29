@@ -1,5 +1,17 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, dawn — P1 chore: CI live + PT-01 export completeness — 2026-10-25 ✅
+
+**Phase:** P1 Core validation (v0.3 in; round-5 notes pending).
+
+**Plan progress (no design changes):**
+1. **CI (D-025):** GitHub Actions — `npm ci` → typecheck → tests → build on every push to main and on PRs (Node 22). Closes the last non-human P1 chore; known-issue #11 resolved. Sim stays local per balance gate.
+2. **PT-01 export completeness:** the game-over JSON now ships the full end-state inventory — `finalHands` (per captain), `deckRemaining`, `discard`, `exportedAt` — so docs/08's "dead cards" metric is computable offline from a single export (previously only played counts + the winner's hand size).
+
+**All green:** typecheck · **55/55 tests** · build (CI mirrors exactly these).
+
+**Next (both human gates):** ① Gábor's round-5 solo-vs-AI notes (bounce-backs, anytime-❓, music v3 — refresh http://localhost:5173) → **freeze v0.3** · ② schedule **PT-01** (3 humans hotseat; archive metric exports to `docs/balance/raw/`, created on first export per docs/08). Everything else on the P1 checklist is done.
+
 ## Session 1, small hours+ — round-5 refinements pass 2 (designer request) — 2026-10-25 ✅
 
 **Phase:** P1 Core validation (v0.3 in, awaiting Gábor's round-5 solo feel test).

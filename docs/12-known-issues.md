@@ -15,4 +15,4 @@
 8. Bots' knowledge model is same-turn only (greedy plays Scan then decides; no cross-turn memory) — adequate for v0.2 sim; improve in P2 if needed.
 9. Citation gap: official EK rules page was rate-limited (HTTP 429) during session 1; re-verify at next doc pass (see `reference/exploding-kittens-notes.md`).
 10. App metrics export is a manual JSON download; no persistence yet.
-11. No CI yet (add GitHub Actions on `test`+`typecheck` when remote exists — P1 chore).
+11. ~~No CI yet~~ **Resolved 2026-10-25 (D-025):** GitHub Actions runs `typecheck` + `test` + `build` on every push to main and on PRs (Node 22). Sim stays local/run-on-demand.

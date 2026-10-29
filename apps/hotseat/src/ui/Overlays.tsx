@@ -455,7 +455,15 @@ function ScrapModal({ game, viewer }: { game: GameState; viewer?: number }) {
 function GameOverModal({ game, report, onNewGame }: { game: GameState; report: MatchReport | null; onNewGame: () => void }) {
   if (game.phase !== 'game_over' || game.winner === null || !report) return null;
   const download = () => {
-    const blob = new Blob([JSON.stringify({ config: game.config, report, log: game.log }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({
+      config: game.config,
+      report,
+      finalHands: game.players.map((p) => ({ name: p.name, cards: [...p.hand] })),
+      deckRemaining: game.deck.length,
+      discard: [...game.discard],
+      log: game.log,
+      exportedAt: new Date().toISOString(),
+    }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `last-orbit-match-${game.config.seed}.json`;

@@ -1,5 +1,31 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, late night — v0.3 expansion built — 2026-10-25 ✅
+
+**Phase:** P1 Core validation. **Rules are now v0.3** (expansion pack in). Gábor answered the two open design questions and picked menu **(g) — all candidates** (D-015/016/018 ADOPTED).
+
+**Built this session:**
+- **Engine v0.3:** ☄️ Micrometeoroid Storm + 🌟 Solar Wind draw-step events (wind chains pause on storms/contained ruptures, E-13) · 🔧 Scrap (lone Component → private top-card peek, overrideable) · ⚡ Ion Surge (random jettison; scales with Deflectors) · 🧲 Tractor Snag (discard down to 3, victim chooses) · ↪️ **Deflector** — Gábor's Uno-style escalation: target redirects any attack +1 payload (destruction only), once per captain per chain, cap +3, one Override kills the whole chain. New commands `DEFLECT`/`STORM_DISCARD`/`SNAG_DISCARD`; `bonusDraws` draw-chain state; 5 new stats.
+- **Bots:** greedy deflects when targeted (biggest rival hand), surges/snags fat hands, scraps lone Components; both policies resolve storm & snag choices.
+- **UI:** Deflector button + redirect chooser in the reaction window (target-only, 🎯 markers, payload indicator), Storm & Snag discard modals, Scrap private peek, new-card briefing groups + copy, 5 new stingers (storm/wind/surge/snag/deflect), bot choice-decider fix (snag/storm victims now drive correctly).
+- **Sim gate:** 16,500 games × 2 runs. Full menu tripped the doc-15 length warning (2p 15.3 min) → applied the prescribed trim (D-019: −1 🔭 Scan, −1 🌀 Slingshot → 46 action cards, 55 total at 4p). Post-trim: **14.7 / 14.0 / 13.0 / 11.7 min** at 2/3/4/5p — PASS. Deflections ~1/game, tallest chain 2, surges land ~1.2/game, scraps ~4/game, pass-turn 72→68%, comebacks up to 37–43%, seats uniform.
+
+**All green:** typecheck · **47/47 tests** (28 → 47) · build · sim.
+
+### Next actions (in order)
+
+1. **Gábor: solo vs AI round 5** at http://localhost:5173 (refresh; `npm run dev` if stopped). Feel-test the new cards — especially: does the ↪️ Deflector button + payload counter read clearly? Is ⚡/🧲 nastiness fun rather than mean? Notes → `docs/09`.
+2. If round 5 is clean → **freeze v0.3 → schedule PT-01** (3 humans, hotseat; export metrics JSON per `docs/08`).
+3. Watch-list additions from sim: destruction sometimes burns 🛡️ from hands (contained-count −10% — intended squeeze, confirm with humans); 2p at 14.7 min still weakest.
+
+### Watch-list (do not forget)
+
+Salvage power (unmeasured by bots) · Scan hoarding · Fury pacing at depth 5 · Derelict kingmaking · **2p viability (14.7 min — worst case)** · human pass-turn behaviour (bots 68%, was 72%) · ⚡ destroying containments (late-game squeeze) · bot difficulty: greedy only.
+
+### Where the faction layer lives (Gábor asked, round-4 addendum)
+
+Player specialties/strengths/weaknesses = **P2 "Modules & factions"** in `docs/13-roadmap.md`. Material ready: `docs/14-civilization-bible.md` (8 civs direction table; per-civ checklist incl. captain personality + strength/weakness/play-style identity + faction power draft), `docs/02` opportunity #4, D-011 combo revisit. Gate order per standing rule: PT-01/02 vanilla core first (asymmetry must not mask core problems), then pilot faction **Mercury**; solo-vs-AI can pre-test faction balance cheaply once drafted. Escalation (↪️ Deflector) is a natural faction lever later — noted in `docs/15` D.
+
 ## Session 1, night continuation — 2026-10-25 ✅
 
 **Phase:** P1 Core validation. PT-00 round 4 (solo vs AI) feedback triaged and fixed in one pass (D-017).

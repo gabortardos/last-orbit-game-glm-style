@@ -28,6 +28,8 @@ const LOG_SFX: Record<string, Sfx> = {
   steal: 'steal', steal_card: 'steal', give: 'give', flyby_debt: 'flyby',
   rupture_reveal: 'rupture', contained: 'contained', fury_up: 'fury',
   eliminated: 'eliminated', win: 'win',
+  storm_hit: 'storm', storm_discard: 'storm', wind_bonus: 'wind',
+  deflect: 'deflect', surge_hit: 'surge', forced_discard: 'surge', snag_hit: 'snag', snag_discard: 'snag',
 };
 
 export default function App() {
@@ -70,8 +72,9 @@ export default function App() {
           // handoff gate is a pass-and-play privacy tool only — never in solo vs AI
           setGateFor(hs.length > 1 && hs.includes(res.state.activePlayer) ? res.state.activePlayer : null);
         }
-        if (cmd.type === 'END_TURN_DRAW' && hs.includes(cmd.player)) {
-          // show the drawer what they drew before the device moves on (humans only)
+        if (cmd.type === 'END_TURN_DRAW' && hs.includes(cmd.player) && res.state.awaiting === null) {
+          // show the drawer what they drew before the device moves on (humans only;
+          // when a choice is pending — ☄️ storm, contained ☀️ — its own modal tells the story)
           const lastDraw = [...res.state.log].reverse().find((e) => e.type === 'draw');
           const card = lastDraw?.data?.card;
           if (lastDraw?.data?.player === cmd.player && typeof card === 'string') {
@@ -100,7 +103,13 @@ export default function App() {
         ) ?? null;
       }
     } else if (game.phase === 'choice') {
-      const decider = game.awaiting?.type === 'give' ? game.awaiting.from : game.activePlayer;
+      const aw = game.awaiting;
+      // who must answer the pending choice: give → giver; storm/snag → the victim; reinsert → active player
+      const decider = aw?.type === 'give'
+        ? aw.from
+        : aw?.type === 'storm_discard' || aw?.type === 'snag_discard'
+          ? aw.player
+          : game.activePlayer;
       actor = hs.includes(decider) ? null : decider;
     }
     if (actor === null) return;

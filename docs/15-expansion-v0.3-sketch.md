@@ -73,7 +73,6 @@ Cost: small engine change (pending payload grows + target swap; window logic unc
 
 ## Proposed path
 
-1. Gábor picks from the menu (mix freely, but **D requires C**): **(a)** A only · **(b)** A+B · **(c)** A+C · **(d)** A+B+C · **(f)** A+C+D · **(g)** A+B+C+D · **(e)** veto / other direction.
-   Staging recommendation if undecided: ship **(b)** first (sim-gated, zero new interaction surface), then the mischief wave **C+D** as a second release after solo-vs-AI feel tests — one new axis at a time keeps cause-and-effect readable in playtests.
-2. Implement → 28+ tests extended → sim gate (doc 10 deltas) → solo-vs-AI feel test.
-3. If clean → freeze into rules v0.3 for PT-01 with friends.
+1. ~~Gábor picks from the menu~~ — **resolved 2026-10-25: pick (g) A+B+C+D, all candidates.**
+2. ~~Implement → tests → sim gate~~ — done same day: 47/47 engine tests, sim gate PASS after the prescribed trim (D-019: −1 🔭, −1 🌀 → 46 action cards; 14.7/14.0/13.0/11.7 min at 2/3/4/5p). Rules → v0.3 (`docs/03`, `docs/04`); deltas in `docs/10`.
+3. Remaining: solo-vs-AI round 5 feel test → freeze v0.3 → PT-01.

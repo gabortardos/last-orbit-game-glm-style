@@ -15,7 +15,9 @@ export function cloneState(s: GameState): GameState {
     turnsOwed: s.turnsOwed.slice(),
     log: s.log.slice(),
     stats: { ...s.stats },
-    pending: s.pending ? { ...s.pending, overrides: s.pending.overrides.slice(), passed: s.pending.passed.slice() } : null,
+    pending: s.pending
+      ? { ...s.pending, overrides: s.pending.overrides.slice(), passed: s.pending.passed.slice(), deflectors: s.pending.deflectors?.slice() }
+      : null,
     awaiting: s.awaiting ? { ...s.awaiting } : null,
   };
 }
@@ -63,6 +65,7 @@ export function createGame(config: GameConfig): GameState {
     phase: 'command',
     pending: null,
     awaiting: null,
+    bonusDraws: 0,
     rupturesOutOfGame: 0,
     log: [],
     turnCount: 1,
@@ -71,6 +74,7 @@ export function createGame(config: GameConfig): GameState {
       overrideWindows: 0, overridesPlayed: 0, transmissionsUsed: 0, cancelledActions: 0,
       maxOverrideStack: 0, flybysPlayed: 0, maxDebt: 0, drawsTotal: 0, reshuffles: 0,
       steals: 0, fizzles: 0, scansPlayed: 0, salvagesPlayed: 0,
+      scrapsPlayed: 0, forcedDiscards: 0, deflections: 0, maxGrowth: 0,
     },
   };
   addLog(s, 'game_start', { playerCount: n, modules: s.config.modules, seed, first: s.activePlayer });

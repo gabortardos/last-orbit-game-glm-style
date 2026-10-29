@@ -4,6 +4,7 @@ export type CardKind =
   | 'rupture' // Solar Rupture (catastrophe; never in hands)
   | 'containment' // Containment Field (survival; auto-played)
   | 'override' // Comms Override (reaction-only)
+  | 'deflector' // Deflector (reaction-only; redirect a targeted attack, payload +1)
   | 'flyby' // Forced Flyby
   | 'burn' // Emergency Burn
   | 'scan' // Deep-Space Scan
@@ -12,6 +13,10 @@ export type CardKind =
   | 'boarding' // Boarding Party
   | 'reversal' // Course Reversal
   | 'salvage' // Salvage Operation
+  | 'ion_surge' // Ion Surge (target jettisons cards at random)
+  | 'tractor' // Tractor Snag (target discards down to 3, their choice)
+  | 'storm' // Micrometeoroid Storm (draw-step danger)
+  | 'wind' // Solar Wind (draw-step boon)
   | 'coolant' // Component: Coolant Cell
   | 'hull'; // Component: Hull Plating
 
@@ -38,21 +43,26 @@ export interface PlayerState {
 
 export type PendingReason =
   | 'flyby' | 'burn' | 'reversal' | 'scan' | 'slingshot'
-  | 'boarding' | 'pair' | 'requisition' | 'salvage';
+  | 'boarding' | 'pair' | 'requisition' | 'salvage'
+  | 'scrap' | 'ion_surge' | 'tractor';
 
 export interface PendingAction {
   initiator: number;
   reason: PendingReason;
   cards: CardKind[]; // played cards (already discarded)
   overrides: { player: number; viaCard: boolean }[]; // viaCard=false → Final Transmission
-  passed: number[]; // players who passed since the last override
+  passed: number[]; // players who passed since the last override/deflect
   target?: number;
   salvageKind?: CardKind;
+  growth?: number; // Deflector payload growth (0..3) — applies to scaling reasons only
+  deflectors?: number[]; // captains who already deflected in this chain (once each)
 }
 
 export type AwaitingChoice =
   | { type: 'give'; from: number; to: number } // Requisition giver picks a card
-  | { type: 'reinsert' }; // contained rupture reinsertion (active player)
+  | { type: 'reinsert' } // contained rupture reinsertion (active player)
+  | { type: 'storm_discard'; player: number } // drew a ☄️ Storm: choose 1 card to jettison
+  | { type: 'snag_discard'; player: number; count: number }; // 🧲 Tractor Snag: choose cards to discard
 
 export type Phase = 'command' | 'reaction' | 'choice' | 'game_over';
 
@@ -79,6 +89,10 @@ export interface GameStats {
   fizzles: number; // steal/gift into empty hand
   scansPlayed: number;
   salvagesPlayed: number;
+  scrapsPlayed: number; // Components scrapped for a peek
+  forcedDiscards: number; // cards destroyed by ⚡ Ion Surge
+  deflections: number; // ↪️ Deflector uses
+  maxGrowth: number; // tallest escalation chain payload growth
 }
 
 export interface GameState {
@@ -94,6 +108,7 @@ export interface GameState {
   phase: Phase;
   pending: PendingAction | null;
   awaiting: AwaitingChoice | null;
+  bonusDraws: number; // pending 🌟 Solar Wind bonus draws (draw chain may pause on choices)
   rupturesOutOfGame: number; // fatal ruptures removed
   log: LogEntry[];
   turnCount: number; // 1-based
@@ -106,7 +121,10 @@ export type Command =
   | { type: 'END_TURN_DRAW'; player: number }
   | { type: 'OVERRIDE'; player: number }
   | { type: 'PASS'; player: number }
+  | { type: 'DEFLECT'; player: number; target: number } // target-only reaction: redirect + payload +1
   | { type: 'GIVE'; player: number; card: CardKind } // resolve Requisition gift
+  | { type: 'STORM_DISCARD'; player: number; card: CardKind } // resolve ☄️ Storm jettison
+  | { type: 'SNAG_DISCARD'; player: number; cards: CardKind[] } // resolve 🧲 Tractor Snag discards
   | { type: 'REINSERT'; player: number; positionFromTop: number }; // 1 = top
 
 export type ApplyResult = { ok: true; state: GameState } | { ok: false; error: string };

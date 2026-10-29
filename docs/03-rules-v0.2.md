@@ -1,15 +1,15 @@
-# 03 — Rules v0.2 (2026-10-25)
+# 03 — Rules v0.3 (2026-10-25)
 
-Canonical. `packages/game-core` implements exactly this document; conflicts = engine bug or doc bug — fix either in the same commit.
+Canonical. `packages/game-core` implements exactly this document; conflicts = engine bug or doc bug — fix either in the same commit. v0.3 adds the expansion pack (D-015/016/018): draw-step events, Scrap, destruction attacks, and Deflector escalation. v0.2 text is unchanged where not mentioned.
 
 ## 0. Components
 
-- 2–5 captains. Shared deck: **44 fixed cards** (38 actions + 6 Containment Fields) + **N−1 Solar Ruptures** inserted at setup (see `04-card-catalogue.md`). Public zones: deck (count visible), discard pile (face up). Private: hands.
+- 2–5 captains. Shared deck: **52 fixed cards** (46 actions + 6 Containment Fields) + **N−1 Solar Ruptures** inserted at setup (see `04-card-catalogue.md`). Public zones: deck (count visible), discard pile (face up). Private: hands.
 - Public information at all times: deck count, ruptures remaining (N−1 minus fatal ones resolved), discard contents, Fury level, each hand size, direction of play, turn debt.
 
 ## 1. Setup
 
-1. Remove all Solar Ruptures and Containment Fields; shuffle the remaining 38 cards.
+1. Remove all Solar Ruptures and Containment Fields; shuffle the remaining 46 cards.
 2. Deal 4 cards to each captain.
 3. Deal 1 Containment Field to each captain (hands of 5).
 4. Insert N−1 Solar Ruptures and the remaining (6−N) Containment Fields; shuffle everything into the shared deck.
@@ -22,6 +22,8 @@ A turn has up to two steps:
 1. **Command Phase.** The active captain may play **any number** of action cards (or none). Each action resolves through a Reaction Window (§4) before the next may be played. Certain cards end the turn immediately upon resolving (§5).
 2. **Draw.** If the turn has not been ended by a card, the active captain draws the top card of the deck; this **ends the turn**.
    - **Safe card** → into hand.
+   - **🌟 Solar Wind** → into hand, then **immediately draw 1 extra card** (resolves normally — it can even be a ☀️ or a ☄️; chains stack).
+   - **☄️ Micrometeoroid Storm** → never enters your hand: **jettison 1 card of your choice** from your hand (it and the Storm go to the discard pile). Empty hand → the storm passes harmlessly.
    - **Solar Rupture** → reveal it (§6).
 
 A captain with no playable desires may simply draw. Hand size has no cap; an empty hand is legal.
@@ -40,6 +42,11 @@ A captain with no playable desires may simply draw. Hand size has no cap; an emp
 3. Each Override/Transmission cancels the previous Override. After every eligible captain has passed with no new Override, the stack resolves: **odd number of Overrides → pending action is cancelled** (cards still discarded); **even → action executes**. The window then closes; play continues.
 4. **Cannot be overridden:** drawing a card, revealing a Solar Rupture, playing a Containment Field, ending/starting turns. Everything else can.
 5. A cancelled action never happens; its targets are not affected. Cards played into the window (actions and Overrides) are always discarded regardless of outcome.
+6. **↪️ Deflector (target-only reaction, v0.3).** While a pending action has a target (any attack), the **current target** may play a Deflector from hand instead of passing:
+   - Choose **any other living captain**: the attack is redirected at them.
+   - Its payload **grows by 1** — ⚡ Ion Surge discards +1 card; 🧲 Tractor Snag lets the new target keep 1 fewer. Theft (🤝/🪝/Component pairs) redirects but **never grows** (D-018).
+   - Each captain may deflect **once per chain**; the window reopens for everyone after each Deflector.
+   - Override parity counts across the whole chain: **one Override cancels the entire chain** — attacker's and deflectors' cards are all spent. Growing the problem gives the table a bigger reason to kill it.
 
 ## 5. Card effects (summary — full text in `04-card-catalogue.md`)
 
@@ -51,6 +58,9 @@ A captain with no playable desires may simply draw. Hand size has no cap; an emp
 - **Emergency Requisition** — chosen captain gives you 1 card **of their choice**.
 - **Boarding Party** — steal 1 **random** card from a chosen captain.
 - **Salvage Operation** — take any card **except a Solar Rupture or a Containment Field** from the discard into your hand.
+- **⚡ Ion Surge** *(v0.3)* — chosen captain **jettisons 1 random card** from their hand to the discard pile (destroyed, not stolen).
+- **🧲 Tractor Snag** *(v0.3)* — chosen captain **discards down to 3 cards** (their choice of what to lose). Pointless against a hand of ≤3.
+- **🔧 Scrap (lone Component)** *(v0.3)* — play a single Component as your action: discard it to **privately peek at the top deck card** (the card stays).
 - **Component pair** (2 matching Components) — steal 1 random card from a chosen captain.
 - Stealing/gifting from an empty hand: nothing happens (card still played).
 
@@ -84,6 +94,11 @@ A captain with no playable desires may simply draw. Hand size has no cap; an emp
 - **E-10 If a steal/gift target's hand is empty**, the action fizzles (card still played, still discarded).
 - **E-11 If a captain is eliminated with debt owed**, that debt is cancelled.
 - **E-12 Deck count and rupture count are public and exact.** The app always displays them.
+- **E-13 🌟 Solar Wind (v0.3):** the extra draw happens immediately and is consumed by whatever comes next — even a ☀️ (contain normally, then the turn ends) or a ☄️ (jettison, then the turn ends). No draw is ever left owed across turns.
+- **E-14 ☄️ Storm against an empty hand** fizzles (Storm discarded, nothing else). The jettison choice cannot be declined — a hit always costs a card if you hold any.
+- **E-15 ↪️ Deflector (v0.3):** living targets only (Derelicts cannot deflect); payload growth caps at **+3** per chain; with 2 captains the only legal redirect is back at the attacker.
+- **E-16 🧲 Tractor Snag (v0.3):** fizzles against a hand at or below the keep-count; the victim discards exactly (hand − keep) cards of their choice. Growth lowers the keep-count (3 → 2 → 1 → 0).
+- **E-17 ⚡ Ion Surge (v0.3):** fizzles on an empty hand; destruction stops early if the hand empties mid-surge. Jettisoned cards are destroyed publicly (identities visible in the discard).
 
 ## 9. Victory
 
@@ -95,5 +110,6 @@ Play card(s) → window → resolve → (turn ended?) → no: play more / draw �
 
 ## Change log
 
+- v0.3: expansion pack (pick g) — ☄️ Storm + 🌟 Solar Wind draw-step events · 🔧 Scrap floor use for lone Components · ⚡ Ion Surge + 🧲 Tractor Snag destruction attacks · ↪️ Deflector escalation (§4.6, E-13…E-17) · sim-gate trim −1 Scan, −1 Slingshot (D-019) → 46 action cards.
 - v0.2: reaction-window formalization; flyby interest rule + cap 6; mandatory containment (E-5); salvage restrictions; reversal-in-2p ruling; reshuffle edge; Sun Fury & Derelict modules.
 - v0.1: first draft (master prompt hypothesis).

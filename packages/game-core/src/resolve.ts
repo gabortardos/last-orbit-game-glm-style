@@ -1,4 +1,4 @@
-import { DEBT_CAP, furyDepthLimit } from './cards';
+import { DEBT_CAP, SNAG_KEEP, furyDepthLimit } from './cards';
 import { addLog, endTurnAndAdvance, nextAliveId } from './engine';
 import { randomInt, shuffled } from './rng';
 import type { CardKind, GameState, PendingAction } from './types';
@@ -81,6 +81,51 @@ function executeEffect(s: GameState, pending: PendingAction): void {
         addLog(s, 'fizzle', { reason: 'salvage', initiator: initiator.id });
       }
       s.phase = 'command';
+      break;
+    }
+    case 'scrap': {
+      // lone Component, scrapped for a peek at the top card (private; the card stays)
+      const seen = s.deck.slice(0, 1);
+      s.stats.scrapsPlayed += 1;
+      addLog(s, 'scrap_seen', { player: initiator.id, cards: seen }, { only: initiator.id });
+      s.phase = 'command';
+      break;
+    }
+    case 'ion_surge': {
+      // destruction at random — 1 card per growth step; theft never scales (D-018)
+      const t = s.players[pending.target as number];
+      const want = 1 + (pending.growth ?? 0);
+      if (!t || !t.alive || t.hand.length === 0) {
+        s.stats.fizzles += 1;
+        addLog(s, 'fizzle', { reason: 'ion_surge', target: t?.id, initiator: initiator.id });
+      } else {
+        const n = Math.min(want, t.hand.length);
+        for (let i = 0; i < n; i++) {
+          const pick = randomInt(t.hand.length, s.rngState);
+          s.rngState = pick.state;
+          const card = t.hand.splice(pick.value, 1)[0];
+          s.discard.push(card);
+          s.stats.forcedDiscards += 1;
+          addLog(s, 'forced_discard', { player: t.id, card, via: 'ion_surge' });
+        }
+        addLog(s, 'surge_hit', { target: t.id, by: initiator.id, count: n });
+      }
+      s.phase = 'command';
+      break;
+    }
+    case 'tractor': {
+      // target discards down to (3 − growth), keeping what they choose
+      const t = s.players[pending.target as number];
+      const keep = Math.max(0, SNAG_KEEP - (pending.growth ?? 0));
+      if (!t || !t.alive || t.hand.length <= keep) {
+        s.stats.fizzles += 1;
+        addLog(s, 'fizzle', { reason: 'tractor', target: t?.id, initiator: initiator.id });
+        s.phase = 'command';
+      } else {
+        addLog(s, 'snag_hit', { target: t.id, by: initiator.id, discardCount: t.hand.length - keep, keep });
+        s.awaiting = { type: 'snag_discard', player: t.id, count: t.hand.length - keep };
+        s.phase = 'choice';
+      }
       break;
     }
     case 'flyby': {

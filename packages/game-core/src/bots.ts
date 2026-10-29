@@ -1,4 +1,4 @@
-import { CARD_INFO, furyDepthLimit } from './cards';
+import { CARD_INFO, TARGETED, furyDepthLimit } from './cards';
 import { eligibleReactorIds, nextAliveId } from './engine';
 import type { CardKind, Command, GameState } from './types';
 
@@ -17,7 +17,11 @@ export function botCommand(s: GameState, policy: BotPolicy, rng: BotRng): Comman
 }
 
 function choiceDecider(s: GameState): number {
-  return s.awaiting?.type === 'give' ? s.awaiting.from : s.activePlayer;
+  const aw = s.awaiting;
+  if (!aw) return s.activePlayer;
+  if (aw.type === 'give') return aw.from;
+  if (aw.type === 'storm_discard' || aw.type === 'snag_discard') return aw.player;
+  return s.activePlayer; // reinsert
 }
 
 /** Chooses a command for ONE specific captain. Returns null when it is not their decision to make.
@@ -57,7 +61,7 @@ function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command 
         return { type: 'PLAY', player: me, cards: [pairKind, pairKind], target: targets.length ? pick(targets, rng) : pick(anyOther, rng) };
       }
       const k = pick(singles, rng);
-      const needsTarget = k === 'boarding' || k === 'requisition';
+      const needsTarget = TARGETED.includes(k);
       let target: number | undefined;
       if (needsTarget) {
         const ts = othersWithCards(s, me);
@@ -91,11 +95,30 @@ function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command 
       return { type: 'PLAY', player: me, cards: ['requisition'], target };
     }
   }
+  // mischief: 🧲 against fat hands, ⚡ as spite — aimed at the biggest rival hand
+  {
+    const rivals = othersWithCards(s, me, 1);
+    if (rivals.length > 0) {
+      const richest = rivals.reduce((a, b) => (s.players[b].hand.length > s.players[a].hand.length ? b : a));
+      if (singles.includes('tractor') && s.players[richest].hand.length > 3) {
+        return { type: 'PLAY', player: me, cards: ['tractor'], target: richest };
+      }
+      if (singles.includes('ion_surge') && (s.players[richest].hand.length >= 2 || rng() < 0.3)) {
+        return { type: 'PLAY', player: me, cards: ['ion_surge'], target: richest };
+      }
+    }
+  }
   if (rng() < 0.2 && (singles.includes('boarding') || pairKind) && othersWithCards(s, me, 2).length > 0) {
     if (singles.includes('boarding')) {
       return { type: 'PLAY', player: me, cards: ['boarding'], target: pick(othersWithCards(s, me, 2), rng) };
     }
     return { type: 'PLAY', player: me, cards: [pairKind as CardKind, pairKind as CardKind], target: pick(othersWithCards(s, me, 2), rng) };
+  }
+  // lone Components with no pair in sight: scrap for a peek (D-016 B)
+  if (!pairKind) {
+    for (const k of ['coolant', 'hull'] as const) {
+      if (hand.includes(k) && rng() < 0.6) return { type: 'PLAY', player: me, cards: [k] };
+    }
   }
   return { type: 'END_TURN_DRAW', player: me };
 }
@@ -118,12 +141,29 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
 
   if (policy === 'random') {
     if (!p.alive) return { type: rng() < 0.3 ? 'OVERRIDE' : 'PASS', player: me }; // Final Transmission
+    if (p.alive && pend.target === me && p.hand.includes('deflector') && rng() < 0.3) {
+      const others = s.players.filter((q) => q.alive && q.id !== me);
+      if (others.length > 0) return { type: 'DEFLECT', player: me, target: pick(others, rng).id };
+    }
     return { type: hasOverride && rng() < 0.3 ? 'OVERRIDE' : 'PASS', player: me };
+  }
+
+  // greedy: attacked and holding a Deflector → pass the problem to the biggest rival hand
+  const attackReasons = ['boarding', 'pair', 'requisition', 'ion_surge', 'tractor'];
+  if (
+    p.alive && pend.target === me && attackReasons.includes(pend.reason)
+    && p.hand.includes('deflector') && !(pend.deflectors ?? []).includes(me)
+  ) {
+    const others = s.players.filter((q) => q.alive && q.id !== me);
+    if (others.length > 0) {
+      const to = others.reduce((x, y) => (y.hand.length >= x.hand.length ? y : x));
+      return { type: 'DEFLECT', player: me, target: to.id };
+    }
   }
 
   // greedy: protect yourself from flyby debt and theft; occasional spite
   const debtVictim = pend.reason === 'flyby' && nextAliveId(s, s.activePlayer) === me;
-  const victim = (pend.reason === 'boarding' || pend.reason === 'pair' || pend.reason === 'requisition') && pend.target === me;
+  const victim = attackReasons.includes(pend.reason) && pend.target === me;
   if (p.alive && hasOverride && (debtVictim || victim || rng() < 0.15)) return { type: 'OVERRIDE', player: me };
   if (!p.alive && rng() < 0.25) return { type: 'OVERRIDE', player: me }; // Final Transmission
   return { type: 'PASS', player: me };
@@ -137,6 +177,31 @@ function botChoiceFor(s: GameState, player: number, policy: BotPolicy, rng: BotR
     if (policy === 'random') return { type: 'GIVE', player: from.id, card: pick(from.hand, rng) };
     const kind = GIVE_ORDER.find((k) => from.hand.includes(k)) ?? from.hand[0];
     return { type: 'GIVE', player: from.id, card: kind };
+  }
+  if (s.awaiting?.type === 'storm_discard') {
+    // jettison the least valuable card (same order as gifts)
+    const from = s.players[s.awaiting.player];
+    if (policy === 'random') return { type: 'STORM_DISCARD', player: from.id, card: pick(from.hand, rng) };
+    const kind = GIVE_ORDER.find((k) => from.hand.includes(k)) ?? from.hand[0];
+    return { type: 'STORM_DISCARD', player: from.id, card: kind };
+  }
+  if (s.awaiting?.type === 'snag_discard') {
+    const from = s.players[s.awaiting.player];
+    const count = Math.min(s.awaiting.count, from.hand.length);
+    if (policy === 'random') {
+      const hand = [...from.hand];
+      const cards: CardKind[] = [];
+      for (let i = 0; i < count; i++) cards.push(hand.splice(Math.floor(rng() * hand.length), 1)[0]);
+      return { type: 'SNAG_DISCARD', player: from.id, cards };
+    }
+    const hand = [...from.hand];
+    const cards: CardKind[] = [];
+    for (let i = 0; i < count; i++) {
+      const kind = GIVE_ORDER.find((k) => hand.includes(k)) ?? hand[0];
+      hand.splice(hand.indexOf(kind), 1);
+      cards.push(kind);
+    }
+    return { type: 'SNAG_DISCARD', player: from.id, cards };
   }
   // reinsertion: greedy buries the rupture as deep as legally allowed
   const limit = s.config.modules.sunFury ? furyDepthLimit(s.sunFury) : Number.POSITIVE_INFINITY;

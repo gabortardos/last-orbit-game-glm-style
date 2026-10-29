@@ -30,11 +30,11 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
   };
 
   const onCardClick = (kind: CardKind) => {
-    if (kind === 'boarding' || kind === 'requisition' || kind === 'salvage' || CARD_INFO[kind].pairable) {
+    if (kind === 'boarding' || kind === 'requisition' || kind === 'salvage' || kind === 'ion_surge' || kind === 'tractor') {
       setChoosing([kind]);
       return;
     }
-    play([kind]);
+    play([kind]); // lone Components land here → Scrap (peek at the top card)
   };
 
   const aliveOthers = game.players.filter((p) => p.alive && p.id !== me.id);
@@ -91,8 +91,14 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
               const n = me.hand.filter((c) => c === k).length;
               const playable = CARD_INFO[k].playableInCommand;
               const note = !playable
-                ? (k === 'containment' ? ' — auto-used when you draw a ☀️' : ' — reaction windows / pairs only')
-                : '';
+                ? (k === 'containment'
+                    ? ' — auto-used when you draw a ☀️'
+                    : k === 'wind'
+                      ? ' — its bonus draw already happened; it just pads your hand now'
+                      : k === 'deflector'
+                        ? ' — reaction only, when YOU are attacked: pass it on, +1'
+                        : ' — reaction windows only')
+                : (CARD_INFO[k].pairable ? ' — click to SCRAP for a peek; use the pair button to steal' : '');
               return (
                 <button
                   key={k}
@@ -102,7 +108,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
                   title={CARD_INFO[k].blurb + note}
                 >
                   <span className="emoji">{CARD_INFO[k].emoji}</span>
-                  <span>{CARD_INFO[k].name}{n > 1 ? ` ×${n}` : ''}{CARD_INFO[k].pairable && n === 1 && <span className="lone"> · find its twin</span>}</span>
+                  <span>{CARD_INFO[k].name}{n > 1 ? ` ×${n}` : ''}{CARD_INFO[k].pairable && n === 1 && <span className="lone"> · scrap me, or find my twin</span>}</span>
                 </button>
               );
             })}
@@ -124,7 +130,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
               <button className="ghost" onClick={() => setChoosing(null)}>Cancel</button>
             </div>
           )}
-          {choosing && (choosing.length === 2 || choosing[0] === 'boarding' || choosing[0] === 'requisition') && (
+          {choosing && (choosing.length === 2 || ['boarding', 'requisition', 'ion_surge', 'tractor'].includes(choosing[0])) && (
             <div className="chooser">
               <span>Choose target:</span>
               {aliveOthers.map((p) => (

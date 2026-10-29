@@ -9,8 +9,9 @@ export default function Briefing({ onClose, sunFury = true, derelicts = true }: 
 }) {
   const groups: [string, CardKind[]][] = [
     ['Survival & catastrophe', ['rupture', 'containment']],
-    ['Reactions', ['override']],
-    ['Action cards', ['flyby', 'burn', 'scan', 'slingshot', 'requisition', 'boarding', 'reversal', 'salvage']],
+    ['Draw-step events (hit the moment you draw them)', ['storm', 'wind']],
+    ['Reactions (played from your hand in a reaction window)', ['override', 'deflector']],
+    ['Action cards', ['flyby', 'burn', 'scan', 'slingshot', 'requisition', 'boarding', 'ion_surge', 'tractor', 'reversal', 'salvage']],
     ['Components', ['coolant', 'hull']],
   ];
   return (
@@ -41,9 +42,10 @@ export default function Briefing({ onClose, sunFury = true, derelicts = true }: 
             <p className="dim">So the game is a slow squeeze: containments run out, the deck thins, ruptures concentrate. Deck size, ruptures remaining and every hand size are <b>public</b> — counting cards is legal and encouraged.</p>
           </section>
           <section className="brief">
-            <h3>📡 Reaction windows & Overrides</h3>
+            <h3>📡 Reaction windows, Overrides &amp; Deflectors</h3>
             <p>Whenever a captain plays an action, <b>everyone else living may respond</b>: pass quietly, or slam a 📡 Comms Override to jam the plan. Each new Override flips the previous one. When all have spoken: <b>odd number of Overrides → the action is cancelled</b>; even → it happens. Chains, bluffs and regrets ensue.</p>
-            <p className="dim">Cannot be overridden: drawing, revealing a rupture, containing, ending a turn.</p>
+            <p>⚔️ <b>Attacked?</b> If you are the target, you can instead slam a ↪️ Deflector: the attack flies at <b>any other captain</b> of your choice — and <b>grows</b> (⚡ discards +1 card, 🧲 keeps 1 fewer). Each captain deflects once per chain, and one Override kills the whole chain — stacking is a gamble.</p>
+            <p className="dim">Cannot be overridden or deflected: drawing, revealing a rupture, containing, ending a turn.</p>
           </section>
           <section className="brief">
             <h3>Modules in this match</h3>

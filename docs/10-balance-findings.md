@@ -34,3 +34,27 @@ Home of simulation results and their interpretation. Human playtest numbers live
 
 **Bot caveats (numbers are a floor):** greedy has same-turn scan memory only, never salvages, requisitions only at 6+ cards; random plays an action ~30% of turns. Improve policies in P2 if sim-driven tuning becomes necessary.
 
+## v0.3 expansion sim gate (2026-10-25, `sim-report-v0.3.md`)
+
+All four candidates in (D-015 A+B, D-016 C, D-018 D) + bots that use them (greedy: deflects when targeted, surge/snag the biggest hand, scraps lone Components; random: 30% deflect/override).
+
+**Gate result: PASS after one prescribed trim (D-019).** The full menu first pushed match length past the doc-15 warning line (2p 15.3 min, 3p 14.7); applied the pre-agreed substitution −1 🔭 Scan + −1 🌀 Slingshot (46 action cards → 55 total at 4 captains):
+
+| Config (median turns) | v0.2 | v0.3 full menu | v0.3 trimmed |
+|---|---|---|---|
+| 2p vanilla | 40 (13.3 min) | 46 (15.3) | **44 (14.7)** |
+| 3p vanilla | 36 (12.0) | 44 (14.7) | **42 (14.0)** |
+| 4p vanilla | 33 (11.0) | 41 (13.7) | **39 (13.0)** |
+| 5p vanilla | 29 (9.7) | 37 (12.3) | **35 (11.7)** |
+| 4p Fury+Derelicts | 33 (11.0) | 40 (13.3) | **38 (12.7)** |
+
+New-mechanic health checks (trimmed run, all configs):
+1. **Escalation is real but bounded** — ~0.9–1.1 deflections/game; tallest chain observed: 2 hops (only 2 Deflectors exist — cap 3 has headroom); 2p "bounce-back" tennis works (deflections/game 1.1 — the 2p max is 1 per chain).
+2. **Destruction economy active** — ⚡ Ion Surge lands ~1.2–1.3 forced discards/game; contained-count drops slightly (4p vanilla 7904 → 7105) because random jettisons sometimes destroy 🛡️ from hands — the squeeze tightens late-game. Intended, watch in PT-01.
+3. **Components got a floor** — bots scrap ~4/game (info-only, no card advantage); lone-Component dead weight is gone.
+4. **Pass-turn rate 72% → 68%** — bots have more worth doing; human read pending PT-01.
+5. **Comebacks 34–41% → 37–43%** — slightly up (destruction creates underdog moments). Seats stay uniform (max seat share within ~1pp of 1/N everywhere) ✔.
+6. **Match length is the cost of content** — +6–8 median turns vs v0.2 at every count, still inside the 10–20 min band; 2p at 14.7 min stays on the watch-list (already flagged as the weakest count).
+
+**Verdict: v0.3 ships to solo-vs-AI round 5, then PT-01.**
+

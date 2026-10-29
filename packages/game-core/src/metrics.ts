@@ -23,6 +23,10 @@ export interface MatchReport {
   fizzles: number;
   scans: number;
   salvages: number;
+  scraps: number; // Components scrapped for a peek
+  forcedDiscards: number; // cards destroyed by ⚡ Ion Surge
+  deflections: number; // ↪️ Deflector uses
+  maxGrowth: number; // tallest escalation chain payload growth
   passTurnRate: number; // fraction of turns with zero card plays
   playedCounts: Partial<Record<CardKind, number>>;
   comeback: boolean; // winner held the strictly smallest hand at some elimination
@@ -51,6 +55,9 @@ export function matchReport(s: GameState): MatchReport {
       }
       case 'override':
         if (e.data?.viaCard) playedCounts.override = (playedCounts.override ?? 0) + 1;
+        break;
+      case 'deflect':
+        playedCounts.deflector = (playedCounts.deflector ?? 0) + 1;
         break;
       case 'eliminated': {
         if (firstElimTurn === null) firstElimTurn = e.turn;
@@ -96,6 +103,10 @@ export function matchReport(s: GameState): MatchReport {
     fizzles: s.stats.fizzles,
     scans: s.stats.scansPlayed,
     salvages: s.stats.salvagesPlayed,
+    scraps: s.stats.scrapsPlayed,
+    forcedDiscards: s.stats.forcedDiscards,
+    deflections: s.stats.deflections,
+    maxGrowth: s.stats.maxGrowth,
     passTurnRate: s.turnCount > 0 ? 1 - turnsWithPlays.size / s.turnCount : 0,
     playedCounts,
     comeback,

@@ -59,6 +59,7 @@ const reasonText = (r: string): string => ({
   flyby: 'Forced Flyby', burn: 'Emergency Burn', reversal: 'Course Reversal', scan: 'Deep-Space Scan',
   slingshot: 'Gravity Slingshot', boarding: 'Boarding Party', pair: 'Component pair steal',
   requisition: 'Emergency Requisition', salvage: 'Salvage Operation',
+  scrap: 'Component scrap (peek)', ion_surge: 'Ion Surge', tractor: 'Tractor Snag',
 } as Record<string, string>)[r] ?? r;
 
 /** The public event feed, filtered by visibility. */
@@ -114,6 +115,16 @@ function fmtEntry(game: GameState) {
       case 'salvage_take': return `♻️ ${name(d.player)} salvages ${CARD_INFO[d.card as CardKind].name}.`;
       case 'reshuffle': return `🌀 Discard pile reshuffled into the deck.`;
       case 'skip_draw': return `No cards left to draw — turn ends.`;
+      case 'storm_hit': return `☄️ MICROMETEOROID STORM rakes ${name(d.player)}'s hull!`;
+      case 'storm_fizzle': return `…their hand is empty. The storm howls past, harmless.`;
+      case 'storm_discard': return `☄️ ${name(d.player)} jettisons ${CARD_INFO[d.card as CardKind].name} to lighten the load.`;
+      case 'wind_bonus': return `🌟 Solar Wind at ${name(d.player)}'s back — an extra card, drawn!`;
+      case 'deflect': return `↪️ ${name(d.by)} deflects the ${reasonText(String(d.reason))} → ${name(d.to)}${d.growth ? ` — payload +${d.growth}!` : ''}`;
+      case 'surge_hit': return `⚡ Ion Surge hits ${name(d.target)} — ${d.count} card${Number(d.count) > 1 ? 's' : ''} jettisoned!`;
+      case 'forced_discard': return `   💨 ${CARD_INFO[d.card as CardKind].emoji} ${CARD_INFO[d.card as CardKind].name} — gone.`;
+      case 'snag_hit': return `🧲 Tractor Snag! ${name(d.target)} must discard ${d.discardCount} card${Number(d.discardCount) > 1 ? 's' : ''} (keep ${d.keep}).`;
+      case 'snag_discard': return `🧲 ${name(d.player)} lets go of ${cardNames(d.cards as CardKind[])}.`;
+      case 'scrap_seen': return `🔧 Scrap peek — the top card is ${cardNames(d.cards as CardKind[])}.`;
       case 'win': return `🏆 ${name(d.player)} wins the Grand Solar Rally!`;
       default: return '';
     }
@@ -125,6 +136,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
   dispatch: (c: Command) => void;
   humans?: number[]; // solo vs AI: bots decide on their own; only the human's row is interactive
 }) {
+  const [deflecting, setDeflecting] = useState(false);
   if (game.phase !== 'reaction' || !game.pending) return null;
   const pending = game.pending;
   const undecided = eligibleReactorIds(game).filter((id) => !pending.passed.includes(id));
@@ -138,7 +150,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
       <div className="modal">
         <h3>
           {game.players[pending.initiator].name} plays {reasonText(pending.reason)}
-          {target && <> — target: <b>{target.name}</b></>}
+          {target && <> — target: <b>{target.name}</b>{pending.growth ? <b className="red">{` — payload +${pending.growth}!`}</b> : null}</>}
         </h3>
         <p className={`stackline ${cancelled ? 'red' : 'green'}`}>
           {stack === 0
@@ -151,20 +163,56 @@ export function ReactionOverlay({ game, dispatch, humans }: {
           Every Override <b>flips</b> the outcome (even = happens, odd = cancelled). After each Override everyone
           else may respond again — that&apos;s why you&apos;re still asked: your Override could flip it back.
         </p>
+        {(pending.deflectors?.length ?? 0) > 0 && (
+          <p className="hint">
+            ↪️ Deflected {pending.deflectors!.length}× — each hop grows the payload (destruction +1; theft only
+            moves). One Override still kills the <b>whole chain</b>, cards and all.
+          </p>
+        )}
         {undecided.map((id) => {
           const p = game.players[id];
+          const isTarget = pending.target === id;
+          const canDeflect = isTarget && p.alive && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id);
           if (solo && !humans.includes(id)) {
             return (
               <div key={id} className="reactrow">
-                <span className="pname">{p.name} 🤖</span>
+                <span className="pname">{p.name} 🤖{isTarget ? ' 🎯' : ''}</span>
                 <span className="botchip">deciding…</span>
+              </div>
+            );
+          }
+          if (deflecting && isTarget) {
+            return (
+              <div key={id} className="reactrow">
+                <span className="pname">{p.name} ↪️</span>
+                <span className="hint">Send it at:</span>
+                {game.players.filter((q) => q.alive && q.id !== id).map((q) => (
+                  <button
+                    key={q.id}
+                    className="mini"
+                    title={`The attack hits ${q.name} instead${(pending.reason === 'ion_surge' || pending.reason === 'tractor') ? ' and grows by 1' : ''}.`}
+                    onClick={() => { setDeflecting(false); dispatch({ type: 'DEFLECT', player: id, target: q.id }); }}
+                  >
+                    {q.name} ({q.hand.length})
+                  </button>
+                ))}
+                <button className="ghost" onClick={() => setDeflecting(false)}>Cancel</button>
               </div>
             );
           }
           const hasCard = p.hand.includes('override');
           return (
             <div key={id} className="reactrow">
-              <span className="pname">{p.name}{p.alive ? '' : ' (derelict)'}</span>
+              <span className="pname">{p.name}{p.alive ? '' : ' (derelict)'}{isTarget ? ' 🎯' : ''}</span>
+              {canDeflect && (
+                <button
+                  className="mini"
+                  title="Send this attack at any other captain instead — its payload grows by 1 (⚡ discards +1 card; 🧲 keeps 1 fewer). Once per captain per chain; a single Override still cancels everything."
+                  onClick={() => setDeflecting(true)}
+                >
+                  ↪️ Deflect — pass it on +1
+                </button>
+              )}
               <button
                 className="mini"
                 disabled={p.alive && !hasCard}
@@ -274,6 +322,123 @@ function GiveModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: 
   );
 }
 
+/** ☄️ Storm jettison: the drawer (human) picks 1 card to lose. */
+function StormModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: Command) => void; humans?: number[] }) {
+  if (game.phase !== 'choice' || game.awaiting?.type !== 'storm_discard') return null;
+  const victim = game.players[game.awaiting.player];
+  if (humans && humans.length === 1 && !humans.includes(victim.id)) return null; // AI storms resolve in the log
+  const soloVictim = humans !== undefined && humans.length === 1 && humans.includes(victim.id);
+  return (
+    <div className="overlay">
+      <div className="modal">
+        {soloVictim ? (
+          <>
+            <h3>☄️ Micrometeoroid Storm!</h3>
+            <p className="hint">Jettison <b>1 card of your choice</b> — the storm itself is discarded afterwards.</p>
+          </>
+        ) : (
+          <>
+            <h3>☄️ Micrometeoroid Storm</h3>
+            <p className="hint">Pass the device to <b>{victim.name}</b> — they jettison 1 card of their choice.</p>
+          </>
+        )}
+        <div className="hand">
+          {[...new Set(victim.hand)].map((k) => (
+            <button
+              key={k}
+              className="card"
+              title={`${CARD_INFO[k].blurb}\n(Click to jettison this card.)`}
+              onClick={() => dispatch({ type: 'STORM_DISCARD', player: victim.id, card: k })}
+            >
+              <span className="emoji">{CARD_INFO[k].emoji}</span>
+              <span>{CARD_INFO[k].name}{victim.hand.filter((c) => c === k).length > 1 ? ` ×${victim.hand.filter((c) => c === k).length}` : ''}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** 🧲 Tractor Snag: the victim (human) picks exactly `count` cards to discard. */
+function SnagModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: Command) => void; humans?: number[] }) {
+  const [picked, setPicked] = useState<CardKind[]>([]);
+  if (game.phase !== 'choice' || game.awaiting?.type !== 'snag_discard') return null;
+  const victim = game.players[game.awaiting.player];
+  const count = Math.min(game.awaiting.count, victim.hand.length);
+  if (humans && humans.length === 1 && !humans.includes(victim.id)) return null; // AI snags resolve in the log
+  const soloVictim = humans !== undefined && humans.length === 1 && humans.includes(victim.id);
+  const available = (k: CardKind): number => victim.hand.filter((c) => c === k).length;
+  const chosen = (k: CardKind): number => picked.filter((c) => c === k).length;
+  const toggle = (k: CardKind): void => {
+    if (chosen(k) > 0) setPicked(picked.filter((c) => c !== k));
+    else setPicked([...picked, ...Array(Math.min(count - picked.length, available(k))).fill(k) as CardKind[]]);
+  };
+  return (
+    <div className="overlay">
+      <div className="modal">
+        {soloVictim ? (
+          <>
+            <h3>🧲 Tractor Snag!</h3>
+            <p className="hint">
+              Choose <b>{count} card{count > 1 ? 's' : ''} to discard</b> — you keep the rest
+              {game.pending?.growth ? <> (a ↪️ Deflector tightened the beam: keep {3 - (game.pending.growth ?? 0)})</> : null}.
+            </p>
+          </>
+        ) : (
+          <>
+            <h3>🧲 Tractor Snag</h3>
+            <p className="hint">Pass the device to <b>{victim.name}</b> — they discard {count} card{count > 1 ? 's' : ''} of their choice.</p>
+          </>
+        )}
+        <div className="hand">
+          {[...new Set(victim.hand)].map((k) => (
+            <button
+              key={k}
+              className={`card ${chosen(k) > 0 ? 'pair' : ''}`}
+              title={`${CARD_INFO[k].blurb}\n(Click to select/deselect.)`}
+              onClick={() => toggle(k)}
+            >
+              <span className="emoji">{CARD_INFO[k].emoji}{chosen(k) > 0 ? ' ✔' : ''}</span>
+              <span>{CARD_INFO[k].name}{chosen(k) > 0 ? ` · picked ${chosen(k)}/${available(k)}` : (available(k) > 1 ? ` ×${available(k)}` : '')}</span>
+            </button>
+          ))}
+        </div>
+        <p className="hint dim">Picked {picked.length} of {count}.</p>
+        <button className="primary" disabled={picked.length !== count} onClick={() => dispatch({ type: 'SNAG_DISCARD', player: victim.id, cards: picked })}>
+          Jettison {count} card{count > 1 ? 's' : ''}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** 🔧 Scrap peek: private reveal of the top deck card for the human who scrapped. */
+function ScrapModal({ game, viewer }: { game: GameState; viewer?: number }) {
+  const me = viewer ?? game.activePlayer;
+  const [revealed, setRevealed] = useState(false);
+  const entry = [...game.log].reverse().find(
+    (e) => e.type === 'scrap_seen' && e.turn === game.turnCount && typeof e.visibility === 'object' && (e.visibility as { only: number }).only === me,
+  );
+  if (!entry || revealed) return null;
+  const cards = (entry.data?.cards ?? []) as CardKind[];
+  return (
+    <div className="overlay">
+      <div className="modal">
+        <h3>🔧 Scrap peek</h3>
+        <p className="hint">Only {game.players[me].name} should look. The Component is spent; the top card stays in the deck.</p>
+        <div className="scanrow">
+          {cards.length === 0 && <span className="scancard">(the deck is empty — tough scrap)</span>}
+          {cards.map((c, i) => (
+            <span key={i} className="scancard" title={CARD_INFO[c].blurb}>{CARD_INFO[c].emoji} {CARD_INFO[c].name}</span>
+          ))}
+        </div>
+        <button className="primary" onClick={() => setRevealed(true)}>Got it — hide</button>
+      </div>
+    </div>
+  );
+}
+
 function GameOverModal({ game, report, onNewGame }: { game: GameState; report: MatchReport | null; onNewGame: () => void }) {
   if (game.phase !== 'game_over' || game.winner === null || !report) return null;
   const download = () => {
@@ -319,7 +484,10 @@ export function Modals({ game, dispatch, report, onNewGame, viewer, humans }: {
     <>
       <ReactionOverlay game={game} dispatch={dispatch} humans={humans} />
       {game.phase === 'command' && <ScanModal game={game} dispatch={dispatch} viewer={viewer} />}
+      {game.phase === 'command' && <ScrapModal game={game} viewer={viewer} />}
       {game.phase === 'choice' && game.awaiting?.type === 'reinsert' && <ReinsertModal game={game} dispatch={dispatch} viewer={viewer} />}
+      {game.phase === 'choice' && game.awaiting?.type === 'storm_discard' && <StormModal game={game} dispatch={dispatch} humans={humans} />}
+      {game.phase === 'choice' && game.awaiting?.type === 'snag_discard' && <SnagModal game={game} dispatch={dispatch} humans={humans} />}
       <GiveModal game={game} dispatch={dispatch} humans={humans} />
       <GameOverModal game={game} report={report} onNewGame={onNewGame} />
     </>

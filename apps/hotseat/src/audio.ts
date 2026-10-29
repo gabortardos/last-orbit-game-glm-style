@@ -140,7 +140,8 @@ function schedulePluck(echo: DelayNode): void {
 
 export type Sfx =
   | 'play' | 'override' | 'cancelled' | 'steal' | 'give' | 'flyby'
-  | 'rupture' | 'contained' | 'fury' | 'eliminated' | 'win';
+  | 'rupture' | 'contained' | 'fury' | 'eliminated' | 'win'
+  | 'storm' | 'wind' | 'surge' | 'snag' | 'deflect';
 
 /** Short event sounds driven by the public game log — quiet, never speech-like. */
 export function sfx(kind: Sfx): void {
@@ -163,6 +164,11 @@ export function sfx(kind: Sfx): void {
   };
   switch (kind) {
     case 'play': tone('triangle', 392, 392, 0.22, 0.06); tone('triangle', 523.25, 523.25, 0.3, 0.05, 0.09); break;
+    case 'storm': tone('sawtooth', 320, 110, 0.22, 0.055); tone('square', 170, 70, 0.26, 0.04, 0.06); break; // grit blast
+    case 'wind': tone('sine', 392, 392, 0.12, 0.05); tone('sine', 494, 494, 0.12, 0.05, 0.08); tone('sine', 587, 587, 0.18, 0.055, 0.16); break; // rising arpeggio
+    case 'surge': tone('square', 990, 130, 0.24, 0.05); break; // zap
+    case 'snag': tone('triangle', 150, 85, 0.16, 0.06); tone('square', 420, 290, 0.12, 0.03, 0.1); break; // clamp + rattle
+    case 'deflect': tone('sine', 310, 680, 0.2, 0.06); break; // bounce away, rising
     case 'override': tone('square', 880, 660, 0.1, 0.035); tone('square', 880, 660, 0.1, 0.035, 0.15); break; // radio double-blip
     case 'cancelled': tone('sawtooth', 330, 165, 0.4, 0.045); break;
     case 'steal': tone('sine', 720, 170, 0.32, 0.06); break; // swoop down — something left your hand

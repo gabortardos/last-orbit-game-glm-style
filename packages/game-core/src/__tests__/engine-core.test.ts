@@ -33,7 +33,7 @@ describe('setup', () => {
       expect(p.hand).toHaveLength(5);
       expect(p.hand.filter((c) => c === 'containment')).toHaveLength(1);
     }
-    expect(s.deck).toHaveLength(27); // (38 base - 16 dealt) + 3 ruptures + 2 leftover containments
+    expect(s.deck).toHaveLength(35); // (46 base - 16 dealt) + 3 ruptures + 2 leftover containments
     expect(s.deck.filter((c) => c === 'rupture')).toHaveLength(3);
     expect(s.deck.filter((c) => c === 'containment')).toHaveLength(2);
     expect(s.phase).toBe('command');
@@ -128,8 +128,8 @@ describe('reaction window & overrides', () => {
     const a = s0.activePlayer;
     const [b, c] = s0.players.filter((p) => p.id !== a).map((p) => p.id);
     s0.players[a].hand = ['scan'];
-    s0.players[b].hand.push('override');
-    s0.players[c].hand.push('override');
+    s0.players[b].hand = ['override'];
+    s0.players[c].hand = ['override'];
     let s = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['scan'] }));
     s = ok(applyCommand(s, { type: 'OVERRIDE', player: b }));
     s = ok(applyCommand(s, { type: 'OVERRIDE', player: c }));
@@ -146,6 +146,7 @@ describe('reaction window & overrides', () => {
     const a = s0.activePlayer;
     const b = (a + 1) % 3;
     s0.players[a].hand = ['scan'];
+    s0.players[b].hand = ['burn']; // pinned: the dealt hand must not matter (v0.3 deck)
     const s1 = ok(applyCommand(s0, { type: 'PLAY', player: a, cards: ['scan'] }));
     expect(applyCommand(s1, { type: 'OVERRIDE', player: a })?.ok).toBe(false); // initiator
     expect(applyCommand(s1, { type: 'OVERRIDE', player: b })?.ok).toBe(false); // no override in hand

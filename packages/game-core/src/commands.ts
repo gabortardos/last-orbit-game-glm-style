@@ -1,5 +1,5 @@
 import { DEFLECT_CAP, SCALING, TARGETED, furyDepthLimit, isComponent } from './cards';
-import { addLog, canRespond, cloneState, eliminate, endTurnAndAdvance, respondentIds } from './engine';
+import { addLog, canAxialTilt, canRespond, canRingWall, cloneState, eliminate, endTurnAndAdvance, respondentIds } from './engine';
 import { resolvePending } from './resolve';
 import { shuffled } from './rng';
 import type { ApplyResult, CardKind, Command, GameState } from './types';
@@ -205,6 +205,95 @@ export function applyCommand(state: GameState, cmd: Command): ApplyResult {
       s.awaiting = { type: 'storm_discard', player: t.id }; // no drawnBy → no chain-shouting
       s.stats.stormShouts += 1;
       addLog(s, 'storm_shout', { by: p.id, to: t.id });
+      return ok(s);
+    }
+    case 'KIT_BASH': {
+      // D-033 🌍 Earth: one Component + tape = a completed pair. The siphon opens a normal
+      // pair reaction window (one 📡 cancels the steal, the victim may ↪️ it onward), and
+      // the power burns at initiation like ♂ — baitable. The Component IS paid: unlike
+      // ♂'s free grab, Earth spends the part to fake its twin.
+      if (s.phase !== 'command') return err('not in command phase');
+      if (cmd.player !== s.activePlayer) return err('not your turn');
+      const p = s.players[cmd.player];
+      if (p.faction !== 'kitbash') return err('no faction power available');
+      if (p.factionPowerUsed) return err('Kit Bash already spent this match');
+      if (!isComponent(cmd.card)) return err('Kit Bash needs a ❄️/🛠️ Component');
+      const i = p.hand.indexOf(cmd.card);
+      if (i < 0) return err('that Component is not in hand');
+      const t = s.players[cmd.target];
+      if (!t || !t.alive || cmd.target === cmd.player) return err('invalid target');
+      p.hand.splice(i, 1);
+      s.discard.push(cmd.card);
+      p.factionPowerUsed = true; // spent at initiation — a 📡-cancelled bash still burns it
+      s.pending = {
+        initiator: p.id,
+        reason: 'pair',
+        cards: [cmd.card], // one part + tape — the resolver's pair path does the siphon
+        overrides: [],
+        passed: [],
+        target: cmd.target,
+      };
+      s.stats.overrideWindows += 1;
+      s.stats.kitBashes += 1;
+      s.phase = 'reaction';
+      addLog(s, 'kit_bash', { player: p.id, card: cmd.card, target: cmd.target });
+      skipNoResponders(s); // nobody able to respond? resolve without a single forced pass
+      return ok(s);
+    }
+    case 'RING_WALL': {
+      // D-033 ♄ Saturn: the theft aimed at them dies on the rings — resolved mid-window,
+      // instantly: the attacker's cards were already spent at PLAY, ♄'s cards stay, and
+      // nothing is left to 📡 (cancelling a dead action is meaningless). ⚡/🧲 destruction
+      // is NOT a theft — it passes the rings untouched (that's the counterplay).
+      if (s.phase !== 'reaction' || !s.pending) return err('no reaction window open');
+      if (!canRingWall(s, cmd.player)) return err('the rings answer thefts aimed at you, once per match');
+      const pending = s.pending;
+      const p = s.players[cmd.player];
+      p.factionPowerUsed = true; // spent powers are public (Pillar 4)
+      s.stats.ringWalls += 1;
+      addLog(s, 'ring_wall', { by: cmd.player, reason: pending.reason, initiator: pending.initiator });
+      s.pending = null;
+      s.phase = 'command'; // the initiator's Command Phase continues — the theft fizzled
+      return ok(s);
+    }
+    case 'AXIAL_TILT': {
+      // D-033 ♅ Uranus: the attack slides off — re-aimed at a captain of ♅'s choosing
+      // with NO payload growth (a flat refusal, not ☿'s aggressive +1 redirect). The
+      // window reopens on the new target; if THEY ↪️ onward, growth applies to that hop.
+      // In 2-player the only other captain IS the attacker — the attack slides straight
+      // back where it came from, un-grown. You cannot hit what is sideways.
+      if (s.phase !== 'reaction' || !s.pending) return err('no reaction window open');
+      if (!canAxialTilt(s, cmd.player)) return err('the tilt answers attacks aimed at you, once per match');
+      const pending = s.pending;
+      const p = s.players[cmd.player];
+      const t = s.players[cmd.target];
+      if (!t || !t.alive || cmd.target === cmd.player) return err('invalid tilt target');
+      p.factionPowerUsed = true; // spent powers are public (Pillar 4)
+      s.pending = {
+        ...pending,
+        target: cmd.target,
+        growth: pending.growth ?? 0, // the tilt adds NOTHING — any growth already on the chain stays
+        deflectors: [...(pending.deflectors ?? []), cmd.player],
+        passed: [], // the window reopens for everyone on the new target
+      };
+      s.stats.axialTilts += 1;
+      addLog(s, 'axial_tilt', { by: cmd.player, to: cmd.target, reason: pending.reason, growth: s.pending.growth });
+      skipNoResponders(s); // the window reopens on the new target — re-skip the powerless
+      return ok(s);
+    }
+    case 'DEEP_SIGHT': {
+      // D-033 ♆ Neptune: a free 🔭 during your own Command Phase — instant and private.
+      // No reaction window: knowledge is not an action, there is nothing to 📡. Counterplay
+      // is a 🌀 Slingshot later (shuffles the sight into noise) — not a counter at the moment.
+      if (s.phase !== 'command') return err('not in command phase');
+      if (cmd.player !== s.activePlayer) return err('not your turn');
+      const p = s.players[cmd.player];
+      if (p.faction !== 'deepsight') return err('no faction power available');
+      if (p.factionPowerUsed) return err('Deep Sight already spent this match');
+      p.factionPowerUsed = true;
+      const seen = s.deck.slice(0, 3);
+      s.stats.deepSights += 1;
+      addLog(s, 'deep_sight', { player: p.id, cards: seen }, { only: p.id }); // 🔭-style: the sight itself is private
       return ok(s);
     }
     case 'GIVE': {

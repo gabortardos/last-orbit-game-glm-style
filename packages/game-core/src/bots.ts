@@ -1,5 +1,5 @@
-import { CARD_INFO, TARGETED, furyDepthLimit } from './cards';
-import { canCourtFavor, canFlareSkip, nextAliveId, openRespondents } from './engine';
+import { ATTACK_REASONS, CARD_INFO, TARGETED, furyDepthLimit } from './cards';
+import { canAxialTilt, canCourtFavor, canFlareSkip, canRingWall, nextAliveId, openRespondents } from './engine';
 import type { CardKind, Command, GameState } from './types';
 
 export type BotPolicy = 'random' | 'greedy';
@@ -46,8 +46,8 @@ function othersWithCards(s: GameState, me: number, min = 1): number[] {
   return s.players.filter((p) => p.alive && p.id !== me && p.hand.length >= min).map((p) => p.id);
 }
 
-/** Reasons that count as attacks — the "you are attacked" trigger for ↪️ and ☿ Flare Skip. */
-const ATTACK_REASONS = ['boarding', 'pair', 'requisition', 'ion_surge', 'tractor'];
+/** Reasons that count as attacks — the "you are attacked" trigger for ↪️, ☿ Flare Skip
+ *  and ♅ Axial Tilt (shared table with the engine, D-033). */
 
 /** ♂ Mars Salvage Run: what the Rustborn want from a discard pile, best first (D-031). */
 const RUST_WANTED: CardKind[] = ['override', 'deflector', 'boarding', 'requisition', 'ion_surge', 'tractor', 'coolant', 'hull', 'salvage', 'scan', 'reversal', 'flyby', 'burn', 'slingshot'];
@@ -65,6 +65,16 @@ function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command 
     if (s.players[me].faction === 'rustborn' && !s.players[me].factionPowerUsed && rng() < 0.25) {
       const kind = RUST_WANTED.find((k) => s.discard.includes(k));
       if (kind) return { type: 'RUST_RUN', player: me, card: kind };
+    }
+    // D-033 🌍: sometimes one part and tape beats waiting for a twin
+    if (s.players[me].faction === 'kitbash' && !s.players[me].factionPowerUsed && rng() < 0.25) {
+      const part = (['coolant', 'hull'] as const).find((k) => hand.includes(k));
+      const ts = othersWithCards(s, me, 2);
+      if (part && ts.length > 0) return { type: 'KIT_BASH', player: me, card: part, target: pick(ts, rng) };
+    }
+    // D-033 ♆: a free peek is a peek for free
+    if (s.players[me].faction === 'deepsight' && !s.players[me].factionPowerUsed && rng() < 0.2) {
+      return { type: 'DEEP_SIGHT', player: me };
     }
     if (rng() < 0.3 && anyOther.length > 0 && (singles.length > 0 || pairKind)) {
       const playPair = pairKind && (singles.length === 0 || rng() < 0.25);
@@ -94,6 +104,11 @@ function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command 
   const scanned = lastScanThisTurn(s, me);
   const topKnown = scanned ? (scanned.data?.cards as CardKind[] | undefined)?.[0] : undefined;
   if (!scanned && singles.includes('scan')) return { type: 'PLAY', player: me, cards: ['scan'] };
+  // D-033 ♆: the free sight replaces the 🔭 card — save the card, spend the power,
+  // then this same policy reads the top card and dodges a known ☀️ like any scan
+  if (s.players[me].faction === 'deepsight' && !s.players[me].factionPowerUsed && !scanned) {
+    return { type: 'DEEP_SIGHT', player: me };
+  }
   // D-031 ♂: free salvage before anything else — the junk pile is a Rustborn birthright
   if (s.players[me].faction === 'rustborn' && !s.players[me].factionPowerUsed) {
     const kind = RUST_WANTED.find((k) => s.discard.includes(k));
@@ -131,6 +146,16 @@ function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command 
     }
     return { type: 'PLAY', player: me, cards: [pairKind as CardKind, pairKind as CardKind], target: pick(othersWithCards(s, me, 2), rng) };
   }
+  // D-033 🌍: one part + tape — why wait for twins (or scrap the part for a peek) when
+  // a siphon at the biggest rival hand is on? The Component is paid, the power burns.
+  if (s.players[me].faction === 'kitbash' && !s.players[me].factionPowerUsed) {
+    const part = (['coolant', 'hull'] as const).find((k) => hand.includes(k));
+    const ts = othersWithCards(s, me, 2);
+    if (part && ts.length > 0) {
+      const to = ts.reduce((a, b) => (s.players[b].hand.length >= s.players[a].hand.length ? b : a));
+      return { type: 'KIT_BASH', player: me, card: part, target: to };
+    }
+  }
   // lone Components with no pair in sight: scrap for a peek (D-016 B)
   if (!pairKind) {
     for (const k of ['coolant', 'hull'] as const) {
@@ -143,7 +168,8 @@ function botCommandPhase(s: GameState, policy: BotPolicy, rng: BotRng): Command 
 function lastScanThisTurn(s: GameState, me: number) {
   for (let i = s.log.length - 1; i >= 0; i--) {
     const e = s.log[i];
-    if (e.type === 'scan_seen' && e.turn === s.turnCount) {
+    // 🔭 Deep-Space Scan and ♆ Deep Sight (D-033) feed the same same-turn knowledge slot
+    if ((e.type === 'scan_seen' || e.type === 'deep_sight') && e.turn === s.turnCount) {
       const vis = e.visibility as { only?: number };
       if (vis && typeof vis === 'object' && vis.only === me) return e;
     }
@@ -169,6 +195,12 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
     if (canCourtFavor(s, me) && s.players[pend.initiator].hand.length > 0 && rng() < 0.6) {
       return { type: 'COURT_FAVOR', player: me };
     }
+    // D-033 ♄: the rings eat thefts aimed at them; ♅ tilts attacks away
+    if (canRingWall(s, me) && rng() < 0.6) return { type: 'RING_WALL', player: me };
+    if (canAxialTilt(s, me) && rng() < 0.6) {
+      const others = s.players.filter((q) => q.alive && q.id !== me);
+      if (others.length > 0) return { type: 'AXIAL_TILT', player: me, target: pick(others, rng).id };
+    }
     if (!canOnlyDeflect && p.alive && pend.target === me && p.hand.includes('deflector') && rng() < 0.3) {
       const others = s.players.filter((q) => q.alive && q.id !== me);
       if (others.length > 0) return { type: 'DEFLECT', player: me, target: pick(others, rng).id };
@@ -180,6 +212,16 @@ function botReactionFor(s: GameState, me: number, policy: BotPolicy, rng: BotRng
   // and requisitioned → the Court flips it (D-031 — a Courtier never pays tribute)
   if (canCourtFavor(s, me) && s.players[pend.initiator].hand.length > 0) {
     return { type: 'COURT_FAVOR', player: me };
+  }
+  // D-033 ♄: a Ring Corsair is never robbed — the wall rises (⚡/🧲 still bite: that's the counterplay)
+  if (canRingWall(s, me)) return { type: 'RING_WALL', player: me };
+  // D-033 ♅: a Sage refuses to be hit — the attack slides to the biggest rival hand, flat
+  if (p.alive && pend.target === me && (ATTACK_REASONS as readonly string[]).includes(pend.reason) && canAxialTilt(s, me)) {
+    const others = s.players.filter((q) => q.alive && q.id !== me);
+    if (others.length > 0) {
+      const to = others.reduce((x, y) => (y.hand.length >= x.hand.length ? y : x));
+      return { type: 'AXIAL_TILT', player: me, target: to.id };
+    }
   }
   // then a held Deflector; either way pass the problem to the biggest rival hand
   if (

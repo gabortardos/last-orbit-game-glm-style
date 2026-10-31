@@ -1,4 +1,4 @@
-import type { CardKind } from './types';
+import type { CardKind, PendingReason } from './types';
 
 export const FURY_CAP = 5;
 export const DEBT_CAP = 6;
@@ -34,6 +34,10 @@ export const TARGETED: readonly CardKind[] = ['boarding', 'requisition', 'ion_su
 export const SCALING: readonly PendingReasonShim[] = ['ion_surge', 'tractor'];
 export const DEFLECT_CAP = 3; // max payload growth per chain
 export const SNAG_KEEP = 3; // 🧲 Tractor Snag: keep this many (minus growth)
+/** The steal-a-card family — the reasons ♄ Ringwall answers (D-033). */
+export const THEFT_REASONS: readonly PendingReason[] = ['boarding', 'pair', 'requisition'];
+/** The targets-a-captain family — the "you are attacked" trigger for ↪️/☿/♅ (D-033). */
+export const ATTACK_REASONS: readonly PendingReason[] = ['boarding', 'pair', 'requisition', 'ion_surge', 'tractor'];
 
 type PendingReasonShim = 'ion_surge' | 'tractor';
 

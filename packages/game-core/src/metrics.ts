@@ -30,6 +30,10 @@ export interface MatchReport {
   courtFavors: number; // ♀ faction power uses (D-031)
   rustRuns: number; // ♂ faction power uses (D-031)
   stormShouts: number; // ♃ faction power uses (D-031)
+  kitBashes: number; // 🌍 faction power uses (D-033)
+  ringWalls: number; // ♄ faction power uses (D-033)
+  axialTilts: number; // ♅ faction power uses (D-033)
+  deepSights: number; // ♆ faction power uses (D-033)
   maxGrowth: number; // tallest escalation chain payload growth
   passTurnRate: number; // fraction of turns with zero card plays
   playedCounts: Partial<Record<CardKind, number>>;
@@ -114,6 +118,10 @@ export function matchReport(s: GameState): MatchReport {
     courtFavors: s.stats.courtFavors,
     rustRuns: s.stats.rustRuns,
     stormShouts: s.stats.stormShouts,
+    kitBashes: s.stats.kitBashes,
+    ringWalls: s.stats.ringWalls,
+    axialTilts: s.stats.axialTilts,
+    deepSights: s.stats.deepSights,
     maxGrowth: s.stats.maxGrowth,
     passTurnRate: s.turnCount > 0 ? 1 - turnsWithPlays.size / s.turnCount : 0,
     playedCounts,

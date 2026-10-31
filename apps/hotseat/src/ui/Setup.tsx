@@ -11,6 +11,10 @@ const FACTION_LABEL: Record<FactionId, string> = {
   courtier: '♀ Venus · Court Favor',
   rustborn: '♂ Mars · Salvage Run',
   stormkin: '♃ Jupiter · Storm Shout',
+  kitbash: '🌍 Earth · Kit Bash',
+  ringwall: '♄ Saturn · Ringwall',
+  axialtilt: '♅ Uranus · Axial Tilt',
+  deepsight: '♆ Neptune · Deep Sight',
 };
 
 export default function Setup({ onStart }: { onStart: (o: StartOptions) => void }) {
@@ -126,6 +130,10 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
           <span>♀ Court Favor — when requisitioned, flip it: they gift you instead</span>
           <span>♂ Salvage Run — take any discard card for free on your turn (📡-able)</span>
           <span>♃ Storm Shout — when you draw a storm, another captain jettisons instead</span>
+          <span>🌍 Kit Bash — play one ❄️/🛠️ as a full pair: siphon (📡-able, ↪️-able)</span>
+          <span>♄ Ringwall — a theft of their cards fizzles (⚡/🧲 vandalism still bites)</span>
+          <span>♅ Axial Tilt — an attack aimed at them slides to someone else, un-grown</span>
+          <span>♆ Deep Sight — a free private peek at the top 3 cards of the deck</span>
         </div>
       </div>
 

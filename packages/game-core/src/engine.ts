@@ -1,4 +1,4 @@
-import { BASE_DECK, CONTAINMENT_COUNT } from './cards';
+import { ATTACK_REASONS, BASE_DECK, CONTAINMENT_COUNT, THEFT_REASONS } from './cards';
 import { randomInt, shuffled } from './rng';
 import type { GameConfig, GameState, LogVisibility, PlayerState } from './types';
 
@@ -77,7 +77,8 @@ export function createGame(config: GameConfig): GameState {
       maxOverrideStack: 0, flybysPlayed: 0, maxDebt: 0, drawsTotal: 0, reshuffles: 0,
       steals: 0, fizzles: 0, scansPlayed: 0, salvagesPlayed: 0,
       scrapsPlayed: 0, forcedDiscards: 0, deflections: 0, flareSkips: 0,
-      courtFavors: 0, rustRuns: 0, stormShouts: 0, maxGrowth: 0,
+      courtFavors: 0, rustRuns: 0, stormShouts: 0,
+      kitBashes: 0, ringWalls: 0, axialTilts: 0, deepSights: 0, maxGrowth: 0,
     },
   };
   addLog(s, 'game_start', { playerCount: n, modules: s.config.modules, seed, first: s.activePlayer });
@@ -135,6 +136,32 @@ export function canCourtFavor(s: GameState, id: number): boolean {
 }
 
 /**
+ * D-033 ♄ Saturn "Ringwall": true when `id` may void the current theft — a steal-family
+ * reason (🪝 Boarding / Component pair / 🤝 Requisition) aimed at them, alive, faction
+ * pilot, power unspent. Deliberately NOT chained to the deflectors list — a wall is a
+ * refusal, not a redirect, so it works even if ♄ already redirected earlier in the chain.
+ */
+export function canRingWall(s: GameState, id: number): boolean {
+  const pending = s.pending;
+  if (!pending || !(THEFT_REASONS as readonly string[]).includes(pending.reason) || pending.target !== id) return false;
+  const p = s.players[id];
+  return p.alive && p.faction === 'ringwall' && !p.factionPowerUsed;
+}
+
+/**
+ * D-033 ♅ Uranus "Axial Tilt": true when `id` may tilt the current attack away — an
+ * attack-family reason aimed at them, alive, faction pilot, power unspent, and they have
+ * not already redirected in this chain (shared once-per-captain-per-chain limit, like ☿).
+ */
+export function canAxialTilt(s: GameState, id: number): boolean {
+  const pending = s.pending;
+  if (!pending || !(ATTACK_REASONS as readonly string[]).includes(pending.reason) || pending.target !== id) return false;
+  const p = s.players[id];
+  return p.alive && p.faction === 'axialtilt' && !p.factionPowerUsed
+    && !(pending.deflectors ?? []).includes(id);
+}
+
+/**
  * True when the captain can actually DO something in the current reaction window:
  * hold a Comms Override, be the current target with an unused Deflector (§4.6) or an
  * unspent ☿ Flare Skip (D-029), or be a Derelict with an armed Final Transmission.
@@ -157,7 +184,9 @@ export function canRespond(s: GameState, id: number): boolean {
   if (p.hand.includes('override')) return true;
   return (pending.target === id && p.hand.includes('deflector') && !(pending.deflectors ?? []).includes(id))
     || canFlareSkip(s, id)
-    || canCourtFavor(s, id);
+    || canCourtFavor(s, id)
+    || canRingWall(s, id)
+    || canAxialTilt(s, id);
 }
 
 /** D-022: everyone the open reaction window must wait on a decision from — every

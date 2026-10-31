@@ -1,5 +1,27 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, late night — faction layer v3: 🌍♄♅♆ ship — all eight civs playable — 2026-10-25 ✅
+
+**Phase:** Gábor signed off all four outer powers ("yes to all powers for now — I'll test them, once they are in the game") and pointed development at the product. Logged: PT-01/02 move to the online version (D-034 — "I'm mostly alone"), title deferred indefinitely, passive specialities brainstorm opened (D-035 — no code until it fits).
+
+**Shipped (D-033):**
+1. **Engine — the four outer powers, all opt-in per-seat, once per match, spent publicly (Pillar 4):**
+   - 🌍 **Kit Bash** (`KIT_BASH`): one ❄️/🛠️ played as a completed pair — opens a real `pair` reaction window (one 📡 cancels the steal, victim may ↪️); the Component is paid, the power burns at initiation (baitable, like ♂).
+   - ♄ **Ringwall** (`RING_WALL`): a theft aimed at ♄ (🪝/🤝/pair) fizzles — resolved instantly mid-window (nothing left to 📡); attacker's card stays spent; ⚡/🧲 destruction passes (the counterplay). `canRingWall` keeps the window waiting even on an empty hand.
+   - ♅ **Axial Tilt** (`AXIAL_TILT`): an attack aimed at ♅ is re-aimed at a captain of ♅'s choosing with **no payload growth** (≠ ☿'s +1); shares the once-per-captain-per-chain limit; 2-player: slides straight back at the attacker; growth already on the chain is preserved; a later ↪️ grows normally.
+   - ♆ **Deep Sight** (`DEEP_SIGHT`): instant private top-3 peek during your own Command Phase — no window (nothing to 📡); the bot feeds it into the 🔭 knowledge slot and actually dodges a seen ☀️.
+   - Three implementation rulings logged in `docs/14` §v3 (♅ picks the re-aim · ♄ instant mid-window · ♆ own Command Phase).
+2. **Bots:** greedy + random policies for all four (🌍 bashes early at the biggest hand; ♄ never pays a thief; ♅ refuses to be hit; ♆ sights free then dodges). `ATTACK_REASONS`/`THEFT_REASONS` shared with the engine via `cards.ts`.
+3. **App:** Setup fleet pickers for all eight civs + fleetnote lines · ready/spent chips ×4 · 🌍 part→victim chooser + ♆ Look button in the command phase · ♄/♅ buttons in the reaction overlay + ♅ tilt chooser · feed lines for the new events (essential for ♄ — its resolution is silence) · SFX stingers · ScanModal shared with ♆ · Codex flips 🌍♄♅♆ to playable.
+4. **Tests:** `engine-faction-v3.test.ts` — 18 new (powers, guards, windows, 2p edge, bot policies); **93/93 green**. Typecheck ✓ · build ✓ · sim ✓ (16,500 games clean, vanilla untouched).
+5. **Docs:** `11` D-032→ADOPTED + D-033/D-034/D-035 + pending list refreshed · `13` PT-01/02 re-gated on the online version (P4 promoted as the human-testing vehicle); P2 faction lane checked through v3 · `14` v0.7 (§v3 IMPLEMENTED + §Passives brainstorm) · this file.
+
+**Next:**
+1. **Gábor tests the four powers in-game** (solo vs AI, any fleet) — feedback → tuning or veto per power.
+2. **D-035 passives brainstorm with Gábor:** pick a family (card resistances vs body modifiers, or mix), fill the open slots (♄ ♅ ♂), then faction-seated sim + sign-off before any engine work.
+3. **PT-F1 pretests** (☿♀♂♃ + now 🌍♄♅♆) via solo-vs-AI per `docs/08`.
+4. Rising priority per D-034: the **online version** (P4) as the human-testing vehicle — Colyseus/PartyKit spike when Gábor gives the word.
+
 ## Session 1, night — bible v0.6: all eight civs deep-designed + Setup tidy — 2026-10-25 ✅
 
 **Phase:** Gábor's story push ("do all of them" — his four next-step options). Gábor feedback logged: race stories interesting but needing development (→ this session); start-screen graphics rough (accepted as placeholder — tidy only, real art is P3).

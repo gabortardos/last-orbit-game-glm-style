@@ -25,12 +25,18 @@ export interface ModuleFlags {
   derelicts: boolean;
 }
 
-/** Faction layer (D-029 pilot + D-031 batch): per-seat, optional, off by default.
+/** Faction layer (D-029 pilot + D-031 batch + D-033 outer batch): per-seat, optional, off by default.
  *  'flareskip' = Mercury — once per match, free ↪️-redirect when attacked (docs/14 §Pilot).
  *  'courtier'  = Venus — once per match, reverse a 🤝 Requisition aimed at you (docs/14 §Courtier).
  *  'rustborn'  = Mars — once per match, free ♻️-salvage during your Command Phase (docs/14 §Rustborn).
- *  'stormkin'  = Jupiter — once per match, pass a drawn ☄️ Storm's jettison to another captain (docs/14 §Stormkin). */
-export type FactionId = 'flareskip' | 'courtier' | 'rustborn' | 'stormkin';
+ *  'stormkin'  = Jupiter — once per match, pass a drawn ☄️ Storm's jettison to another captain (docs/14 §Stormkin).
+ *  'kitbash'   = Earth — once per match, one ❄️/🛠️ counts as a full pair-siphon (docs/14 §v3).
+ *  'ringwall'  = Saturn — once per match, a theft of their cards fizzles (docs/14 §v3).
+ *  'axialtilt' = Uranus — once per match, re-aim an attack aimed at them, no payload growth (docs/14 §v3).
+ *  'deepsight' = Neptune — once per match, free private top-3 deck peek (docs/14 §v3). */
+export type FactionId =
+  | 'flareskip' | 'courtier' | 'rustborn' | 'stormkin'
+  | 'kitbash' | 'ringwall' | 'axialtilt' | 'deepsight';
 
 export interface GameConfig {
   playerCount: number; // 2..5
@@ -107,6 +113,10 @@ export interface GameStats {
   courtFavors: number; // ♀ faction power uses (D-031)
   rustRuns: number; // ♂ faction power uses (D-031; counted at initiation — a 📡-cancelled run still burns the power)
   stormShouts: number; // ♃ faction power uses (D-031)
+  kitBashes: number; // 🌍 faction power uses (D-033; counted at initiation — a 📡-cancelled bash still burns it)
+  ringWalls: number; // ♄ faction power uses (D-033)
+  axialTilts: number; // ♅ faction power uses (D-033)
+  deepSights: number; // ♆ faction power uses (D-033)
   maxGrowth: number; // tallest escalation chain payload growth
 }
 
@@ -141,6 +151,10 @@ export type Command =
   | { type: 'COURT_FAVOR'; player: number } // ♀ Venus power (D-031): reverse a Requisition aimed at you — the initiator gifts you instead, once per match
   | { type: 'RUST_RUN'; player: number; card: CardKind } // ♂ Mars power (D-031): free Salvage during your Command Phase, once per match (📡 can cancel)
   | { type: 'STORM_SHOUT'; player: number; target: number } // ♃ Jupiter power (D-031): you drew a ☄️ — another captain jettisons instead, once per match
+  | { type: 'KIT_BASH'; player: number; card: CardKind; target: number } // 🌍 Earth power (D-033): play one ❄️/🛠️ as a completed pair-siphon, once per match (spends the card + the power)
+  | { type: 'RING_WALL'; player: number } // ♄ Saturn power (D-033): the theft aimed at you fizzles mid-window, once per match (the attacker's cards are already spent)
+  | { type: 'AXIAL_TILT'; player: number; target: number } // ♅ Uranus power (D-033): re-aim the attack at another captain with NO payload growth (2-player: it slides back at the attacker)
+  | { type: 'DEEP_SIGHT'; player: number } // ♆ Neptune power (D-033): free private top-3 peek during your own Command Phase, once per match
   | { type: 'GIVE'; player: number; card: CardKind } // resolve Requisition gift
   | { type: 'STORM_DISCARD'; player: number; card: CardKind } // resolve ☄️ Storm jettison
   | { type: 'SNAG_DISCARD'; player: number; cards: CardKind[] } // resolve 🧲 Tractor Snag discards

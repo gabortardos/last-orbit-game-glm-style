@@ -1,4 +1,4 @@
-# 14 — Civilization Bible (v0.6 — all eight civs deep-designed; 4 playable + 4 power designs awaiting sign-off, D-028→D-032)
+# 14 — Civilization Bible (v0.7 — all eight civs deep-designed AND playable; passives brainstorm open, D-028→D-035)
 
 Eight playable civilizations. Direction table below inherits the master-prompt concepts — **critiqued, not final**. Deep design (biology, captain, flagship, comedy premise, play-style, real-planet hooks, colours/materials/motion/sound, anti-one-joke flexibility) begins in P2, one civilization at a time (pilot: Mercury).
 
@@ -57,14 +57,14 @@ The same opt-in per-seat layer as ☿ (Setup → fleet picker; classic = default
 
 All three follow the framework above: opt-in, once-per-match, v0.3 vocabulary only (🤝/♻-window/☄️/📡 — no new cards), sim-expressible (greedy + random bot policies shipped), spent powers public. Stats: `courtFavors`, `rustRuns`, `stormShouts` (plus `flareSkips`).
 
-## Faction layer v3 — the four outer designs (D-032 PROPOSED — awaiting Gábor's sign-off; implementation follows the D-028→D-029 pattern)
+## Faction layer v3 — the four outer powers (D-032 ADOPTED — Gábor signed off all four → **implemented as D-033: all eight civilizations playable**)
 
-The last four civilizations are now deep-designed (full lore sheets in the in-app Codex — captains, flagships, comedy wells, real-fact hooks, palettes, rivalries). This section records the **power designs** each sheet must match. All four pass the six framework rules: one sentence, base-deck counterplay, once per match, v0.3 vocabulary only, sim-expressible, spent publicly. **None are implemented yet** — engine + app + bots follow Gábor's sign-off (the Mercury pattern: D-028 draft → sign-off → D-029 implementation).
+The last four civilizations are deep-designed (full lore sheets in the in-app Codex — captains, flagships, comedy wells, real-fact hooks, palettes, rivalries). This section records the **power rules** each sheet must match. All four pass the six framework rules: one sentence, base-deck counterplay, once per match, v0.3 vocabulary only, sim-expressible, spent publicly. Sign-off (2026-10-25): *"yes to all powers for now. I'll test them, once they are in the game."* Three implementation rulings shipped with D-033: ① **♅ picks the re-aim target** (same chooser UX as ↪️/☿ — the attacker may be a bot or offline mid-window); in 2-player the attack slides straight back at the attacker. ② **♄ resolves instantly, mid-window** — cancelling an already-dead theft is meaningless, so nothing is left to 📡. ③ **♆ is usable during your own Command Phase** (hotseat privacy — v1 ruling on "any moment").
 
-- **🌍 The Improvisers (Earth) — "Kit Bash":** *once per match, during your Command Phase, play a single ❄️/🛠️ Component as if it were a completed matching pair — siphon 1 random card from a target captain.* Normal pair rules apply (one 📡 cancels; the victim may ↪️). Counterplay: 📡 the siphon, ↪️ it onward, or strip components early (🧲/🤝 take them first — the bots already do). Identity: everyone else needs twins; Earth needs one part and a roll of tape.
-- **♄ The Ring Corsairs (Saturn) — "Ringwall":** *once per match, when a theft would take a card from your hand (🤝 Requisition, 🪝 Boarding, or a Component-pair siphon), the theft fizzles — the attacker's card is still spent, your card stays.* Counterplay: bait it (spent is public), then punish with ⚡/🧲 — the rings stop theft, not vandalism — or attack the clock (🚀 Flyby debt). Identity: the fortress-hoarder; the counter is destruction, not robbery.
-- **♅ The Sideways Sages (Uranus) — "Axial Tilt":** *once per match, when an attack card or pair targets you, the attacker must choose a different legal target — the play proceeds normally with no ↪️ payload growth.* Counterplay: public spend = bait it; non-targeted pressure (🚀 debt, 🌀 chaos, deck attrition) ignores a tilt entirely; a 📡 still kills whatever gets re-aimed. Identity: not ☿'s aggressive redirect (his choice, his victim, payload grows) — a flat refusal. You cannot hit what is sideways.
-- **♆ The Deepwave Oracles (Neptune) — "Deep Sight":** *once per match, at any moment (even off-turn), privately view the top 3 cards of the deck — 🔭 Deep-Space Scan without spending a card.* Counterplay: 🌀 Slingshot shuffles the sight into noise (hold one against an oracle); spent is public; and knowledge is not armor — they still need the 🛡️ everyone else does. Identity: the information civilization.
+- **🌍 The Improvisers (Earth) — "Kit Bash":** *once per match, during your Command Phase, play a single ❄️/🛠️ Component as if it were a completed matching pair — siphon 1 random card from a target captain.* Normal pair rules apply (one 📡 cancels; the victim may ↪️) and the bash burns at initiation like ♂ — baitable. Counterplay: 📡 the siphon, ↪️ it onward, or strip components early (🧲/🤝 take them first — the bots already do). Identity: everyone else needs twins; Earth needs one part and a roll of tape.
+- **♄ The Ring Corsairs (Saturn) — "Ringwall":** *once per match, when a theft would take a card from your hand (🤝 Requisition, 🪝 Boarding, or a Component-pair siphon), the theft fizzles — the attacker's card is still spent, your card stays.* Resolves instantly, mid-window (ruling ②). Counterplay: bait it (spent is public), then punish with ⚡/🧲 — the rings stop theft, not vandalism — or attack the clock (🚀 Flyby debt). Identity: the fortress-hoarder; the counter is destruction, not robbery.
+- **♅ The Sideways Sages (Uranus) — "Axial Tilt":** *once per match, when an attack card or pair targets you, it is re-aimed at a different captain of ♅'s choosing (ruling ①) — the play proceeds normally with no ↪️ payload growth.* In 2-player it slides straight back at the attacker. Counterplay: public spend = bait it; non-targeted pressure (🚀 debt, 🌀 chaos, deck attrition) ignores a tilt entirely; a 📡 still kills whatever gets re-aimed. Identity: not ☿'s aggressive redirect (his choice, his victim, payload grows) — a flat refusal. You cannot hit what is sideways.
+- **♆ The Deepwave Oracles (Neptune) — "Deep Sight":** *once per match, during your own Command Phase (ruling ③), privately view the top 3 cards of the deck — 🔭 Deep-Space Scan without spending a card.* No reaction window — knowledge is not an action, there is nothing to 📡; the bot policy feeds the sight into the same knowledge slot as 🔭 and actually dodges a seen ☀️. Counterplay: 🌀 Slingshot shuffles the sight into noise (hold one against an oracle); spent is public; and knowledge is not armor — they still need the 🛡️ everyone else does. Identity: the information civilization.
 
 **Power-axis spread (no overlaps):** redirect-attack (☿) · flip-theft (♀) · discard-access (♂) · storm-transfer (♃) · pair-improv (🌍) · theft-wall (♄) · re-aim (♅) · free-peek (♆). The two "no" powers (♄ theft, ♅ attack) are split by axis (economy vs aggression) and by who picks the next victim (nobody vs the attacker).
 
@@ -83,6 +83,27 @@ The last four civilizations are now deep-designed (full lore sheets in the in-ap
 - **Palette / materials / sound / motion:** obsidian black + heat-gold + one coolant-cyan accent (triad is colour-safe; never colour-only — the sail glyph is the shape code). Materials: cast glass, gold foil, steam. Sound: kettle-whistle whoosh; glass *ping* as it cools. Motion verbs: *skip, lance, vent, furl, overshoot.*
 - **Identity & counters:** the tempo–dodge civilization — strong against attack chains (deflect culture) and baiting; weak against hand-economy pressure (🧲 discard-down, 🤝 requisition — small fast hands overheat fast). Future rivalries: Jupiter Stormkin (amplify vs deflect — elemental opposites), Saturn Ring Corsairs (hoarders vs spendthrifts). After Flare Skip burns, they're visibly just fast — the counter is patience.
 
+## Passive specialities — brainstorm (D-035 PROPOSED — no code yet)
+
+**Gábor's concept (2026-10-25):** beyond the once-per-match **active** power, each civilization could carry a small **always-on passive speciality** — a constant thematic modifier, not an extra card. "For example, one of the races has a special ability because they are closer to technology, so when they are hit by technology they are not as affected. Of course affected, just a bit less than the others. Or another one, since they live close to the sun, can handle sunbursts better." Rules: brainstorm first, paste in only what fits the gameplay.
+
+**Proposed framework amendments (passives would be held to these):**
+
+1. **One passive per civ, max** — the active stays the headline; the passive is flavor you can *feel*, not a second power system.
+2. **Pure discounts on existing effects** — no new mechanics, only ±1 / percentage tweaks on effects that already exist (sim-expressible, zero new vocabulary).
+3. **Small by construction** — worth ≤ roughly half a card over a whole match. Actives can be baited once; passives never turn off, so they must be weaker than any active.
+4. **Thematically obvious** — guessable from the planet alone (Mercury = heat, Saturn = hoard, Neptune = knowing…).
+5. **Vanilla untouched** — passives ride the opt-in `factions` layer; classic seats identical (all pre-existing tests stay green, the D-029/D-031/D-033 proof pattern).
+
+**Two candidate families (pick one, or a deliberate mix — open):**
+
+- **A. Card resistances** (Gábor's examples): each civ shrugs a little at one named card family — ☿ shrugs at ☀️/Fury, ♀ at 🤝 (talks her way out), ♂ at ⚡ (grounds it), ♃ at ☄️ (eats storms), ♅ at 🧲 (ice doesn't snag)… Risk: quietly nerfs those cards whenever that civ is seated — the sim must watch per-matchup card values. Typical shapes: ⚡ discards 1 fewer (min 1) / 🧲 keep +1 / 🤝 they see your hand first (info, not immunity).
+- **B. Body modifiers** (constant small boons): 🌍 scrap-peek shows 2 cards (jury rigging) · ♆ 🔭 shows 4 · ♃ keeps 4 vs 🧲 · ☿'s contained ☀️ adds no Fury (the Sun barely surprises them)… Risk: harder to *feel* at the table, easier to balance.
+
+**Open slots (need ideas that don't overlap the actives):** ♄ (theft-protection is already Ringwall — maybe salvage/economy?) · ♅ (re-aiming is already Tilt — maybe ❄️/cold-adjacent?) · ♂ (rust economy — something discard-pile flavored that isn't Salvage Run).
+
+**Gate before any of this becomes real:** a faction-seated sim config in `run-sim` (the seats exist — they're opt-in) comparing win-rate spread vs vanilla per player count, plus Gábor's sign-off per civ. Nothing enters the engine from this section until then.
+
 ## Casting rules (from brief)
 
 No plain humans in coloured suits (Earth excepted); no grey/green alien clichés; not every faction an animal with accessories; each civ flexible enough to carry expansions.
@@ -93,6 +114,7 @@ The Sun = chaotic environmental antagonist (never playable). Moons, Pluto, comet
 
 ## Change log
 
+- v0.7 (2026-10-25): faction layer **v3** (D-032 signed off → **D-033**) — 🌍 Kit Bash, ♄ Ringwall, ♅ Axial Tilt, ♆ Deep Sight implemented in engine+app+bots with three implementation rulings (§v3); **all eight civilizations playable**. 18 new tests (`engine-faction-v3.test.ts`, 93 total green); sim clean. §Passive specialities brainstorm opened (D-035 — proposed, no code). PT-01/02 human playtests re-gated on the online version (D-034).
 - v0.6 (2026-10-25): **all eight civilizations deep-designed** (D-032) — the four outer civs get full Codex sheets + power designs (🌍 Kit Bash, ♄ Ringwall, ♅ Axial Tilt, ♆ Deep Sight — PROPOSED, awaiting sign-off); the four playable sheets deepened (+wells, +facts, expanded-lore paras). Setup gets a functional tidy (not the P3 art pass).
 - v0.5 (2026-10-25): faction layer **v2** (D-031) — ♀ Court Favor, ♂ Salvage Run, ♃ Storm Shout implemented in engine+app+bots alongside ☿; four of eight civilizations playable. Deep sheets for all four playable civs live in the in-app Codex (data-driven `Sheet[]`). 11 new tests (`engine-faction-v2.test.ts`, 75 total green).
 - v0.4 (2026-10-25): D-028 **ADOPTED** (Gábor sign-off). Flare Skip implemented in engine+app as an opt-in per-seat layer (D-029; framework rule 6 amended for the pilot); solo-vs-AI pretest defined as PT-F1 (`docs/08`). The bible is now readable on the game screen as the in-app **Codex** (D-030).

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CARD_INFO, canCourtFavor, canRespond, eligibleReactorIds, furyDepthLimit, openRespondents } from '@last-orbit/game-core';
+import { CARD_INFO, canAxialTilt, canCourtFavor, canRespond, canRingWall, eligibleReactorIds, furyDepthLimit, openRespondents } from '@last-orbit/game-core';
 import type { CardKind, Command, GameState, LogEntry, MatchReport } from '@last-orbit/game-core';
 import { isMuted, startAudio, toggleMuted } from '../audio';
 
@@ -128,6 +128,10 @@ function fmtEntry(game: GameState) {
       case 'snag_hit': return `🧲 Tractor Snag! ${name(d.target)} must discard ${d.discardCount} card${Number(d.discardCount) > 1 ? 's' : ''} (keep ${d.keep}).`;
       case 'snag_discard': return `🧲 ${name(d.player)} lets go of ${cardNames(d.cards as CardKind[])}.`;
       case 'scrap_seen': return `🔧 Scrap peek — the top card is ${cardNames(d.cards as CardKind[])}.`;
+      case 'kit_bash': return `🌍 ${name(d.player)} kit-bashes ${CARD_INFO[d.card as CardKind].name} into a full pair — siphon aimed at ${name(d.target)}!`;
+      case 'ring_wall': return `♄ ${name(d.by)} raises the Ringwall — the theft fizzles on the rings.`;
+      case 'axial_tilt': return `♅ ${name(d.by)} tilts sideways — the attack slides off${d.to !== undefined ? ` to ${name(d.to)}` : ''}, un-grown.`;
+      case 'deep_sight': return `♆ You saw the top ${(d.cards as CardKind[]).length} cards.`;
       case 'win': return `🏆 ${name(d.player)} wins the Grand Solar Rally!`;
       default: return '';
     }
@@ -139,7 +143,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
   dispatch: (c: Command) => void;
   humans?: number[]; // solo vs AI: bots decide on their own; only the human's row is interactive
 }) {
-  const [redirect, setRedirect] = useState<'card' | 'flare' | null>(null); // ↪️ Deflector or ☿ Flare Skip chooser
+  const [redirect, setRedirect] = useState<'card' | 'flare' | 'tilt' | null>(null); // ↪️ Deflector, ☿ Flare Skip or ♅ Axial Tilt chooser
   if (game.phase !== 'reaction' || !game.pending) return null;
   const pending = game.pending;
   const undecided = openRespondents(game); // includes a bounced-back initiator holding a live ↪️ (D-022)
@@ -186,6 +190,8 @@ export function ReactionOverlay({ game, dispatch, humans }: {
           const canDeflectCard = isTarget && p.alive && p.hand.includes('deflector') && !inChain;
           const canFlare = isTarget && p.alive && p.faction === 'flareskip' && !p.factionPowerUsed && !inChain;
           const canFavor = isTarget && p.alive && canCourtFavor(game, id); // D-031 ♀: flips a 🤝 back at the initiator
+          const canWall = isTarget && p.alive && canRingWall(game, id); // D-033 ♄: thefts die on the rings
+          const canTilt = isTarget && p.alive && canAxialTilt(game, id); // D-033 ♅: attacks slide off, un-grown
           if (solo && !humans.includes(id)) {
             return (
               <div key={id} className="reactrow">
@@ -195,21 +201,29 @@ export function ReactionOverlay({ game, dispatch, humans }: {
             );
           }
           if (redirect && isTarget) {
-            const flare = redirect === 'flare';
+            const mode = redirect; // 'card' = ↪️ Deflector · 'flare' = ☿ power · 'tilt' = ♅ power
+            const glyph = mode === 'flare' ? '☿' : mode === 'tilt' ? '♅' : '↪️';
+            const lead = mode === 'flare'
+              ? 'Flare Skip — send it at (free, once per match):'
+              : mode === 'tilt'
+                ? 'Axial Tilt — it slides to (no growth, once per match):'
+                : 'Send it at:';
             return (
               <div key={id} className="reactrow">
-                <span className="pname">{p.name} {flare ? '☿' : '↪️'}</span>
-                <span className="hint">{flare ? 'Flare Skip — send it at (free, once per match):' : 'Send it at:'}</span>
+                <span className="pname">{p.name} {glyph}</span>
+                <span className="hint">{lead}</span>
                 {game.players.filter((q) => q.alive && q.id !== id).map((q) => (
                   <button
                     key={q.id}
                     className="mini"
-                    title={`The attack hits ${q.name} instead${(pending.reason === 'ion_surge' || pending.reason === 'tractor') ? ' and grows by 1' : ''}.`}
+                    title={`The attack hits ${q.name} instead${mode === 'tilt' ? ' — with NO payload growth (a flat refusal)' : (pending.reason === 'ion_surge' || pending.reason === 'tractor') ? ' and grows by 1' : ''}.`}
                     onClick={() => {
                       setRedirect(null);
-                      dispatch(flare
+                      dispatch(mode === 'flare'
                         ? { type: 'FLARE_SKIP', player: id, target: q.id }
-                        : { type: 'DEFLECT', player: id, target: q.id });
+                        : mode === 'tilt'
+                          ? { type: 'AXIAL_TILT', player: id, target: q.id }
+                          : { type: 'DEFLECT', player: id, target: q.id });
                     }}
                   >
                     {q.name} ({q.hand.length})
@@ -251,6 +265,24 @@ export function ReactionOverlay({ game, dispatch, humans }: {
                   ♀ Court Favor — flip the tribute
                 </button>
               )}
+              {canWall && (
+                <button
+                  className="mini flarebtn"
+                  title="♄ Saturn faction power (once per match): this theft fizzles — the attacker's card is already spent, yours stays. Destruction (⚡/🧲) is not theft: it passes the rings, and that is the counterplay."
+                  onClick={() => dispatch({ type: 'RING_WALL', player: id })}
+                >
+                  ♄ Ringwall — the rings eat it
+                </button>
+              )}
+              {canTilt && (
+                <button
+                  className="mini flarebtn"
+                  title="♅ Uranus faction power (once per match): the attack slides off — re-aimed at another captain with NO payload growth. Not ☿'s aggressive redirect: a flat refusal. (Two captains: it slides straight back at the attacker.)"
+                  onClick={() => setRedirect('tilt')}
+                >
+                  ♅ Axial Tilt — refuse it
+                </button>
+              )}
               {!isInitiator && (
                 <button
                   className="mini"
@@ -278,14 +310,15 @@ function ScanModal({ game, dispatch, viewer }: { game: GameState; dispatch: (c: 
   const me = viewer ?? game.activePlayer;
   const [revealed, setRevealed] = useState(false);
   const entry = [...game.log].reverse().find(
-    (e) => e.type === 'scan_seen' && e.turn === game.turnCount && typeof e.visibility === 'object' && (e.visibility as { only: number }).only === me,
+    // 🔭 Deep-Space Scan and ♆ Deep Sight (D-033) share the private-peek modal
+    (e) => (e.type === 'scan_seen' || e.type === 'deep_sight') && e.turn === game.turnCount && typeof e.visibility === 'object' && (e.visibility as { only: number }).only === me,
   );
   if (!entry || revealed) return null;
   const cards = (entry.data?.cards ?? []) as CardKind[];
   return (
     <div className="overlay">
       <div className="modal">
-        <h3>🔭 Deep-Space Scan</h3>
+        <h3>{entry.type === 'deep_sight' ? '♆ Deep Sight' : '🔭 Deep-Space Scan'}</h3>
         <p className="hint">Only {game.players[me].name} should look.</p>
         <div className="scanrow">
           {cards.map((c, i) => (

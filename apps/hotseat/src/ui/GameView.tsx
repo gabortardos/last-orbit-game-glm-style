@@ -20,6 +20,22 @@ const FACTION_CHIP: Record<FactionId, { label: string; title: string }> = {
     label: '♃ Storm Shout',
     title: '♃ Jupiter — Storm Shout: once per match, when you draw a ☄️ Storm, jettison nothing — another captain jettisons 1 card instead. Spent powers are public.',
   },
+  kitbash: {
+    label: '🌍 Kit Bash',
+    title: '🌍 Earth — Kit Bash: once per match, during your Command Phase, play a single ❄️/🛠️ Component as a completed pair — siphon 1 random card from a target (one 📡 cancels it; the victim may ↪️; the bash is spent either way). Spent powers are public.',
+  },
+  ringwall: {
+    label: '♄ Ringwall',
+    title: '♄ Saturn — Ringwall: once per match, when a theft (🪝 Boarding, 🤝 Requisition or a Component pair) would take a card from you, the theft fizzles — the attacker\'s card is still spent. ⚡/🧲 destruction is not theft: it passes the rings. Spent powers are public.',
+  },
+  axialtilt: {
+    label: '♅ Axial Tilt',
+    title: '♅ Uranus — Axial Tilt: once per match, when an attack card or pair targets you, it is re-aimed at another captain with NO payload growth (2-player: it slides back at the attacker). A later ↪️ from the new target grows normally. Spent powers are public.',
+  },
+  deepsight: {
+    label: '♆ Deep Sight',
+    title: '♆ Neptune — Deep Sight: once per match, during your own Command Phase, privately view the top 3 cards of the deck — a 🔭 without spending the card. Counterplay: 🌀 Slingshot shuffles the sight into noise. Spent powers are public.',
+  },
 };
 import { LogFeed, Modals, SoundButton } from './Overlays';
 import Briefing from './Briefing';
@@ -37,6 +53,7 @@ interface Props {
 
 export default function GameView({ game, viewer, humans, dispatch, error, report, onNewGame }: Props) {
   const [choosing, setChoosing] = useState<CardKind[] | null>(null); // play awaiting target/salvage
+  const [bashKind, setBashKind] = useState<CardKind | null>(null); // D-033 🌍 Kit Bash: which Component, then which victim
   const [help, setHelp] = useState(false);
   const [civs, setCivs] = useState(false);
   const solo = humans.length === 1;
@@ -185,6 +202,55 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
                   {CARD_INFO[k].emoji} {CARD_INFO[k].name}
                 </button>
               ))}
+            </div>
+          )}
+
+          {/* D-033 🌍 Earth: one Component counts as a full pair — the siphon opens a normal
+              reaction window (📡-able, ↪️-able), and the bash burns even if cancelled. */}
+          {me.faction === 'kitbash' && !me.factionPowerUsed && !bashKind && (
+            <div className="chooser">
+              <span>🌍 Kit Bash — one Component as a full pair (once per match; 📡-able):</span>
+              {(['coolant', 'hull'] as const).filter((k) => me.hand.includes(k)).map((k) => (
+                <button
+                  key={`bash-${k}`}
+                  className="mini flarebtn"
+                  title={`${CARD_INFO[k].blurb}\n(Faction power: play this single Component as a completed matching pair — siphon 1 random card from a chosen captain. One 📡 cancels the siphon; the victim may ↪️ it onward; the power is spent either way.)`}
+                  onClick={() => setBashKind(k)}
+                >
+                  {CARD_INFO[k].emoji} {CARD_INFO[k].name}
+                </button>
+              ))}
+            </div>
+          )}
+          {bashKind && (
+            <div className="chooser">
+              <span>🌍 Kit Bash — siphon from (once per match; 📡-able):</span>
+              {aliveOthers.map((p) => (
+                <button
+                  key={`bash-at-${p.id}`}
+                  className="mini flarebtn"
+                  title={`Steal 1 random card from ${p.name}'s hand as a completed pair (one 📡 cancels; they may ↪️ it onward).`}
+                  onClick={() => { dispatch({ type: 'KIT_BASH', player: viewer, card: bashKind, target: p.id }); setBashKind(null); }}
+                >
+                  {p.name} ({p.hand.length})
+                </button>
+              ))}
+              <button className="ghost" onClick={() => setBashKind(null)}>Cancel</button>
+            </div>
+          )}
+
+          {/* D-033 ♆ Neptune: a free private top-3 peek during your own Command Phase.
+              No reaction window — the peek itself is instant and private. */}
+          {me.faction === 'deepsight' && !me.factionPowerUsed && (
+            <div className="chooser">
+              <span>♆ Deep Sight — peek at the top 3 cards, free (once per match):</span>
+              <button
+                className="mini flarebtn"
+                title="Faction power: privately view the top 3 cards of the deck, in order — a Deep-Space Scan without spending the card. Only you see them; the deck does not change."
+                onClick={() => dispatch({ type: 'DEEP_SIGHT', player: viewer })}
+              >
+                🔭 Look
+              </button>
             </div>
           )}
 

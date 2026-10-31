@@ -21,7 +21,7 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [x] Faction layer design (8 civilizations, pilot first: Mercury) + Reactor Charge re-evaluation menu — framework + Mercury pilot **ADOPTED** (D-028, `docs/14`)
 - [x] Faction layer v1 implemented (2026-10-25, D-029): per-seat opt-in ☿ Flare Skip in engine+app+bots; vanilla configs provably unchanged; solo-vs-AI pretest = **PT-F1** (`docs/08`) before faction PTs
 - [x] Faction layer v2 implemented (2026-10-25, D-031): ♀ Court Favor, ♂ Salvage Run, ♃ Storm Shout join ☿ — all once-per-match, spent publicly, AI-flown; 4/8 civilizations playable; Codex carries deep sheets for all four (75 tests green, sim clean)
-- [ ] Civilization bible v1 (deep design per civ) — pilot deep-drafted + exposed in-app as the **Codex** (D-030); deep sheets for the 4 playable civs live in the Codex (D-031); 4 sketch civs to go (🌍 ♄ ♅ ♆)
+- [x] Civilization bible v1 (2026-10-25, D-032) — **all eight civilizations deep-designed**; the in-app Codex carries a full sheet for every one; 4 powers playable (☿♀♂♃) + 4 designed awaiting Gábor's sign-off (🌍♄♅♆) → engine next
 - **Gate to P3:** frozen rules + at least 1 tested faction; visual brief confirmed.
 
 ## P3 — Visual vertical slice ⬜

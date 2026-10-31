@@ -63,6 +63,8 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
         <button className={`mini ${mode === 'solo' ? 'on' : ''}`} onClick={() => setMode('solo')} title="You play one captain; AI captains take the other seats">🤖 Solo vs AI</button>
       </div>
 
+      <div className="sect">The table</div>
+
       <label className="row">
         Captains:
         <select value={count} onChange={(e) => setCount(Number(e.target.value))}>
@@ -92,18 +94,20 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
         </>
       )}
 
-      <label className="row">
+      <div className="sect">Optional modules</div>
+
+      <label className="row check">
         <input type="checkbox" checked={sunFury} onChange={(e) => setSunFury(e.target.checked)} />
         <span>🌞 Sun Fury <span className="hint">— every contained ☀️ +1 Fury; from Fury 2, a contained ☀️ must go back within the top 15 cards (then 10, 7, 5) — the Sun ends the race faster</span></span>
       </label>
-      <label className="row">
+      <label className="row check">
         <input type="checkbox" checked={derelicts} onChange={(e) => setDerelicts(e.target.checked)} />
         <span>🛰️ Derelict Interference <span className="hint">— eliminated captains keep one revenge Override</span></span>
       </label>
 
       <div className="fleetrow">
         <span className="flabel">Fleets (optional — classic seats play the tested vanilla game):</span>
-        {(mode === 'hotseat' ? Array.from({ length: count }, (_, i) => i) : Array.from({ length: count }, (_, i) => i)).map((i) => (
+        {Array.from({ length: count }, (_, i) => i).map((i) => (
           <label key={i} className="fleetpick">
             <select
               value={factions[i] ?? ''}
@@ -116,12 +120,13 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
             </select>
           </label>
         ))}
-        <span className="hint">
-          Faction powers — all opt-in, once per match, spent publicly: ☿ Flare Skip: when attacked, redirect it for free (payload still grows) ·
-          ♀ Court Favor: when requisitioned, flip it — they gift you instead ·
-          ♂ Salvage Run: take any discard card for free on your turn (📡-able) ·
-          ♃ Storm Shout: when you draw a storm, another captain jettisons instead. AI captains fly these too.
-        </span>
+        <div className="fleetnote">
+          <span>Faction powers — all opt-in, once per match, spent publicly (AI captains fly these too):</span>
+          <span>☿ Flare Skip — when attacked, redirect it for free (payload still grows)</span>
+          <span>♀ Court Favor — when requisitioned, flip it: they gift you instead</span>
+          <span>♂ Salvage Run — take any discard card for free on your turn (📡-able)</span>
+          <span>♃ Storm Shout — when you draw a storm, another captain jettisons instead</span>
+        </div>
       </div>
 
       <label className="row">

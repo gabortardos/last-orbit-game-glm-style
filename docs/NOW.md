@@ -1,5 +1,19 @@
 # NOW — Current Status (update every work session; most recent on top)
 
+## Session 1, night — bible v0.6: all eight civs deep-designed + Setup tidy — 2026-10-25 ✅
+
+**Phase:** Gábor's story push ("do all of them" — his four next-step options). Gábor feedback logged: race stories interesting but needing development (→ this session); start-screen graphics rough (accepted as placeholder — tidy only, real art is P3).
+
+**Shipped (D-032):**
+1. **All eight civilizations deep-designed** — the last four get full Codex sheets (captains: 🌍 Amara "Warranty Void" Okafor · ♄ Vesper Noctis "Floats" · ♅ Titania Umbra "True Level" · ♆ Lumen Trench "Told You"; flagships, ≥6 real-fact hooks each, comedy wells, palettes, rivalries). The four playable sheets deepened with expanded-lore paras (☿ double-birthday scheduling + Caloris far-side claims · ♀ morning/evening-star double-booking + Magellan radar portrait · ♂ blue sunsets + the 37-minute sol · ♃ Shoemaker-Levy 9 "you're welcome" + heard-before-seen 1955).
+2. **Four new power designs (PROPOSED — awaiting Gábor's sign-off, the D-028→D-029 pattern):** 🌍 **Kit Bash** (play a single ❄️/🛠️ as a completed pair-siphon) · ♄ **Ringwall** (a theft of their cards fizzles once/match; ⚡/🧲 pass through) · ♅ **Axial Tilt** (when targeted, the attacker must re-aim elsewhere, no payload growth) · ♆ **Deep Sight** (free 🔭 top-3 peek, any time). Framework-compliant (one sentence · base-deck counterplay · once/match · v0.3 vocabulary · sim-expressible); power-axis spread verified non-overlapping; rivalry map added. Codex marks them "designed — not yet playable".
+3. **Setup tidy (functional, explicitly not the P3 art pass):** section headers ("The table", "Optional modules"), the faction-power wall of text is now a readable stacked list, checkbox hints align properly, panel widened 480→560px, redundant seat-list ternary removed.
+4. **Docs:** `11` D-032 (+ new pending-decision entry: sign-off unlocks engine+app+bots) · `13` bible v1 checked off · `14` v0.6 (§v3 power designs + rivalry map) · this file. (D-031 row was accidentally overwritten mid-session and restored — verified intact.)
+
+**All green:** typecheck · **75/75 tests** · build · sim (16,500 games clean).
+
+**Next:** Gábor: ① **sign off / veto the four power designs** (🌍 Kit Bash · ♄ Ringwall · ♅ Axial Tilt · ♆ Deep Sight) — a yes → engine+app+bots+tests next session ② PT-F1 pretest per faction (☿ ♀ ♂ ♃) ③ round-5 notes + PT-01 (title + PT-01 timing + Reactor Charge confirmation still open, `docs/11` pending list). Then: faction PTs after the vanilla PTs.
+
 ## Session 1, late evening — faction layer v2: ♀ ♂ ♃ join ☿ — 2026-10-25 ✅
 
 **Phase:** Gábor's parallel faction lane continues (D-031, ADOPTED); vanilla gates (PT-01/02) untouched and still pending.

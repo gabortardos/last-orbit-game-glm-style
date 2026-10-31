@@ -70,6 +70,7 @@ button { font: inherit; }
 /* Flight log: pinned side rail, always visible — overlays must never cover it (D-021). */
 .log { position: fixed; top: 12px; right: 12px; bottom: 12px; width: var(--railw); z-index: 120; background: var(--panel); border: 1px solid #232b47; border-radius: 12px; padding: 10px 14px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 18px 60px #000a; }
 .loghead { color: var(--gold); font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid #232b47; padding-bottom: 6px; }
+.logcount { color: var(--dim); font-weight: 400; letter-spacing: 0; font-size: 0.68rem; }
 .logbody { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .logline { color: var(--dim); }
 .logline.loud { color: var(--ink); font-weight: 600; }
@@ -90,6 +91,11 @@ button { font: inherit; }
 /* ---------- overlays ---------- */
 .overlay { position: fixed; inset: 0; background: #05070fcc; display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px calc(var(--railw) + 40px) 16px 16px; } /* modals center in the space left of the log rail */
 .overlay.top { z-index: 150; } /* the briefing floats above every other window (D-023) */
+/* PT feedback (2026-10-25): a reaction window must never hide the decider's cards. The modal
+   floats high, the scrim fades out above the hand strip at the bottom of the table (your cards
+   stay readable), and clicks outside the modal pass through — the layer is inert, the modal isn't. */
+.overlay.react { background: linear-gradient(180deg, #05070fe8 0%, #05070fd9 46%, #05070f80 64%, #05070f22 80%, transparent 94%); pointer-events: none; align-items: flex-start; padding-top: 4vh; }
+.overlay.react .modal { pointer-events: auto; }
 /* Always-reachable controls (D-023): 🔊 + ❓ hover above every overlay, beside the log rail */
 .cornerctl { position: fixed; top: 12px; right: calc(var(--railw) + 24px); z-index: 130; display: flex; gap: 8px; }
 .modal { background: var(--panel); border: 1px solid #2c3554; border-radius: 16px; padding: 22px 26px; max-width: 460px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 18px 60px #000a; }
@@ -100,6 +106,10 @@ button { font: inherit; }
 .bigname { font-size: 1.6rem; font-weight: 800; }
 .reactrow { display: flex; align-items: center; gap: 10px; }
 .reactrow .pname { flex: 1; }
+/* PT feedback (2026-10-25): the deciding captain's own cards, mirrored as chips inside the
+   reaction modal — small screens where the floating window still overlaps the table stay informed. */
+.reacthand { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; border-top: 1px dashed #2c3554; padding-top: 8px; }
+.hcard { background: linear-gradient(180deg, #1d2540, #161d33); border: 1px solid #34406b; border-radius: 999px; padding: 3px 10px; font-size: 0.82rem; color: var(--ink); cursor: help; }
 .scanrow { display: flex; gap: 8px; flex-wrap: wrap; }
 .scancard { background: var(--panel2); border: 1px solid #34406b; border-radius: 8px; padding: 8px 10px; }
 .sliderrow { display: flex; align-items: center; gap: 12px; }

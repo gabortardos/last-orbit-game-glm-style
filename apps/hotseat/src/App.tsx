@@ -125,8 +125,14 @@ export default function App() {
   if (online) return <OnlineApp onExit={() => setOnline(false)} />;
   if (!game) return <Setup onStart={start} onOnline={() => setOnline(true)} />;
 
-  // whose eyes the UI shows the table through (solo: always the human's seat)
-  const viewer = humans.includes(game.activePlayer) ? game.activePlayer : humans[0] ?? 0;
+  // whose eyes the UI shows the table through (solo: always the human's seat).
+  // During a reaction window the view follows the first human who still owes a
+  // decision (pass-and-play privacy — and it keeps THEIR hand on screen under the
+  // floating reaction window instead of the initiator's; PT feedback 2026-10-25).
+  const openHumans = game.phase === 'reaction' ? openRespondents(game).filter((id) => humans.includes(id)) : [];
+  const viewer = openHumans.length > 0
+    ? openHumans[0]
+    : humans.includes(game.activePlayer) ? game.activePlayer : humans[0] ?? 0;
 
   return (
     <div className="app">

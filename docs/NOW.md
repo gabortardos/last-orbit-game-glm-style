@@ -1,5 +1,26 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 4 — online PT feedback round 1: reaction-window hand visibility + full flight log; 3D world vision logged (D-038) — 2026-10-25 ✅
+
+**Dev plan step executed:** P4 online-mode shakedown — Gábor's first online-play feedback list triaged; the two concrete UX blockers fixed same-session; the three strategic items (faction powers status, 8-player question, grand 3D vision) answered/logged.
+
+**Gábor's list → what happened:**
+1. **"When deciding to allow/counter, the window covers my cards"** → FIXED, three layers:
+   - `styles.css` `.overlay.react`: the reaction modal floats high and the scrim **fades to transparent above the table**, so the decider's hand panel at the bottom stays readable; clicks outside the modal pass through (the layer is inert, the modal isn't).
+   - `Overlays.tsx` `ReactionOverlay` (now takes `viewer`): the deciding captain's own cards are mirrored as tooltip chips **inside the modal** ("🃏 Your hand:") — works even on small screens where the floating window still overlaps the table.
+   - `App.tsx` viewer logic: in pass-and-play hotseat the view now follows the **first human who still owes a decision** during a reaction window (previously it stayed with the initiator — the bottom hand wasn't even the decider's). Private rail lines follow the same switch, which is *stricter* privacy, not looser.
+2. **"I want the full gameplay history, not just what fits the screen"** → FIXED: the flight log's 40-entry cap is gone — the entire (visibility-filtered) history renders and scrolls; autoscroll now only fires when the reader is already near the bottom, so scrolling back is never yanked away by a fresh entry; the header shows the event count + hint.
+3. **"How are the encoded race powers coming up?"** → status: **all eight are live** since D-031/D-033 (☿ Flare Skip · ♀ Court Favor · ♂ Salvage Run · ♃ Storm Shout · 🌍 Kit Bash · ♄ Ringwall · ♅ Axial Tilt · ♆ Deep Sight): fleet pickers in Setup **and** the online lobby, ready/spent chips at the table, 📖 Codex stories, bot opponents fly them. The *next* layer — **D-035 passives** — is still a brainstorm awaiting Gábor's family pick (`docs/14` §Passives).
+4. **8 players instead of 5?** → analysis only, no code (it's a design decision): the deck is fixed at **51 cards** (46 base + 5 rupture/containment, independent of player count). 8 captains × 5-card hands = 40 dealt → **~11 draw cards left with 7 ruptures among them** — an instant bloodbath, not a game. A "Grand Fleet" 6–8p variant needs a scaled deck recipe (more base cards + more containments), cap lifts in engine (`createGame` 2..5) / server room clamp / Setup UI, and a full sim gate (turn length, reaction-window length with 7 respondents, Fury pacing). **Recommendation: stay 2–5 through the beta** (also the stated mission envelope); draft the variant as a proposal if big tables matter for family testing. Awaiting Gábor.
+5. **Grand 3D visuals — "the card game engine sitting on a live, animated 3D solar system"** → captured as **D-038 PROPOSED**: new `docs/20-3d-solar-system-vision.md` + decision-log row + roadmap P3 pointer. Rung ladder: (1) living table = P3 (Sun Fury is the Sun's state, seats are orbiting planets, log events animate as light between orbits), (2) homeworld vignettes, (3) world mode — engine stays renderer-agnostic, readability outranks spectacle, glass UI survives as tactical/fallback mode.
+
+**Evidence:** 110/110 tests green · typecheck ×3 ✓ · build ✓ (all after the UI fixes; engine untouched — sims remain valid).
+
+**Next:**
+1. **Gábor re-tests** (solo or online): every reaction window keeps his cards readable; scroll the flight log mid-game and confirm it doesn't jump.
+2. Deployment per `docs/19` still pending: `git push` go-ahead for the two earlier commits + this one, then the ~30 min PC session (Node, clone, Cloudflare tunnel, `play.`/`lastorbit.` hostnames, Part A DNS/email-survival decision).
+3. Awaiting Gábor: D-035 passives family pick · 8-player "Grand Fleet" go/no-go · D-038 vision confirmation (or edits).
+
 ## Session 3 — generator idea logged (D-037) + P4 item 2: client Online mode — 2026-10-25 ✅
 
 **Dev plan step executed:** two things on Gábor's word ("log the new idea and your feedback for now… then the next dev step, the P4 online mode. go"):

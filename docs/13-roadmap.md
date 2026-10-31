@@ -30,6 +30,7 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 
 - [ ] Style frames (6 key moments) · Sun Fury state chart · Mercury design sheet · motion prototype
 - [ ] Three.js scene shell; card UI 2D-glass-over-3D; reduced-motion variants
+- [ ] Visual north star — the "living solar system" ladder (D-038 PROPOSED, `docs/20`): P3 = rung 1 (animated 3D system *behind* the card glass — Sun Fury is the Sun's state, seats are planets, log events are light between orbits); rungs 2–3 (homeworld vignettes, world mode) are the post-P5 visual track
 - **Gate to P4:** slice playable hotseat with full visuals; state readability sign-off.
 
 ## P4 — Online multiplayer 🔄 (opened 2026-10-25, D-036 — the human-testing vehicle per D-034)

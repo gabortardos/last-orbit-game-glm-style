@@ -72,14 +72,20 @@ export function LogFeed({ game, viewer }: { game: ClientGame; viewer?: number })
     if (e.visibility === 'public' || e.visibility === 'hidden') return e.visibility === 'public';
     return e.visibility.only === v;
   });
-  const feed = visible.slice(-40).map(fmtEntry(game)).filter(Boolean);
+  // PT feedback (2026-10-25): the FULL match history stays reachable — no 40-line cap,
+  // and the autoscroll only fires when the reader is already near the bottom, so
+  // scrolling back through history is never yanked away by a fresh entry.
+  const feed = visible.map(fmtEntry(game)).filter(Boolean);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    ref.current?.scrollTo({ top: ref.current.scrollHeight });
+    const el = ref.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+    if (nearBottom) el.scrollTo({ top: el.scrollHeight });
   }, [feed.length]);
   return (
     <aside className="log" aria-label="flight log">
-      <div className="loghead">📜 Flight log</div>
+      <div className="loghead">📜 Flight log <span className="logcount">{visible.length} events — scroll ↑ for the full history</span></div>
       <div className="logbody" ref={ref}>
         {feed.map((line, i) => (
           <div key={i} className={`logline ${line.startsWith('☀️') || line.startsWith('💥') || line.startsWith('🏆') ? 'loud' : ''}`}>{line}</div>
@@ -141,11 +147,12 @@ function fmtEntry(game: ClientGame) {
   };
 }
 
-export function ReactionOverlay({ game, dispatch, humans, remote }: {
+export function ReactionOverlay({ game, dispatch, humans, remote, viewer }: {
   game: ClientGame;
   dispatch: (c: Command) => void;
   humans?: number[]; // solo vs AI: bots decide on their own; only the human's row is interactive
   remote?: boolean; // online: the other rows are captains on their own screens, not bots
+  viewer?: number; // the seat this screen belongs to — their hand must stay readable while deciding (PT feedback 2026-10-25)
 }) {
   const [redirect, setRedirect] = useState<'card' | 'flare' | 'tilt' | null>(null); // ↪️ Deflector, ☿ Flare Skip or ♅ Axial Tilt chooser
   if (game.phase !== 'reaction' || !game.pending) return null;
@@ -158,7 +165,7 @@ export function ReactionOverlay({ game, dispatch, humans, remote }: {
   const cancelled = stack % 2 === 1; // odd stack = action is cancelled
   const target = pending.target !== undefined ? game.players[pending.target] : null;
   return (
-    <div className="overlay">
+    <div className="overlay react">
       <div className="modal">
         <h3>
           {game.players[pending.initiator].name} plays {reasonText(pending.reason)}
@@ -186,6 +193,18 @@ export function ReactionOverlay({ game, dispatch, humans, remote }: {
           <p className="hint dim">
             💤 Standing down — no response possible (no 📡, no ↪️ for them): {standingDown.map((id) => game.players[id].name).join(', ')}.
           </p>
+        )}
+        {/* PT feedback (2026-10-25): the decider must be able to read their own cards while
+            deciding. The scrim fades out above the table (see .overlay.react) so the real
+            hand panel stays visible — and the hand is mirrored here as chips, so screens
+            where the floating window still overlaps the table stay informed too. */}
+        {viewer !== undefined && undecided.includes(viewer) && game.players[viewer].hand.length > 0 && (
+          <div className="reacthand" aria-label="your hand">
+            <span className="handlabel">🃏 Your hand:</span>
+            {game.players[viewer].hand.map((c, i) => (
+              <span key={i} className="hcard" title={CARD_INFO[c].blurb}>{CARD_INFO[c].emoji} {CARD_INFO[c].name}</span>
+            ))}
+          </div>
         )}
         {undecided.map((id) => {
           const p = game.players[id];
@@ -591,7 +610,7 @@ export function Modals({ game, dispatch, report, onNewGame, viewer, humans, remo
 }) {
   return (
     <>
-      <ReactionOverlay game={game} dispatch={dispatch} humans={humans} remote={remote} />
+      <ReactionOverlay game={game} dispatch={dispatch} humans={humans} remote={remote} viewer={viewer} />
       {game.phase === 'command' && <ScanModal game={game} dispatch={dispatch} viewer={viewer} />}
       {game.phase === 'command' && <ScrapModal game={game} viewer={viewer} />}
       {game.phase === 'choice' && game.awaiting?.type === 'reinsert' && <ReinsertModal game={game} dispatch={dispatch} viewer={viewer} />}

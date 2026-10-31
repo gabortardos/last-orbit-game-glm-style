@@ -35,7 +35,7 @@ docs/                living design records
 ## Phase 4 — online multiplayer (planned, not built)
 
 - **Model:** authoritative server holding canonical state; clients send commands, receive state diffs + private views. The pure engine slots in unchanged.
-- **Candidates** (decide at P4 kickoff with a small spike each): Colyseus (rooms/reconnect built-in), PartyKit (edge party games), or plain WebSocket server + Redis.
+- **Decided (D-036, 2026-10-25):** Colyseus 0.18 — spike shipped in `apps/server` (`LastOrbitRoom`: authority, per-seat privacy snapshots, server bots, timers/autopilot, reconnection, spectators). PartyKit eliminated (hosted platform shut down 2026-10-23). Architecture of record: `docs/17-online-architecture.md`.
 - **Must-haves:** reaction countdowns (~6s window), reconnection & resume, Derelict spectator UX with emotes, turn timers, lobby (room codes), 2–5 players.
 - **Anti-cheat baseline:** server never sends private hands; scans are server-side views.
 - **Deployment:** static app + small server process; target cheap hosting.
@@ -47,3 +47,4 @@ Policy (D-009): **"new world, borrowed sparks."** This game's look is deliberate
 ## Change log
 
 - v0.2: stack fixed (TS/Vite/React/Vitest); engine purity rules; P4 multiplayer plan; Explorer reuse policy.
+- 2026-10-25 (D-036): P4 opened — Colyseus chosen + spike shipped (`apps/server`); see `docs/17-online-architecture.md`.

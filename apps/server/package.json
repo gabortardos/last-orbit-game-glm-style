@@ -1,0 +1,18 @@
+{
+  "name": "@last-orbit/server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Authoritative online server (D-036 spike): a Colyseus Room wrapping @last-orbit/game-core — per-seat privacy views, server-flown bots, reaction/turn timers.",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@last-orbit/game-core": "*",
+    "colyseus": "^0.18.10"
+  },
+  "devDependencies": {
+    "@colyseus/testing": "^0.18.6"
+  }
+}

@@ -32,10 +32,12 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [ ] Three.js scene shell; card UI 2D-glass-over-3D; reduced-motion variants
 - **Gate to P4:** slice playable hotseat with full visuals; state readability sign-off.
 
-## P4 — Online multiplayer ⬜ (promoted as the human-testing vehicle, D-034)
+## P4 — Online multiplayer 🔄 (opened 2026-10-25, D-036 — the human-testing vehicle per D-034)
 
-- [ ] Authoritative server (Colyseus/PartyKit spike → choice, logged as decision)
-- [ ] Rooms, reconnection, reaction countdowns, Derelict spectator UX, turn timers
+- [x] Authoritative server (2026-10-25, D-036): **Colyseus chosen** (PartyKit's hosted platform shut down 2026-10-23); spike `apps/server` — room + per-seat privacy views + server-flown bots + timers/autopilot + reconnection + spectator seats; 6 integration tests, 99/99 green (`docs/17`)
+- [ ] Client "Online" mode: `@colyseus/sdk` wiring, lobby/room codes, seat roster, snapshot → existing view components
+- [ ] Online UX hardening: reaction countdown ring, turn-timer display, autopilot notices, reconnect overlay, Derelict spectator view
+- [ ] Deployment: hosting choice (self-host vs Colyseus Cloud — open question for Gábor) + CI deploy + basic ops
 - [ ] Small friends-and-family beta — **now carries PT-01 (3p) + PT-02 (4–5p) human playtests (D-034): Gábor tests with real humans here**
 - **Gate to P5:** stable online matches; retention signal.
 

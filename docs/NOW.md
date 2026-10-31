@@ -1,4 +1,22 @@
-# NOW — Current Status (update every work session; most recent on top)
+# NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
+
+## Session 2, small hours — P4 opens: authoritative online server (D-036) — 2026-10-25 ✅
+
+**Dev plan step executed:** `docs/13` **P4 item 1 — "Authoritative server (Colyseus/PartyKit spike → choice, logged as decision)" — DONE** (D-036). This was the top developer-actionable item after D-033: every other open item waits on Gábor (power feedback, D-035 family pick, PT rounds) — and D-034 + "continue with the development plan" was the word for the spike.
+
+**Shipped (D-036):**
+1. **Decision:** **Colyseus 0.18** chosen. PartyKit eliminated — its hosted platform shut down **2026-10-23**, two days before the spike; plain-ws+Redis rejected (hand-rolled rooms/reconnect/matchmaking for zero product value).
+2. **`apps/server` — `LastOrbitRoom`** wrapping game-core server-side: **authority** (commands are requests; `cmd.player` must match the sender's seat; engine validates), **per-seat privacy snapshots** (`seatView`: own hand only, deck→size, seed+rng sealed, log visibility-filtered, spectators handless), **server-flown bots** for unfilled seats (= online solo-vs-AI), **server timers with autopilot** (turn 120 s / reaction 45 s defaults; a stalled or disconnected human never stalls the match), **30 s reconnection** (0.18 `onDrop`/`onLeave` split, seat restored with a fresh snapshot), **spectator seats** (Derelict groundwork).
+3. **Tests:** 6 integration tests via `@colyseus/testing` (real ws round-trips): privacy views · authority rejects · **a full online match, 1 human + 3 server bots → game_over, every snapshot privacy-audited** · autopilot timers · spectator · reconnection. **99/99 green** (93 engine + 6), typecheck ✓ (3 projects), build ✓, live boot smoke-tested on :2567. Engine untouched → sim reports remain valid as-is.
+4. **Infra:** root scripts `dev:server`/`server`; tests pinned `--pool=threads` (vitest's default forks pool can't host the ws server — `apps/server/README.md`); CI unchanged (`npm ci` covers the new workspace via the lockfile).
+5. **Docs:** new `docs/17-online-architecture.md` (architecture of record + ordered remaining-P4 plan) · `docs/07` Phase-4 section decided + changelog · decision log **D-036** (D-035 row briefly overwritten during the edit, restored same-commit) · roadmap P4 expanded to 5 ordered items · `PROJECT_CONTEXT` commands · this file.
+
+**What's left from the latest plan (`docs/13` + previous Next):**
+1. ~~P4 spike~~ ✅ D-036 → next P4 step: **client "Online" mode** (`@colyseus/sdk` wiring, lobby/room codes, seat roster, snapshot → existing view components).
+2. Then in order: online UX hardening (reaction countdown ring, turn-timer display, autopilot notices, reconnect overlay, Derelict spectator view) → deployment (hosting choice is an open question for Gábor: self-host ~€5/mo vs Colyseus Cloud) → friends-and-family beta carrying **PT-01 (3p) + PT-02 (4–5p)**.
+3. Waiting on Gábor: in-game testing of the four v3 powers (solo vs AI) · **D-035** passives family pick + open slots (♄ ♅ ♂) → sim + sign-off before engine · PT-F1 pretests per `docs/08` · Reactor Charge option A confirm.
+4. Standing format: from this session on, every NOW entry (and session reply) states the executed dev-plan step and what remains.
+
 
 ## Session 1, late night — faction layer v3: 🌍♄♅♆ ship — all eight civs playable — 2026-10-25 ✅
 

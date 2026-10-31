@@ -93,6 +93,26 @@ function assertViewIsPrivate(v: SeatView): void {
 
 // __TESTS__
 describe('LastOrbitRoom (D-036 spike)', () => {
+  it('flies the host-chosen per-seat factions (lobby roster chips + engine state)', async () => {
+    const room = await makeRoom({ factions: ['flareskip', null], humanSeats: 1 });
+    const seatsSeen: { seats: { seat: number; kind: string; faction: string | null }[] }[] = [];
+    const c0 = (await server.connectTo(room, { name: 'Amara' })) as unknown as TestClient;
+    const t0 = track(c0);
+    c0.onMessage('seats', ((m: { seats: { seat: number; kind: string; faction: string | null }[] }) => seatsSeen.push(m)) as never);
+
+    c0.send('start', { seed: 77 });
+    await until(() => t0.states.length >= 1, 3000, 'initial snapshot');
+
+    const g = internals(room);
+    expect(g.players[0].faction).toBe('flareskip'); // the engine flies the chosen fleet
+    expect(g.players[1].faction).toBeNull(); // unset seat = classic vanilla
+    expect(t0.states[t0.states.length - 1].players[0].faction).toBe('flareskip'); // it rides the wire
+    const roster = seatsSeen[seatsSeen.length - 1];
+    expect(roster.seats[0].faction).toBe('flareskip'); // lobby chips see the pick
+    expect(roster.seats[1].faction).toBeNull();
+    assertViewIsPrivate(t0.states[t0.states.length - 1]); // faction changes nothing about privacy
+  });
+
   it('assigns seats, starts, and ships per-seat privacy views', async () => {
     const room = await makeRoom({ seed: 100 });
     const c0 = (await server.connectTo(room, { name: 'Amara' })) as unknown as TestClient;

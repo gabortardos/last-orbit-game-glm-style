@@ -12,11 +12,12 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { matchReport } from '@last-orbit/game-core';
-import type { CardKind, Command } from '@last-orbit/game-core';
+import type { CardKind, Command, FactionId } from '@last-orbit/game-core';
 import GameView from '../ui/GameView';
 import { DrawReveal } from '../ui/Overlays';
+import { FACTION_LABEL } from '../ui/factions';
 import { LOG_SFX, sfx } from '../audio';
-import { OnlineConn } from './net';
+import { OnlineConn, describeNetError } from './net';
 import type { SeatInfo, SeatViewMsg } from './types';
 
 const DEFAULT_ENDPOINT = 'ws://localhost:2567';
@@ -43,6 +44,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
   const [playerCount, setPlayerCount] = useState(4);
   const [humanSeats, setHumanSeats] = useState(4);
   const [joinCode, setJoinCode] = useState('');
+  const [factions, setFactions] = useState<(FactionId | null)[]>([null, null, null, null, null]);
   const [roomId, setRoomId] = useState<string | null>(null);
   const [seats, setSeats] = useState<SeatInfo[]>([]);
   const [mySeat, setMySeat] = useState<number | null>(null);
@@ -119,12 +121,14 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
       await conn.connect({
         endpoint: endpoint.trim() || DEFAULT_ENDPOINT,
         name: finalName,
-        ...(hosting ? { playerCount, humanSeats } : { roomCode: joinCode.trim() }),
+        ...(hosting
+          ? { playerCount, humanSeats, factions: factions.slice(0, playerCount) }
+          : { roomCode: joinCode.trim() }),
       });
       setRoomId(conn.roomId);
       setScreen('lobby');
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(describeNetError(e, endpoint.trim() || DEFAULT_ENDPOINT));
     } finally {
       setBusy(false);
     }
@@ -161,7 +165,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
         exitToMenu();
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(describeNetError(e, endpoint || DEFAULT_ENDPOINT));
     } finally {
       setBusy(false);
     }
@@ -207,6 +211,33 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
               </select>
             </label>
             <p className="hint">Seats nobody holds at start fly as server-side AI captains — pick 1 for solo-vs-bots online.</p>
+            <div className="fleetrow">
+              <span className="flabel">Fleets (optional — classic seats play the tested vanilla game; seat 1 is you):</span>
+              {Array.from({ length: playerCount }, (_, i) => i).map((i) => (
+                <label key={i} className="fleetpick">
+                  <select
+                    value={factions[i] ?? ''}
+                    onChange={(e) => setFactions((fs) => fs.map((f, j) => (j === i ? ((e.target.value || null) as FactionId | null) : f)))}
+                  >
+                    <option value="">Seat {i + 1} — classic</option>
+                    {Object.entries(FACTION_LABEL).map(([id, label]) => (
+                      <option key={id} value={id}>{label}</option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+              <div className="fleetnote">
+                <span>Faction powers — all opt-in, once per match, spent publicly (AI captains fly these too):</span>
+                <span>☿ Flare Skip — when attacked, redirect it for free (payload still grows)</span>
+                <span>♀ Court Favor — when requisitioned, flip it: they gift you instead</span>
+                <span>♂ Salvage Run — take any discard card for free on your turn (📡-able)</span>
+                <span>♃ Storm Shout — when you draw a storm, another captain jettisons instead</span>
+                <span>🌍 Kit Bash — play one ❄️/🛠️ as a full pair: siphon (📡-able, ↪️-able)</span>
+                <span>♄ Ringwall — a theft of their cards fizzles (⚡/🧲 vandalism still bites)</span>
+                <span>♅ Axial Tilt — an attack aimed at them slides to someone else, un-grown</span>
+                <span>♆ Deep Sight — a free private peek at the top 3 cards of the deck</span>
+              </div>
+            </div>
           </>
         ) : (
           <label className="row">
@@ -241,6 +272,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
             <span className="seatno">Seat {s.seat + 1}</span>
             <span className="pname">{s.kind === 'open' ? '— open —' : s.name}{s.seat === mySeat ? ' (you)' : ''}</span>
             <span className="chip">{s.kind === 'human' ? (s.connected ? '🌐 connected' : 'offline') : s.kind === 'bot' ? '🤖 AI' : 'open'}</span>
+            {s.faction && (<span className="chip" title="Fleet">{FACTION_LABEL[s.faction].split('·')[0].trim()}</span>)}
           </div>
         ))}
         {isHost ? (
@@ -270,6 +302,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
             <span className="seatno">Seat {s.seat + 1}</span>
             <span className="pname">{s.kind === 'open' ? '— open —' : s.name}</span>
             <span className="chip">{s.kind === 'human' ? (s.connected ? '🌐 connected' : 'offline') : s.kind === 'bot' ? '🤖 AI' : 'open'}</span>
+            {s.faction && (<span className="chip" title="Fleet">{FACTION_LABEL[s.faction].split('·')[0].trim()}</span>)}
           </div>
         ))}
         <button className="ghost" onClick={exitToMenu}>Leave</button>

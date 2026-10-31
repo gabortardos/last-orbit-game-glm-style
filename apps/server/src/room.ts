@@ -39,6 +39,7 @@ interface SeatInfo {
   kind: 'human' | 'bot' | 'open';
   connected: boolean;
   name: string;
+  faction: FactionId | null; // fleet assigned to the seat at room creation (lobby chips, D-029)
 }
 
 const DEFAULT_REACTION_MS = 45_000;
@@ -282,11 +283,12 @@ export class LastOrbitRoom extends Room {
   private roster(): SeatInfo[] {
     return Array.from({ length: this.opts.playerCount }, (_, i) => {
       const name = this.seatNameFor(i);
+      const faction = this.opts.factions?.[i] ?? null;
       if (this.started && this.isBot[i]) {
-        return { seat: i, kind: 'bot' as const, connected: true, name: this.game?.players[i]?.name ?? `Bot ${i + 1}` };
+        return { seat: i, kind: 'bot' as const, connected: true, name: this.game?.players[i]?.name ?? `Bot ${i + 1}`, faction };
       }
-      if (name !== null) return { seat: i, kind: 'human' as const, connected: true, name };
-      return { seat: i, kind: this.started ? ('human' as const) : ('open' as const), connected: false, name: '' };
+      if (name !== null) return { seat: i, kind: 'human' as const, connected: true, name, faction };
+      return { seat: i, kind: this.started ? ('human' as const) : ('open' as const), connected: false, name: '', faction };
     });
   }
 

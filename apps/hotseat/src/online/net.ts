@@ -14,7 +14,7 @@
  */
 import { Client } from '@colyseus/sdk';
 import type { Room } from '@colyseus/sdk';
-import type { Command } from '@last-orbit/game-core';
+import type { Command, FactionId } from '@last-orbit/game-core';
 import type { SeatInfo, SeatViewMsg } from './types';
 
 export interface ConnectOptions {
@@ -22,6 +22,7 @@ export interface ConnectOptions {
   name: string;
   playerCount?: number; // host only: table size 2..5
   humanSeats?: number; // host only: unfilled seats fly as server bots
+  factions?: (FactionId | null)[]; // host only: per-seat fleets (D-029) — null seat = classic vanilla
   roomCode?: string; // set → join a friend's room instead of hosting
 }
 
@@ -33,6 +34,23 @@ export interface OnlineHandlers {
   reject?: (msg: { error: string; command?: string }) => void;
   autopilot?: (msg: { seat: number; command: string }) => void;
   dropped?: () => void; // connection lost without our consent
+}
+
+/**
+ * Human-readable connection failures. When nothing answers at the endpoint the
+ * SDK's matchmake fetch dies with a bare TypeError whose wording is
+ * browser-specific ("Failed to fetch" / "Load failed" / "NetworkError…") —
+ * translate those into the one actionable cause: the server isn't running.
+ * Server-side refusals (room full, not found…) stay untouched.
+ */
+export function describeNetError(e: unknown, endpoint: string): string {
+  const msg = e instanceof Error ? e.message : String(e);
+  const unreachable =
+    e instanceof TypeError || /failed to fetch|load failed|networkerror|fetch failed|econnrefused/i.test(msg);
+  if (unreachable) {
+    return `Can't reach the server at ${endpoint}. Is it running? Start it in a separate terminal with "npm run dev:server", then try again.`;
+  }
+  return msg;
 }
 
 /** The Room surface net.ts needs — the SDK Room satisfies it (and so do test stubs). */
@@ -66,6 +84,7 @@ export class OnlineConn {
           ...hello,
           playerCount: opts.playerCount,
           humanSeats: opts.humanSeats,
+          factions: opts.factions,
         });
     this.attach(room);
   }

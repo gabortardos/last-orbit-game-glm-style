@@ -11,13 +11,14 @@
  * Kept structurally in sync with apps/server/src/views.ts on purpose — no
  * cross-package import: the engine stays UI/server agnostic.
  */
-import type { GameState } from '@last-orbit/game-core';
+import type { FactionId, GameState } from '@last-orbit/game-core';
 
 export interface SeatInfo {
   seat: number;
   kind: 'human' | 'bot' | 'open';
   connected: boolean;
   name: string;
+  faction?: FactionId | null; // fleet chip on the lobby roster (host-assigned, D-029)
 }
 
 /** What the server puts on the wire for one seat (see views.ts). */

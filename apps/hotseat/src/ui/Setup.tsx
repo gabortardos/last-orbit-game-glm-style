@@ -3,19 +3,10 @@ import type { FactionId } from '@last-orbit/game-core';
 import type { StartOptions } from '../App';
 import Briefing from './Briefing';
 import Codex from './Codex';
+import { FACTION_LABEL } from './factions';
 import { SoundButton } from './Overlays';
 
 const AI_NAMES = ['Vega', 'Sirius', 'Altair', 'Rigel', 'Deneb'];
-const FACTION_LABEL: Record<FactionId, string> = {
-  flareskip: '☿ Mercury · Flare Skip',
-  courtier: '♀ Venus · Court Favor',
-  rustborn: '♂ Mars · Salvage Run',
-  stormkin: '♃ Jupiter · Storm Shout',
-  kitbash: '🌍 Earth · Kit Bash',
-  ringwall: '♄ Saturn · Ringwall',
-  axialtilt: '♅ Uranus · Axial Tilt',
-  deepsight: '♆ Neptune · Deep Sight',
-};
 
 export default function Setup({ onStart, onOnline }: { onStart: (o: StartOptions) => void; onOnline: () => void }) {
   const [mode, setMode] = useState<'hotseat' | 'solo'>('hotseat');

@@ -5,7 +5,7 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 import { createGame } from '@last-orbit/game-core';
-import { OnlineConn, type RoomLike } from '../net';
+import { OnlineConn, describeNetError, type RoomLike } from '../net';
 import { deckSize, handSize } from '../types';
 
 /** A StubRoom records sends and lets tests fire server messages / leave codes. */
@@ -85,6 +85,21 @@ describe('OnlineConn (protocol wiring)', () => {
     room.drop(1001);
     expect(state).not.toHaveBeenCalled();
     expect(dropped).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('describeNetError (connection failures)', () => {
+  it('translates browser fetch failures into the server-not-running hint', () => {
+    for (const msg of ['Failed to fetch', 'Load failed', 'NetworkError when attempting to fetch resource.']) {
+      const out = describeNetError(new TypeError(msg), 'ws://localhost:2567');
+      expect(out).toContain('ws://localhost:2567');
+      expect(out).toContain('npm run dev:server');
+    }
+  });
+
+  it('passes server-side refusals through untouched', () => {
+    const refusal = 'matchmake failed: room "ABCD" not found';
+    expect(describeNetError(new Error(refusal), 'ws://localhost:2567')).toBe(refusal);
   });
 });
 

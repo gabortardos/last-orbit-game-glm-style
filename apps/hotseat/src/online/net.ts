@@ -43,6 +43,22 @@ export interface OnlineHandlers {
  * translate those into the one actionable cause: the server isn't running.
  * Server-side refusals (room full, not found…) stay untouched.
  */
+/**
+ * Server address bootstrap for share-links (deployment prep — docs/19):
+ * `?server=<url>` in the page URL wins and should be remembered; otherwise
+ * the remembered value; otherwise the local dev default. Pure — the component
+ * owns all window/localStorage IO.
+ */
+export function initialEndpointFrom(
+  search: string,
+  stored: string | null,
+  fallback: string,
+): { endpoint: string; remember: boolean } {
+  const fromUrl = new URLSearchParams(search).get('server');
+  if (fromUrl) return { endpoint: fromUrl, remember: true };
+  return { endpoint: stored ?? fallback, remember: false };
+}
+
 export function describeNetError(e: unknown, endpoint: string): string {
   const msg = e instanceof Error ? e.message : String(e);
   const unreachable =

@@ -5,7 +5,7 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 import { createGame } from '@last-orbit/game-core';
-import { OnlineConn, describeNetError, type RoomLike } from '../net';
+import { OnlineConn, describeNetError, initialEndpointFrom, type RoomLike } from '../net';
 import { deckSize, handSize } from '../types';
 
 /** A StubRoom records sends and lets tests fire server messages / leave codes. */
@@ -100,6 +100,25 @@ describe('describeNetError (connection failures)', () => {
   it('passes server-side refusals through untouched', () => {
     const refusal = 'matchmake failed: room "ABCD" not found';
     expect(describeNetError(new Error(refusal), 'ws://localhost:2567')).toBe(refusal);
+  });
+});
+
+describe('initialEndpointFrom (share-link server bootstrap)', () => {
+  it('a ?server= URL param wins and asks to be remembered', () => {
+    const boot = initialEndpointFrom('?server=wss%3A%2F%2Fplay.lastorbit.example', 'ws://old:2567', 'ws://localhost:2567');
+    expect(boot).toEqual({ endpoint: 'wss://play.lastorbit.example', remember: true });
+  });
+
+  it('without a param the remembered address is used (and not re-stored)', () => {
+    const boot = initialEndpointFrom('', 'wss://play.lastorbit.example', 'ws://localhost:2567');
+    expect(boot).toEqual({ endpoint: 'wss://play.lastorbit.example', remember: false });
+  });
+
+  it('nothing set → the local dev default', () => {
+    expect(initialEndpointFrom('', null, 'ws://localhost:2567')).toEqual({
+      endpoint: 'ws://localhost:2567',
+      remember: false,
+    });
   });
 });
 

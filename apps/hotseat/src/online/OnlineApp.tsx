@@ -17,7 +17,7 @@ import GameView from '../ui/GameView';
 import { DrawReveal } from '../ui/Overlays';
 import { FACTION_LABEL } from '../ui/factions';
 import { LOG_SFX, sfx } from '../audio';
-import { OnlineConn, describeNetError } from './net';
+import { OnlineConn, describeNetError, initialEndpointFrom } from './net';
 import type { SeatInfo, SeatViewMsg } from './types';
 
 const DEFAULT_ENDPOINT = 'ws://localhost:2567';
@@ -39,7 +39,14 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
   const [name, setName] = useState(() => {
     try { return localStorage.getItem('lastorbit-name') ?? ''; } catch { return ''; }
   });
-  const [endpoint, setEndpoint] = useState(DEFAULT_ENDPOINT);
+  // Server address bootstrap (share-links, docs/19): a `?server=` URL param wins
+  // and is remembered in localStorage, so friends join with one click and never
+  // retype the address; otherwise the remembered value; else the dev default.
+  const [endpoint, setEndpoint] = useState(() => {
+    const boot = initialEndpointFrom(window.location.search, localStorage.getItem('lo.server'), DEFAULT_ENDPOINT);
+    if (boot.remember) localStorage.setItem('lo.server', boot.endpoint);
+    return boot.endpoint;
+  });
   const [hosting, setHosting] = useState(true);
   const [playerCount, setPlayerCount] = useState(4);
   const [humanSeats, setHumanSeats] = useState(4);

@@ -77,8 +77,10 @@ the architecture of record for the online version and the ordered plan for the r
       authority rejection end-to-end.
 - [ ] **Online UX hardening:** reaction countdown ring + turn timer display, autopilot notices,
       reconnect overlay, Derelict spectator view + Final Transmission entry.
-- [ ] **Deployment:** hosting choice (self-host VPS/Railway/Fly vs Colyseus Cloud), CI deploy,
-      basic ops (logs, restart).
+- [ ] **Deployment:** plan set 2026-10-25 — **PC + Cloudflare Tunnel trial first**
+      (runbook: `docs/19-deployment-pc-tunnel.md`; Gábor's call — free, laptop-independent,
+      Bluehost domain DNS), then a small always-on VPS/Fly (~€5/mo) once the beta outgrows it.
+      Remaining after setup: CI deploy, basic ops (logs, restart).
 - [ ] **Beta:** friends-and-family — carries PT-01 (3p) + PT-02 (4–5p) per D-034.
 
 ## Open questions for Gábor (none blocking the next step)

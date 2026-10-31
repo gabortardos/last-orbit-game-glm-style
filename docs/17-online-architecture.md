@@ -65,8 +65,16 @@ the architecture of record for the online version and the ordered plan for the r
 
 ## Not in the spike (deliberately — the remaining P4 steps)
 
-- [ ] **Client "Online" mode** in the app: `@colyseus/sdk`, lobby/room codes, seat roster,
-      snapshot → existing view components, one-seat-per-screen UI.
+- [x] **Client "Online" mode** in the app (2026-10-25): `@colyseus/sdk` in `apps/hotseat/src/online` —
+      🌐 entry on Setup, host/join with room codes, seat-roster lobby (host starts; empty seats →
+      server bots), per-seat snapshots feed the existing view components via `ClientGame`
+      (`handSize`/`deckSize` helpers; `remote` chips for other captains), own-draw reveal,
+      reject/autopilot notices, seat-restoring reconnect. Includes a privacy hardening found
+      during wiring: **`seatView` now strips the drawn card from other seats' copies of public
+      `draw` log entries** (own draws keep it — the reveal needs it). 5 new client tests,
+      draw-privacy assertion added to the continuous audit — **104/104 green**; live SDK smoke
+      against a booted server verified join-by-code, sealed hands/deck, draw redaction and
+      authority rejection end-to-end.
 - [ ] **Online UX hardening:** reaction countdown ring + turn timer display, autopilot notices,
       reconnect overlay, Derelict spectator view + Final Transmission entry.
 - [ ] **Deployment:** hosting choice (self-host VPS/Railway/Fly vs Colyseus Cloud), CI deploy,

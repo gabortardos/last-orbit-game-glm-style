@@ -14,7 +14,7 @@ import { boot, type ColyseusTestServer } from '@colyseus/testing';
 import { Server } from 'colyseus';
 import { LastOrbitRoom } from '../room';
 import type { SeatView } from '../views';
-import type { Command, GameState } from '@last-orbit/game-core';
+import type { Command, GameState, LogEntry } from '@last-orbit/game-core';
 
 /** Minimal structural slice of an SDK room — keeps the tests free of SDK imports. */
 interface TestClient {
@@ -85,6 +85,9 @@ function assertViewIsPrivate(v: SeatView): void {
   }
   for (const e of v.log) {
     if (typeof e.visibility === 'object') expect(e.visibility.only).toBe(v.seat);
+    if (e.type === 'draw' && e.data?.player !== v.seat) {
+      expect(e.data?.card).toBeUndefined(); // what OTHERS drew never rides the wire
+    }
   }
 }
 
@@ -123,6 +126,17 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     // both seats stayed human (no bots in a 2-human room)
     expect(v0.players[0].name).toBe('Amara');
     expect(v1.players[1].name).toBe('Vesper');
+
+    // draw privacy (P4 client hardening): seat 0 draws — the drawer keeps the card,
+    // the other seat's copy of the same event is stripped to deckLeft only
+    c0.send('command', { cmd: { type: 'END_TURN_DRAW', player: 0 } });
+    await until(() => t0.states[t0.states.length - 1].version > v0.version, 3000, 'seat 0 draws');
+    const lastDraw = (t: Tracked): LogEntry =>
+      [...t.states[t.states.length - 1].log].reverse().find((e) => e.type === 'draw') as LogEntry;
+    expect(lastDraw(t0).data?.player).toBe(0);
+    expect(typeof lastDraw(t0).data?.card).toBe('string'); // own draw carries the card
+    expect(lastDraw(t1).data?.player).toBe(0);
+    expect(lastDraw(t1).data?.card).toBeUndefined(); // theirs does not
   });
 
   it('enforces authority: spoofed and illegal commands are rejected, state never moves', async () => {

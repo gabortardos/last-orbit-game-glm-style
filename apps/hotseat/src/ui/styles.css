@@ -43,6 +43,14 @@ button { font: inherit; }
 .mini:disabled { opacity: 0.4; cursor: not-allowed; }
 .error { color: var(--danger); margin-top: 8px; font-size: 0.9rem; }
 
+/* ---------- online lobby (P4) ---------- */
+.seatrow { display: flex; align-items: center; gap: 12px; background: var(--panel2); border: 1px solid #2c3554; border-radius: 8px; padding: 8px 12px; }
+.seatrow .seatno { color: var(--dim); min-width: 58px; font-size: 0.8rem; letter-spacing: 0.04em; }
+.seatrow .pname { flex: 1; }
+.roomcode { font-family: ui-monospace, SFMono-Regular, monospace; letter-spacing: 3px; color: var(--gold); font-size: 1.05rem; }
+.onlinebar { position: fixed; top: 8px; right: 12px; display: flex; gap: 8px; align-items: center; z-index: 140; }
+.onlinebar .chip, .seatrow .chip { background: var(--panel); border: 1px solid #2c3554; border-radius: 999px; padding: 3px 10px; font-size: 0.72rem; color: var(--dim); white-space: nowrap; }
+
 /* ---------- table ---------- */
 .table { max-width: 900px; margin: 0 auto; padding: 12px 16px 90px; display: flex; flex-direction: column; gap: 10px; min-height: 100%; }
 .hud { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: var(--panel); border-radius: 12px; padding: 10px 14px; font-size: 0.92rem; }

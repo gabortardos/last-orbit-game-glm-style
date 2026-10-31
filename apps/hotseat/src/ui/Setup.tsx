@@ -17,7 +17,7 @@ const FACTION_LABEL: Record<FactionId, string> = {
   deepsight: '♆ Neptune · Deep Sight',
 };
 
-export default function Setup({ onStart }: { onStart: (o: StartOptions) => void }) {
+export default function Setup({ onStart, onOnline }: { onStart: (o: StartOptions) => void; onOnline: () => void }) {
   const [mode, setMode] = useState<'hotseat' | 'solo'>('hotseat');
   const [count, setCount] = useState(4);
   const [names, setNames] = useState<string[]>(['Mercury', 'Venus', 'Earth', 'Mars', 'Saturn']);
@@ -65,6 +65,7 @@ export default function Setup({ onStart }: { onStart: (o: StartOptions) => void 
       <div className="row">
         <button className={`mini ${mode === 'hotseat' ? 'on' : ''}`} onClick={() => setMode('hotseat')} title="One device, passed between human captains">👥 Pass-and-play</button>
         <button className={`mini ${mode === 'solo' ? 'on' : ''}`} onClick={() => setMode('solo')} title="You play one captain; AI captains take the other seats">🤖 Solo vs AI</button>
+        <button className="mini" onClick={onOnline} title="Live match over the network — one screen per captain, room codes, authoritative server (D-036). Needs the server running: npm run dev:server">🌐 Online</button>
       </div>
 
       <div className="sect">The table</div>

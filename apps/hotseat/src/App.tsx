@@ -4,10 +4,10 @@ import {
 } from '@last-orbit/game-core';
 import type { BotPolicy, CardKind, Command, FactionId, GameState } from '@last-orbit/game-core';
 import Setup from './ui/Setup';
+import OnlineApp from './online/OnlineApp';
 import GameView from './ui/GameView';
 import { DrawReveal, HandoffGate } from './ui/Overlays';
-import { sfx } from './audio';
-import type { Sfx } from './audio';
+import { sfx, LOG_SFX } from './audio';
 
 export interface StartOptions {
   playerCount: number;
@@ -22,20 +22,10 @@ export interface StartOptions {
 const BOT_POLICY: BotPolicy = 'greedy';
 const BOT_THINK_MS = 1100; // command-phase pacing so bot turns are watchable
 const BOT_REACT_MS = 850;
-
-/** Public log events that get a quiet stinger (audio.ts). */
-const LOG_SFX: Record<string, Sfx> = {
-  play: 'play', override: 'override', transmission: 'override', pending_cancelled: 'cancelled',
-  steal: 'steal', steal_card: 'steal', give: 'give', flyby_debt: 'flyby',
-  rupture_reveal: 'rupture', contained: 'contained', fury_up: 'fury',
-  eliminated: 'eliminated', win: 'win',
-  storm_hit: 'storm', storm_discard: 'storm', wind_bonus: 'wind',
-  deflect: 'deflect', flare_skip: 'deflect', surge_hit: 'surge', forced_discard: 'surge', snag_hit: 'snag', snag_discard: 'snag',
-  court_favor: 'steal', rust_run: 'play', storm_shout: 'storm', // D-031 faction stingers
-  kit_bash: 'steal', ring_wall: 'deflect', axial_tilt: 'deflect', deep_sight: 'play', // D-033 faction stingers
-};
+// (public-log stingers live in audio.ts as LOG_SFX — shared with the online shell)
 
 export default function App() {
+  const [online, setOnline] = useState(false); // 🌐 online mode (P4): the server replaces the local engine
   const [game, setGame] = useState<GameState | null>(null);
   const [humans, setHumans] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -132,7 +122,8 @@ export default function App() {
     seenLog.current = game.log.length;
   }, [game]);
 
-  if (!game) return <Setup onStart={start} />;
+  if (online) return <OnlineApp onExit={() => setOnline(false)} />;
+  if (!game) return <Setup onStart={start} onOnline={() => setOnline(true)} />;
 
   // whose eyes the UI shows the table through (solo: always the human's seat)
   const viewer = humans.includes(game.activePlayer) ? game.activePlayer : humans[0] ?? 0;

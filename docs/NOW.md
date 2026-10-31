@@ -1,5 +1,23 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 3 — generator idea logged (D-037) + P4 item 2: client Online mode — 2026-10-25 ✅
+
+**Dev plan step executed:** two things on Gábor's word ("log the new idea and your feedback for now… then the next dev step, the P4 online mode. go"):
+1. **Generator idea logged** → `docs/18-generator-platform-vision.md` + decision **D-037** (PROPOSED, post-P5) + roadmap stub **P6**. The reframe is now project memory: the LLM fills a validated schema/menu (characters → power templates + flavor) and never invents mechanics; "generation opens a PR, the sim is CI, human playtest is code review"; nothing starts before the P5 gate.
+2. **`docs/13` P4 item 2 — client "Online" mode — DONE** (architecture of record `docs/17`, unchanged plan).
+
+**Shipped (P4 item 2):**
+1. **`apps/hotseat/src/online/`** — `net.ts` (typed `@colyseus/sdk` wrapper: join/create by room code, `command`/`start`, `welcome`/`seats`/`state`/`started`/`reject`/`autopilot` routing, non-consented-leave detection, seat-restoring `reconnect()` inside the server's 30 s window) · `types.ts` (`SeatViewMsg`, `ClientGame`, `handSize`/`deckSize` — the UI's hidden-info helpers, kept in sync with `apps/server/src/views.ts` by comment contract) · `OnlineApp.tsx` (form → lobby → match screens; roster with room code + copy, host-only start, human-seats select = server bots online solo; own-draw reveal, reject/autopilot notices, connection-lost screen with reconnect; spectators get a roster screen pending the Derelict UX step).
+2. **UI adapted, not forked:** `GameView`/`Overlays` now take `ClientGame` and ask `handSize`/`deckSize` instead of reading sealed hands/deck; `remote` prop relabels other captains 🌐 (chips, "answering on their screen…"); `DrawReveal` gained `nextNote`; `LOG_SFX` moved to `audio.ts` (shared). Hotseat/solo rendering unchanged.
+3. **Privacy hardening found during wiring (server):** public `draw` log entries carried the drawn card to every seat — `seatView` now strips `card` from other seats' copies (own draws keep it; feed keeps `deckLeft`). Continuous test audit upgraded + explicit two-seat assertion.
+4. **Evidence:** **104/104 green** (99 + 5 new client tests: protocol wiring ×3, hidden-info helpers ×2), typecheck (3 projects) ✓, build ✓, and a **live smoke through the real `@colyseus/sdk` against a booted server**: host create → guest join-by-code → start → sealed hands/deck (`handSizes 5,5,5`, `deckSize 39`) → **draw privacy live (drawer sees `"salvage"`, other seat sees `undefined`)** → spoofed command rejected at the sender. Smoke script deleted after use.
+5. **Infra:** `@colyseus/sdk@0.18.9` added to `apps/hotseat` (lockfile updated); no vite proxy needed (Colyseus matchmaker sends CORS headers — direct `ws://localhost:2567` works from the dev server).
+
+**What's left from the latest plan (`docs/13` + previous Next):**
+1. ~~P4 client Online mode~~ ✅ → next P4 step: **online UX hardening** (reaction countdown ring, turn-timer display, reconnect overlay polish, Derelict spectator view + Final Transmission entry) → deployment (hosting choice still open for Gábor: self-host ~€5/mo vs Colyseus Cloud) → friends-and-family beta carrying **PT-01 (3p) + PT-02 (4–5p)**.
+2. Worth a browser pass with Gábor: online mode on two devices/tabs (`npm run dev:server` + `npm run dev`), including a mid-match reconnect.
+3. Waiting on Gábor (unchanged): in-game testing of the four v3 powers · **D-035** passives family pick + open slots (♄ ♅ ♂) · PT-F1 pretests · Reactor Charge option A confirm · generator idea go/no-go is **post-P5** by design.
+
 ## Session 2, small hours — P4 opens: authoritative online server (D-036) — 2026-10-25 ✅
 
 **Dev plan step executed:** `docs/13` **P4 item 1 — "Authoritative server (Colyseus/PartyKit spike → choice, logged as decision)" — DONE** (D-036). This was the top developer-actionable item after D-033: every other open item waits on Gábor (power feedback, D-035 family pick, PT rounds) — and D-034 + "continue with the development plan" was the word for the spike.

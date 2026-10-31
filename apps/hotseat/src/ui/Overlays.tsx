@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { CARD_INFO, canAxialTilt, canCourtFavor, canRespond, canRingWall, eligibleReactorIds, furyDepthLimit, openRespondents } from '@last-orbit/game-core';
-import type { CardKind, Command, GameState, LogEntry, MatchReport } from '@last-orbit/game-core';
+import type { CardKind, Command, LogEntry, MatchReport } from '@last-orbit/game-core';
+import { deckSize, handSize } from '../online/types';
+import type { ClientGame } from '../online/types';
 import { isMuted, startAudio, toggleMuted } from '../audio';
 
 /** 🔊/🔇 ambient soundtrack toggle. */
@@ -18,11 +20,12 @@ export function SoundButton({ className = 'ghost' }: { className?: string }) {
 }
 
 /** Shows the drawer what they drew, before the device passes on. */
-export function DrawReveal({ game, reveal, solo, onDone }: {
-  game: GameState;
+export function DrawReveal({ game, reveal, solo, onDone, nextNote }: {
+  game: ClientGame;
   reveal: { player: number; card: CardKind };
   solo?: boolean; // solo vs AI: nobody to pass to — the bots take it from here
   onDone: () => void;
+  nextNote?: string; // online: who's next, in this screen's words
 }) {
   const p = game.players[reveal.player];
   const info = CARD_INFO[reveal.card];
@@ -33,7 +36,7 @@ export function DrawReveal({ game, reveal, solo, onDone }: {
         <h3>🃏 {p.name} drew:</h3>
         <div className="drawcard"><span className="emoji">{info.emoji}</span> <b>{info.name}</b></div>
         <p className="hint">{info.blurb}</p>
-        <p className="hint dim">{stillMe ? 'You owe another turn — stay at the controls.' : solo ? `Next up: ${game.players[game.activePlayer]?.name ?? '—'} 🤖 — watch their move in the log.` : `Next up: ${game.players[game.activePlayer]?.name ?? '—'} — then pass the device.`}</p>
+        <p className="hint dim">{nextNote ?? (stillMe ? 'You owe another turn — stay at the controls.' : solo ? `Next up: ${game.players[game.activePlayer]?.name ?? '—'} 🤖 — watch their move in the log.` : `Next up: ${game.players[game.activePlayer]?.name ?? '—'} — then pass the device.`)}</p>
         <button className="primary" onClick={onDone}>Got it</button>
       </div>
     </div>
@@ -41,7 +44,7 @@ export function DrawReveal({ game, reveal, solo, onDone }: {
 }
 
 /** Privacy gate between captains (pass-and-play). */
-export function HandoffGate({ game, player, onDone }: { game: GameState; player: number; onDone: () => void }) {
+export function HandoffGate({ game, player, onDone }: { game: ClientGame; player: number; onDone: () => void }) {
   return (
     <div className="overlay gate" onClick={onDone}>
       <div className="modal">
@@ -63,7 +66,7 @@ const reasonText = (r: string): string => ({
 } as Record<string, string>)[r] ?? r;
 
 /** The public event feed, filtered by visibility. */
-export function LogFeed({ game, viewer }: { game: GameState; viewer?: number }) {
+export function LogFeed({ game, viewer }: { game: ClientGame; viewer?: number }) {
   const v = viewer ?? game.activePlayer;
   const visible = game.log.filter((e) => {
     if (e.visibility === 'public' || e.visibility === 'hidden') return e.visibility === 'public';
@@ -86,7 +89,7 @@ export function LogFeed({ game, viewer }: { game: GameState; viewer?: number }) 
   );
 }
 
-function fmtEntry(game: GameState) {
+function fmtEntry(game: ClientGame) {
   const name = (id: unknown): string => game.players[id as number]?.name ?? '?';
   const cardNames = (ks: CardKind[]): string => ks.map((k) => `${CARD_INFO[k].emoji} ${CARD_INFO[k].name}`).join(' + ');
   return (e: LogEntry): string => {
@@ -138,10 +141,11 @@ function fmtEntry(game: GameState) {
   };
 }
 
-export function ReactionOverlay({ game, dispatch, humans }: {
-  game: GameState;
+export function ReactionOverlay({ game, dispatch, humans, remote }: {
+  game: ClientGame;
   dispatch: (c: Command) => void;
   humans?: number[]; // solo vs AI: bots decide on their own; only the human's row is interactive
+  remote?: boolean; // online: the other rows are captains on their own screens, not bots
 }) {
   const [redirect, setRedirect] = useState<'card' | 'flare' | 'tilt' | null>(null); // ↪️ Deflector, ☿ Flare Skip or ♅ Axial Tilt chooser
   if (game.phase !== 'reaction' || !game.pending) return null;
@@ -195,8 +199,8 @@ export function ReactionOverlay({ game, dispatch, humans }: {
           if (solo && !humans.includes(id)) {
             return (
               <div key={id} className="reactrow">
-                <span className="pname">{p.name} 🤖{isTarget ? ' 🎯' : ''}</span>
-                <span className="botchip">deciding…</span>
+                <span className="pname">{p.name} {remote ? '🌐' : '🤖'}{isTarget ? ' 🎯' : ''}</span>
+                <span className="botchip">{remote ? 'answering on their screen…' : 'deciding…'}</span>
               </div>
             );
           }
@@ -226,7 +230,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
                           : { type: 'DEFLECT', player: id, target: q.id });
                     }}
                   >
-                    {q.name} ({q.hand.length})
+                    {q.name} ({handSize(game, q.id)})
                   </button>
                 ))}
                 <button className="ghost" onClick={() => setRedirect(null)}>Cancel</button>
@@ -306,7 +310,7 @@ export function ReactionOverlay({ game, dispatch, humans }: {
   );
 }
 
-function ScanModal({ game, dispatch, viewer }: { game: GameState; dispatch: (c: Command) => void; viewer?: number }) {
+function ScanModal({ game, dispatch, viewer }: { game: ClientGame; dispatch: (c: Command) => void; viewer?: number }) {
   const me = viewer ?? game.activePlayer;
   const [revealed, setRevealed] = useState(false);
   const entry = [...game.log].reverse().find(
@@ -332,18 +336,18 @@ function ScanModal({ game, dispatch, viewer }: { game: GameState; dispatch: (c: 
   );
 }
 
-function ReinsertModal({ game, dispatch, viewer }: { game: GameState; dispatch: (c: Command) => void; viewer?: number }) {
+function ReinsertModal({ game, dispatch, viewer }: { game: ClientGame; dispatch: (c: Command) => void; viewer?: number }) {
   const me = viewer ?? game.activePlayer;
   if (game.activePlayer !== me) return null; // AI reinsertions stay private to the bot
   const limit = game.config.modules.sunFury ? furyDepthLimit(game.sunFury) : Number.POSITIVE_INFINITY;
-  const maxPos = game.deck.length === 0 ? 1 : Math.min(limit, game.deck.length);
+  const maxPos = deckSize(game) === 0 ? 1 : Math.min(limit, deckSize(game));
   const [pos, setPos] = useState(maxPos);
   return (
     <div className="overlay">
       <div className="modal">
         <h3>☀️ Seal &amp; reinsert the Rupture</h3>
         <p className="hint">
-          Position 1 = top of the deck ({game.deck.length + 1} cards total).
+          Position 1 = top of the deck ({deckSize(game) + 1} cards total).
           {game.config.modules.sunFury && ` Sun Fury ${game.sunFury}: deepest legal position is ${maxPos}.`}
           {' '}Others shouldn&apos;t watch this choice.
         </p>
@@ -362,7 +366,7 @@ function ReinsertModal({ game, dispatch, viewer }: { game: GameState; dispatch: 
   );
 }
 
-function GiveModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: Command) => void; humans?: number[] }) {
+function GiveModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c: Command) => void; humans?: number[] }) {
   if (game.phase !== 'choice' || game.awaiting?.type !== 'give') return null;
   const giver = game.players[game.awaiting.from];
   if (humans && humans.length === 1 && !humans.includes(giver.id)) return null; // AI gives on its own
@@ -396,14 +400,14 @@ function GiveModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: 
 }
 
 /** ☄️ Storm jettison: the drawer (human) picks 1 card to lose. */
-function StormModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: Command) => void; humans?: number[] }) {
+function StormModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c: Command) => void; humans?: number[] }) {
   if (game.phase !== 'choice' || game.awaiting?.type !== 'storm_discard') return null;
   const victim = game.players[game.awaiting.player];
   if (humans && humans.length === 1 && !humans.includes(victim.id)) return null; // AI storms resolve in the log
   const soloVictim = humans !== undefined && humans.length === 1 && humans.includes(victim.id);
   // D-031 ♃: only the captain who actually DREW the storm may roar it away (drawnBy);
   // a shouted-at victim has no drawnBy → no chain-shouting.
-  const shoutTargets = game.players.filter((q) => q.alive && q.id !== victim.id && q.hand.length > 0);
+  const shoutTargets = game.players.filter((q) => q.alive && q.id !== victim.id && handSize(game, q.id) > 0);
   const canShout = game.awaiting.drawnBy === victim.id
     && victim.faction === 'stormkin' && !victim.factionPowerUsed
     && shoutTargets.length > 0;
@@ -433,7 +437,7 @@ function StormModal({ game, dispatch, humans }: { game: GameState; dispatch: (c:
                 title={`They jettison 1 card of their choice instead of you. Cannot be deflected; the shout is public once spent.`}
                 onClick={() => dispatch({ type: 'STORM_SHOUT', player: victim.id, target: q.id })}
               >
-                {q.name} ({q.hand.length})
+                {q.name} ({handSize(game, q.id)})
               </button>
             ))}
           </div>
@@ -457,11 +461,11 @@ function StormModal({ game, dispatch, humans }: { game: GameState; dispatch: (c:
 }
 
 /** 🧲 Tractor Snag: the victim (human) picks exactly `count` cards to discard. */
-function SnagModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: Command) => void; humans?: number[] }) {
+function SnagModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c: Command) => void; humans?: number[] }) {
   const [picked, setPicked] = useState<CardKind[]>([]);
   if (game.phase !== 'choice' || game.awaiting?.type !== 'snag_discard') return null;
   const victim = game.players[game.awaiting.player];
-  const count = Math.min(game.awaiting.count, victim.hand.length);
+  const count = Math.min(game.awaiting.count, handSize(game, victim.id));
   if (humans && humans.length === 1 && !humans.includes(victim.id)) return null; // AI snags resolve in the log
   const soloVictim = humans !== undefined && humans.length === 1 && humans.includes(victim.id);
   const available = (k: CardKind): number => victim.hand.filter((c) => c === k).length;
@@ -510,7 +514,7 @@ function SnagModal({ game, dispatch, humans }: { game: GameState; dispatch: (c: 
 }
 
 /** 🔧 Scrap peek: private reveal of the top deck card for the human who scrapped. */
-function ScrapModal({ game, viewer }: { game: GameState; viewer?: number }) {
+function ScrapModal({ game, viewer }: { game: ClientGame; viewer?: number }) {
   const me = viewer ?? game.activePlayer;
   const [revealed, setRevealed] = useState(false);
   const entry = [...game.log].reverse().find(
@@ -535,7 +539,7 @@ function ScrapModal({ game, viewer }: { game: GameState; viewer?: number }) {
   );
 }
 
-function GameOverModal({ game, report, onNewGame }: { game: GameState; report: MatchReport | null; onNewGame: () => void }) {
+function GameOverModal({ game, report, onNewGame }: { game: ClientGame; report: MatchReport | null; onNewGame: () => void }) {
   if (game.phase !== 'game_over' || game.winner === null || !report) return null;
   const download = () => {
     const blob = new Blob([JSON.stringify({
@@ -576,17 +580,18 @@ function GameOverModal({ game, report, onNewGame }: { game: GameState; report: M
 }
 
 /** Everything that covers the table at special moments. */
-export function Modals({ game, dispatch, report, onNewGame, viewer, humans }: {
-  game: GameState;
+export function Modals({ game, dispatch, report, onNewGame, viewer, humans, remote }: {
+  game: ClientGame;
   dispatch: (c: Command) => void;
   report: MatchReport | null;
   onNewGame: () => void;
   viewer?: number;
   humans?: number[];
+  remote?: boolean;
 }) {
   return (
     <>
-      <ReactionOverlay game={game} dispatch={dispatch} humans={humans} />
+      <ReactionOverlay game={game} dispatch={dispatch} humans={humans} remote={remote} />
       {game.phase === 'command' && <ScanModal game={game} dispatch={dispatch} viewer={viewer} />}
       {game.phase === 'command' && <ScrapModal game={game} viewer={viewer} />}
       {game.phase === 'choice' && game.awaiting?.type === 'reinsert' && <ReinsertModal game={game} dispatch={dispatch} viewer={viewer} />}

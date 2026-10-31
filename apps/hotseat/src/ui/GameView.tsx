@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { CARD_INFO } from '@last-orbit/game-core';
-import type { CardKind, Command, FactionId, GameState, MatchReport } from '@last-orbit/game-core';
+import type { CardKind, Command, FactionId, MatchReport } from '@last-orbit/game-core';
+import { deckSize, handSize } from '../online/types';
+import type { ClientGame } from '../online/types';
 
 /** D-031: every civilization's once-per-match power is a public chip at the table (Pillar 4). */
 const FACTION_CHIP: Record<FactionId, { label: string; title: string }> = {
@@ -42,16 +44,17 @@ import Briefing from './Briefing';
 import Codex from './Codex';
 
 interface Props {
-  game: GameState;
+  game: ClientGame; // local GameState OR an online per-seat snapshot (same layout)
   viewer: number; // whose eyes we render through (solo vs AI: always the human's seat)
-  humans: number[]; // human-controlled seats; the others are AI captains
+  humans: number[]; // human-controlled seats; the others are AI captains (online: just us)
+  remote?: boolean; // online match: the other captains sit at their own screens
   dispatch: (cmd: Command) => void;
   error: string | null;
   report: MatchReport | null;
   onNewGame: () => void;
 }
 
-export default function GameView({ game, viewer, humans, dispatch, error, report, onNewGame }: Props) {
+export default function GameView({ game, viewer, humans, dispatch, error, report, onNewGame, remote }: Props) {
   const [choosing, setChoosing] = useState<CardKind[] | null>(null); // play awaiting target/salvage
   const [bashKind, setBashKind] = useState<CardKind | null>(null); // D-033 🌍 Kit Bash: which Component, then which victim
   const [help, setHelp] = useState(false);
@@ -83,7 +86,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
     <div className="table">
       <header className="hud">
         <span className="brand">☀️ Last Orbit</span>
-        <span>Deck <b>{game.deck.length}</b></span>
+        <span>Deck <b>{deckSize(game)}</b></span>
         <span>Ruptures left <b>{rupturesLeft}</b></span>
         <span>Turn <b>{game.turnCount}</b></span>
         <span>Direction <b>{game.direction === 1 ? '↻' : '↺'}</b></span>
@@ -106,7 +109,11 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
           <div key={p.id} className={`player ${p.id === game.activePlayer && game.phase === 'command' ? 'active' : ''} ${p.alive ? '' : 'dead'}`}>
             <div className="pname">
               {p.name}
-              {solo && <span className="chip" title={humans.includes(p.id) ? 'you' : 'AI captain'}>{humans.includes(p.id) ? ' 👤 you' : ' 🤖'}</span>}
+              {(solo || remote) && (
+                <span className="chip" title={humans.includes(p.id) ? 'you' : remote ? 'a captain on another screen' : 'AI captain'}>
+                  {humans.includes(p.id) ? ' 👤 you' : remote ? ' 🌐' : ' 🤖'}
+                </span>
+              )}
               {p.faction && (
                 <span
                   className={`chip flare ${p.factionPowerUsed ? 'spent' : 'ready'}`}
@@ -119,7 +126,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
               {game.turnsOwed[p.id] > 0 && <span className="debt"> +{game.turnsOwed[p.id]}⏱</span>}
               {!p.alive && game.config.modules.derelicts && !p.transmissionUsed && <span title="Final Transmission armed"> 📡</span>}
             </div>
-            <div className="pinfo">{p.alive ? `${p.hand.length} cards` : 'derelict'}</div>
+            <div className="pinfo">{p.alive ? `${handSize(game, p.id)} cards` : 'derelict'}</div>
           </div>
         ))}
       </div>
@@ -127,7 +134,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
       <LogFeed game={game} viewer={viewer} />
 
       {game.phase === 'command' && !myTurn && (
-        <section className="command thinking">🤖 {game.players[game.activePlayer].name} is plotting a course…</section>
+        <section className="command thinking">{remote ? '🌐' : '🤖'} {game.players[game.activePlayer].name} is plotting a course…</section>
       )}
 
       {myTurn && (
@@ -181,7 +188,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
             <div className="chooser">
               <span>Choose target:</span>
               {aliveOthers.map((p) => (
-                <button key={p.id} className="mini" onClick={() => play(choosing, p.id)}>{p.name} ({p.hand.length})</button>
+                <button key={p.id} className="mini" onClick={() => play(choosing, p.id)}>{p.name} ({handSize(game, p.id)})</button>
               ))}
               <button className="ghost" onClick={() => setChoosing(null)}>Cancel</button>
             </div>
@@ -232,7 +239,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
                   title={`Steal 1 random card from ${p.name}'s hand as a completed pair (one 📡 cancels; they may ↪️ it onward).`}
                   onClick={() => { dispatch({ type: 'KIT_BASH', player: viewer, card: bashKind, target: p.id }); setBashKind(null); }}
                 >
-                  {p.name} ({p.hand.length})
+                  {p.name} ({handSize(game, p.id)})
                 </button>
               ))}
               <button className="ghost" onClick={() => setBashKind(null)}>Cancel</button>
@@ -261,7 +268,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
         </section>
       )}
 
-      <Modals game={game} dispatch={dispatch} report={report} onNewGame={onNewGame} viewer={viewer} humans={humans} />
+      <Modals game={game} dispatch={dispatch} report={report} onNewGame={onNewGame} viewer={viewer} humans={humans} remote={remote} />
 
       {/* D-023: sound + help float above every window — the briefing is reachable at any moment,
           even mid-reaction, so card meanings are never more than one tap away */}

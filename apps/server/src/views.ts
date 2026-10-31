@@ -24,9 +24,17 @@ export type SeatView = GameState & {
 };
 
 export function seatView(state: GameState, seat: number | null, version: number): SeatView {
-  const log: LogEntry[] = state.log.filter(
-    (e) => e.visibility === 'public' || (typeof e.visibility === 'object' && e.visibility.only === seat),
-  );
+  const log: LogEntry[] = state.log
+    .filter((e) => e.visibility === 'public' || (typeof e.visibility === 'object' && e.visibility.only === seat))
+    .map((e) =>
+      // 'draw' events are public, but WHICH card left the deck is the drawer's business:
+      // hands are sealed, so the card must be too (P4 client hardening). Own draws keep
+      // `card` (the client's draw-reveal uses it); every other seat — and spectators —
+      // get the entry stripped to `deckLeft` for the feed.
+      e.type === 'draw' && e.data?.player !== seat
+        ? { ...e, data: { ...e.data, card: undefined } }
+        : e,
+    );
   return {
     ...state,
     players: state.players.map((p) => ({

@@ -35,7 +35,7 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 ## P4 — Online multiplayer 🔄 (opened 2026-10-25, D-036 — the human-testing vehicle per D-034)
 
 - [x] Authoritative server (2026-10-25, D-036): **Colyseus chosen** (PartyKit's hosted platform shut down 2026-10-23); spike `apps/server` — room + per-seat privacy views + server-flown bots + timers/autopilot + reconnection + spectator seats; 6 integration tests, 99/99 green (`docs/17`)
-- [ ] Client "Online" mode: `@colyseus/sdk` wiring, lobby/room codes, seat roster, snapshot → existing view components
+- [x] Client "Online" mode (2026-10-25): `@colyseus/sdk` in `apps/hotseat` — 🌐 entry, host/join with room codes, seat-roster lobby, snapshots feed the existing view components (`ClientGame` + `handSize`/`deckSize`); privacy hardening: `seatView` redacts the drawn card from other seats' `draw` log entries; 104/104 green + live SDK smoke (`docs/17`)
 - [ ] Online UX hardening: reaction countdown ring, turn-timer display, autopilot notices, reconnect overlay, Derelict spectator view
 - [ ] Deployment: hosting choice (self-host vs Colyseus Cloud — open question for Gábor) + CI deploy + basic ops
 - [ ] Small friends-and-family beta — **now carries PT-01 (3p) + PT-02 (4–5p) human playtests (D-034): Gábor tests with real humans here**
@@ -46,6 +46,12 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [ ] Read-only Explorer technique evaluation (logged decision)
 - [ ] Audio production, accessibility audit, PWA
 - [ ] Monetization decision (postponed by charter until here)
+
+## P6 — Card-game generator platform (vision only — D-037, logged 2026-10-25) ⬜
+
+- [ ] **Does not start before the P5 gate** — Gábor's own sequencing rule: "once it is a good game." The platform's value is bounded by the core game's quality.
+- [ ] When it opens (build order): manual Theme Pack JSON prototype → power templates + sim auto-tune/repair loop → LLM front-end filling the schema (never mechanics) → maybe a second core engine.
+- Full vision, moat analysis and risks: `docs/18-generator-platform-vision.md`.
 
 ## Standing rule
 

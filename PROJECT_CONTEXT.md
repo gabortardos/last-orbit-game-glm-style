@@ -40,7 +40,7 @@ Full detail: `docs/03-rules-v0.2.md`, `docs/04-card-catalogue.md`.
 ## How to continue development (for any model)
 
 1. Read `docs/NOW.md` (current status + next actions), then `docs/13-roadmap.md`, then `docs/11-decision-log.md`.
-2. Commands: `npm install`, `npm run dev` (hotseat app), `npm run dev:server` (online server, D-036), `npm test` (all tests, engine + server), `npm run sim` (balance sim), `npm run build`, `npm run typecheck`.
+2. Commands: `npm install`, `npm run dev` (app — local modes + 🌐 Online), `npm run dev:server` (online server, D-036; run it in a second terminal for online play), `npm test` (all tests — engine + server + online client), `npm run sim` (balance sim), `npm run build`, `npm run typecheck`.
 3. Conventions: TypeScript strict; engine is pure & seeded; UI is a thin shell over engine commands; conventional commits (`feat:`, `fix:`, `docs:`, `chore:`, `balance:`); every design change lands in the relevant `docs/` record the same commit.
 4. After any work session, update `docs/NOW.md` (and playtest log / balance findings / decision log as applicable).
 

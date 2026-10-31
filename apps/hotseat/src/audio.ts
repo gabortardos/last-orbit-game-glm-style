@@ -306,6 +306,18 @@ export function sfx(kind: Sfx): void {
   }
 }
 
+/** Public log events → quiet stinger. Shared by the hotseat and online shells (P4). */
+export const LOG_SFX: Record<string, Sfx> = {
+  play: 'play', override: 'override', transmission: 'override', pending_cancelled: 'cancelled',
+  steal: 'steal', steal_card: 'steal', give: 'give', flyby_debt: 'flyby',
+  rupture_reveal: 'rupture', contained: 'contained', fury_up: 'fury',
+  eliminated: 'eliminated', win: 'win',
+  storm_hit: 'storm', storm_discard: 'storm', wind_bonus: 'wind',
+  deflect: 'deflect', flare_skip: 'deflect', surge_hit: 'surge', forced_discard: 'surge', snag_hit: 'snag', snag_discard: 'snag',
+  court_favor: 'steal', rust_run: 'play', storm_shout: 'storm', // D-031 faction stingers
+  kit_bash: 'steal', ring_wall: 'deflect', axial_tilt: 'deflect', deep_sight: 'play', // D-033 faction stingers
+};
+
 /** Call from any user gesture. Safe to call repeatedly; browsers require a gesture for audio. */
 export function startAudio(): void {
   if (!ctx && !muted) start();

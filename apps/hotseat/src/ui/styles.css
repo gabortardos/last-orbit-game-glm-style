@@ -53,14 +53,20 @@ button { font: inherit; }
 
 /* ---------- table ---------- */
 .table { max-width: 900px; margin: 0 auto; padding: 12px 16px 90px; display: flex; flex-direction: column; gap: 10px; min-height: 100%; }
-.hud { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: var(--panel); border-radius: 12px; padding: 10px 14px; font-size: 0.92rem; }
+.hud { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: rgba(19, 24, 41, 0.78); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 12px; padding: 10px 14px; font-size: 0.92rem; }
+
+/* ---------- 3D solar backdrop (D-038 rung 1) ----------
+   The Canvas sits behind every panel (z -1, no pointer events); the table panels
+   become translucent glass so the living system glows through the UI. */
+.solar { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.solar canvas { display: block; }
 .hud .brand { color: var(--gold); font-weight: 800; margin-right: auto; }
 .pip { color: #3a4266; }
 .pip.on { color: var(--gold); text-shadow: 0 0 8px #ffb84d88; }
 .fury { letter-spacing: 2px; }
 
 .players { display: flex; gap: 8px; flex-wrap: wrap; }
-.player { flex: 1 1 140px; background: var(--panel); border: 1px solid #232b47; border-radius: 12px; padding: 8px 12px; transition: border-color 0.15s; }
+.player { flex: 1 1 140px; background: rgba(19, 24, 41, 0.78); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid #232b47; border-radius: 12px; padding: 8px 12px; transition: border-color 0.15s; }
 .player.active { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold) inset; }
 .player.dead { opacity: 0.45; }
 .pname { font-weight: 700; }
@@ -68,7 +74,7 @@ button { font: inherit; }
 .pinfo { color: var(--dim); font-size: 0.85rem; }
 
 /* Flight log: pinned side rail, always visible — overlays must never cover it (D-021). */
-.log { position: fixed; top: 12px; right: 12px; bottom: 12px; width: var(--railw); z-index: 120; background: var(--panel); border: 1px solid #232b47; border-radius: 12px; padding: 10px 14px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 18px 60px #000a; }
+.log { position: fixed; top: 12px; right: 12px; bottom: 12px; width: var(--railw); z-index: 120; background: rgba(19, 24, 41, 0.92); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid #232b47; border-radius: 12px; padding: 10px 14px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 18px 60px #000a; }
 .loghead { color: var(--gold); font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; border-bottom: 1px solid #232b47; padding-bottom: 6px; }
 .logcount { color: var(--dim); font-weight: 400; letter-spacing: 0; font-size: 0.68rem; }
 .logbody { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 3px; }

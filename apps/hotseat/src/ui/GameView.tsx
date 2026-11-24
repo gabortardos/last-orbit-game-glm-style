@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { CARD_INFO } from '@last-orbit/game-core';
 import type { CardKind, Command, FactionId, MatchReport } from '@last-orbit/game-core';
+
+/** D-038 rung 1 — the living solar system behind the table (lazy chunk, pure UI). */
+const SolarScene = lazy(() => import('./SolarScene'));
 import { deckSize, handSize } from '../online/types';
 import type { ClientGame } from '../online/types';
 
@@ -84,6 +87,10 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
 
   return (
     <div className="table">
+      {/* D-038 rung 1: the solar system glows behind the glass panels (pure UI, lazy chunk) */}
+      <Suspense fallback={null}>
+        <SolarScene game={game} />
+      </Suspense>
       <header className="hud">
         <span className="brand">☀️ Last Orbit</span>
         <span>Deck <b>{deckSize(game)}</b></span>

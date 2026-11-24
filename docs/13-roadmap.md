@@ -26,12 +26,12 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [ ] Passive specialities brainstorm (D-035, proposed — `docs/14` §Passives): pick a family + per-civ passives → faction-seated sim pass → Gábor sign-off → only then engine work
 - **Gate to P3:** frozen rules + at least 1 tested faction; visual brief confirmed.
 
-## P3 — Visual vertical slice ⬜
+## P3 — Visual vertical slice 🔄 (rung 1 opened 2026-10-25 — D-038 **APPROVED**; runs parallel to the P4 beta: UI-only, engine untouched)
 
-- [ ] Style frames (6 key moments) · Sun Fury state chart · Mercury design sheet · motion prototype
+- [ ] Style frames (6 key moments) · Sun Fury state chart · Mercury design sheet · motion prototype — first up: 6 code-drawn (HTML/CSS/SVG) frames, reviewable in the browser
 - [ ] Three.js scene shell; card UI 2D-glass-over-3D; reduced-motion variants
-- [ ] Visual north star — the "living solar system" ladder (D-038 PROPOSED, `docs/20`): P3 = rung 1 (animated 3D system *behind* the card glass — Sun Fury is the Sun's state, seats are planets, log events are light between orbits); rungs 2–3 (homeworld vignettes, world mode) are the post-P5 visual track
-- **Gate to P4:** slice playable hotseat with full visuals; state readability sign-off.
+- [ ] Visual north star — the "living solar system" ladder (D-038 **APPROVED** 2026-10-25, `docs/20`): P3 = rung 1 (animated 3D system *behind* the card glass — Sun Fury is the Sun's state, seats are planets, log events are light between orbits); rungs 2–3 (homeworld vignettes, world mode) are the post-P5 visual track
+- **Gate (release milestone M2, `docs/21`):** slice playable hotseat with full visuals; state readability sign-off. (The historical "gate to P4" was superseded when P4 opened early — D-036: the server work never waited on visuals.)
 
 ## P4 — Online multiplayer 🔄 (opened 2026-10-25, D-036 — the human-testing vehicle per D-034)
 
@@ -40,6 +40,7 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [ ] Online UX hardening: reaction countdown ring, turn-timer display, autopilot notices, reconnect overlay, Derelict spectator view
 - [ ] Deployment: hosting choice (self-host vs Colyseus Cloud — open question for Gábor) + CI deploy + basic ops
 - [ ] Small friends-and-family beta — **now carries PT-01 (3p) + PT-02 (4–5p) human playtests (D-034): Gábor tests with real humans here**
+- [ ] **Release track (D-039):** the three open P4 items above are milestones M0–M3 of the v1.0 release plan — `docs/21-release-plan.md`; the beta's exit criteria ARE the P5 gate + the v1.0 rules freeze
 - **Gate to P5:** stable online matches; retention signal.
 
 ## P5 — Explorer evaluation, polish, beyond ⬜
@@ -56,4 +57,4 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 
 ## Standing rule
 
-Scope never jumps a gate. Changes to this roadmap are decision-log entries.
+Scope never jumps a gate. Changes to this roadmap are decision-log entries. The v1.0 release plan (`docs/21`, D-039) runs P3 rung 1 in parallel with the P4 beta — engine untouched, so no gate is jumped: the P5 "good game" verdict stays the release arbiter.

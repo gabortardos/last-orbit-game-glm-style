@@ -1,5 +1,21 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 5 — "where are we now" round: full recap delivered; 3D vision APPROVED (D-038); v1.0 release plan adopted (D-039) — 2026-10-25 ✅
+
+**Dev plan step executed:** planning session, no product code — Gábor asked for (1) a full remaining-work recap, (2) the 8-player call, (3) progression on the 3D vision ("i want to progress with that"), (4) a release plan. All four landed as decisions + docs:
+
+- **D-038 PROPOSED → APPROVED** (Gábor's go-ahead, this session): rung 1 (the living table) opens NOW as the P3 visual lane, running parallel to the P4 beta — UI-only, engine untouched, so sims stay valid and the P5 "good game" gate stays the release arbiter. `docs/20` status + guards updated; roadmap P3 ⬜→🔄.
+- **D-039 ADOPTED — v1.0 release plan**, new plan of record `docs/21-release-plan.md`: scope frozen (2–5 players; v0.3 rules; 8 civs active powers; hotseat/solo/online; rung-1 visuals; free, PC-tunnel hosting) · milestones **M0** deploy (blocked on Gábor: push + ~30-min PC session) → **M1** family beta (= P5 gate + rules freeze, carries PT-01/02 + the 8-power test) → **M2** rung-1 visuals (parallel, starts next dev session with 6 code-drawn style frames) → **M3** online UX hardening → **M4** RC → **M5** launch (`git tag v1.0.0`) · post-1.0 parking lot (passives D-035 → rungs 2–3 → Grand Fleet → P6 generator → monetization/title) · open questions Q1–Q4 for Gábor (beta host comfort, 2–5 confirm, audio/PWA, launch blast radius).
+- **8-player question closed for v1.0:** deck math (51-card fixed deck → ~11 draw cards with 7 ruptures at 8p) + mission envelope 2–5 → **v1.0 ships 2–5**; "Grand Fleet" deferred to the parking lot with a documented trigger (family demand for 6+).
+- **Recap delivered in the session reply** (roadmap leftovers + gathered-ideas inventory + what waits on Gábor). Still open from it: D-035 passives family pick (now post-v1.0) · Reactor Charge option A confirm (final call at the rules freeze, rides the beta).
+
+**Evidence:** docs-only session — code, tests (110/110), typecheck and build untouched from commit `b0762ca` where they were last validated.
+
+**Next:**
+1. **M0 needs Gábor:** `git push` go-ahead (the local commits on `main` incl. this one) + the ~30-min PC deployment session per `docs/19`.
+2. Next dev session opens **M2 rung 1**: the 6 code-drawn style frames first (browser-reviewable), then the three.js/react-three-fiber scene shell behind the card glass.
+3. Awaiting Gábor (non-blocking): Q1–Q4 of `docs/21` · 8-power in-game test · beta scheduling · D-035 family pick · Reactor Charge option A (at freeze).
+
 ## Session 4 — online PT feedback round 1: reaction-window hand visibility + full flight log; 3D world vision logged (D-038) — 2026-10-25 ✅
 
 **Dev plan step executed:** P4 online-mode shakedown — Gábor's first online-play feedback list triaged; the two concrete UX blockers fixed same-session; the three strategic items (faction powers status, 8-player question, grand 3D vision) answered/logged.

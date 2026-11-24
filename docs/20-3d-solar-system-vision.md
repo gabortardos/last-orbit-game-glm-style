@@ -1,6 +1,6 @@
 # 20 — The Living Solar System (visual north star)
 
-**Status:** PROPOSED — decision **D-038**. This is Gábor's ambition captured so it shapes P3+ planning; nothing here is committed work yet. Rungs 2–3 are sequenced post-P5 (same rule as D-037: the game is proven first, then the world).
+**Status:** **APPROVED as direction** — decision **D-038** (Gábor, 2026-10-25: "I want to progress with that"). **Rung 1 (the living table) is now open** as the P3 visual lane, running parallel to the P4 friends-and-family beta — UI-only work, engine untouched. Rungs 2–3 stay post-P5 (same rule as D-037: the game is proven first, then the world). Release sequencing: `docs/21` (D-039).
 **Date:** 2026-10-25 · **Owner:** Gábor (creative vision) · Captured from the online-testing feedback session.
 
 ## The idea, in Gábor's words (2026-10-25)
@@ -28,7 +28,7 @@
 1. **Readability outranks spectacle** — the P3 gate "state readability sign-off" applies to every rung; a scene that hides whose turn it is fails, however pretty.
 2. **The engine never depends on the renderer** — 3D is a view, not a mechanic; the sim and rules tests must not know it exists.
 3. **Mobile/low-end tiers** — quality presets, fallback to the glass UI; a phone must still play.
-4. **Scope sequencing** — rung 1 folds into P3 after the rules freeze; rungs 2–3 wait for the P5 gate ("once it is a good game").
+4. **Scope sequencing** — rung 1 runs in the P3 lane in parallel with the beta (it renders any rules, so it never gates the "good game" verdict); rungs 2–3 wait for the P5 gate ("once it is a good game"). If the beta demands a mechanics iteration, rung 1 waits with it.
 
 ## Tech notes (candidate, decided at P3 kickoff)
 

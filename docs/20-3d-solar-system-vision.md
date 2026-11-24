@@ -1,6 +1,6 @@
 # 20 — The Living Solar System (visual north star)
 
-**Status:** **APPROVED as direction** — decision **D-038** (Gábor, 2026-10-25: "I want to progress with that"). **Rung 1 (the living table) is now open** as the P3 visual lane, running parallel to the P4 friends-and-family beta — UI-only work, engine untouched. Rungs 2–3 stay post-P5 (same rule as D-037: the game is proven first, then the world). Release sequencing: `docs/21` (D-039).
+**Status:** **APPROVED as direction** — decision **D-038** (Gábor, 2026-10-25: "I want to progress with that"). **Rung 1 (the living table) is now open** as the P3 visual lane, running parallel to the P4 friends-and-family beta — UI-only work, engine untouched. Rungs 2–3 stay post-P5 (same rule as D-037: the game is proven first, then the world). Release sequencing: `docs/21` (D-039). **Tech resolved 2026-11-24 (D-041): plain three.js on Gábor's own Solar System Explorer engine — react-three-fiber dropped; the Explorer core is ported into `apps/hotseat/src/solar`.**
 **Date:** 2026-10-25 · **Owner:** Gábor (creative vision) · Captured from the online-testing feedback session.
 
 ## The idea, in Gábor's words (2026-10-25)
@@ -19,7 +19,7 @@
 ## The ladder (each rung shippable; every rung runs the same engine)
 
 - **Rung 0 — today's glass UI.** The tactical/test view. Stays forever (also the low-end/reduced-motion fallback).
-- **Rung 1 — the living table (this is P3, plus one step).** A three.js/react-three-fiber scene *behind* the current 2D-glass cards: the Sun breathes with Fury level; seats are orbiting planets; the log animates as light between orbits (a steal = a cable/tractor beam between two orbits; an Override = a jam wave from a third planet; a rupture = a solar flare; a deflection = the beam bouncing). Reduced-motion variants mandatory.
+- **Rung 1 — the living table (this is P3, plus one step).** A three.js scene (the Explorer engine, D-041) *behind* the current 2D-glass cards: the Sun breathes with Fury level; seats are starships racing the belt corridor; the log animates in the system (a steal = a comet streak between two ships; an Override = a jam wave from a third ship; a rupture = a solar eruption; a deflection = the streak bouncing). Reduced-motion variants mandatory.
 - **Rung 2 — homeworlds.** The Codex becomes a 3D vignette per civ (Mars' rust markets, Venus' cloud courts, Saturn's ring choirs…), art-directed style frames first; per-faction card backs / hero art.
 - **Rung 3 — world mode.** Play *inside* the system: viewpoint rides your flagship; actions are physical (a boarding party launches, flies, grapples); reactions are comm lasers between ships. The flat card UI survives as an overlay "tactical mode".
 
@@ -30,7 +30,7 @@
 3. **Mobile/low-end tiers** — quality presets, fallback to the glass UI; a phone must still play.
 4. **Scope sequencing** — rung 1 runs in the P3 lane in parallel with the beta (it renders any rules, so it never gates the "good game" verdict); rungs 2–3 wait for the P5 gate ("once it is a good game"). If the beta demands a mechanics iteration, rung 1 waits with it.
 
-## Tech notes (candidate, decided at P3 kickoff)
+## Tech notes (resolved 2026-11-24 — D-041)
 
-- three.js + react-three-fiber (mature, composable with the existing React UI, no lock-in of gameplay code).
-- Animation director = pure function of `(logEntry, prevState, state)` → tweened scene events; testable headless, reusable by the replay tool.
+- **Plain three.js on Gábor's own Solar System Explorer** (github.com/gabortardos/solar-system-glm): its data/sim/render core is ported near-verbatim into `apps/hotseat/src/solar/` — Kepler orbits, planet+moon catalog, the compressed-scale system — exactly the "background engine for other 3D games" use its README anticipated. react-three-fiber was removed: the Explorer is vanilla three.js, and one fewer dependency is one fewer seam.
+- Animation director lives in `SolarScene.tsx` (log entry → scene event: `rupture_reveal` flare, targeted `play`/`give` streak, `contained` shield pulse, `fury_up` flash) on top of `BackScene`'s effect kit; the original pure-function-of-`(logEntry, prevState, state)` form stays a candidate if the replay tool ever needs a headless director.

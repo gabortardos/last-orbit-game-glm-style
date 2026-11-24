@@ -20,7 +20,7 @@ import * as THREE from 'three';
 import { CELESTIAL_CATALOG, PLANET_IDS, getCelestial } from './data/catalog';
 import { buildSystemVisuals, disposeVisuals, type SystemVisuals } from './render/bodies';
 import { heliocentricScenePositions } from './render/sync';
-import { bodyRadiusScene, systemFramingDistanceScene } from './render/scale';
+import { bodyRadiusScene, heliocentricRadiusScene } from './render/scale';
 import { daysSinceJ2000 } from './sim/orbit';
 import { hashString, mulberry32 } from './render/rand';
 
@@ -29,8 +29,8 @@ const DAYS_PER_SECOND = 3;
 /** Camera auto-orbit rate, rad/s — one full sweep in roughly five minutes. */
 const CAMERA_DRIFT = 0.02;
 /** Ship lanes sit between Mars's orbit (~138 u) and Jupiter's (~186 u). */
-const LANE_BASE_RADIUS = 146;
-const LANE_STEP = 8;
+const LANE_BASE_RADIUS = 144;
+const LANE_STEP = 9;
 /** Seconds one ship needs for a full lap of its lane. */
 const SHIP_LAP_SECONDS = 48;
 
@@ -92,7 +92,8 @@ export class BackScene {
   private haloFlash = 0; // short halo spike when fury steps up
 
   private readonly bootDays: number;
-  private readonly baseDistance: number;
+  private readonly framedRadius: number;
+  private baseDistance: number;
   private elapsed = 0;
   private theta = 0.6;
   private raf = 0;
@@ -140,7 +141,11 @@ export class BackScene {
         return orbit === undefined ? 0 : orbit.semiMajorAxisAu * (1 + orbit.eccentricity);
       }),
     );
-    this.baseDistance = systemFramingDistanceScene(maxAphelionAu, 'compressed');
+    this.framedRadius = heliocentricRadiusScene(maxAphelionAu, 'compressed');
+    // Responsive framing (D-041 follow-up): wide screens sit close enough that
+    // the belt corridor and its starships read clearly; portrait keeps a
+    // phone-safe pull-back. resize() re-derives it whenever the viewport moves.
+    this.baseDistance = this.frameFor(this.camera.aspect);
     this.applyCameraPose();
   }
 
@@ -187,14 +192,14 @@ export class BackScene {
       emissive: seat.alive ? color.clone() : new THREE.Color('#000000'),
       emissiveIntensity: seat.alive ? 0.3 : 0,
     });
-    const hull = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.55, 4, 10), hullMaterial);
+    const hull = new THREE.Mesh(new THREE.CapsuleGeometry(0.55, 2.0, 6, 14), hullMaterial);
     hull.rotation.z = -Math.PI / 2; // lie along +X, the model's forward
-    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.28, 10), hullMaterial);
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.95, 12), hullMaterial);
     nose.rotation.z = -Math.PI / 2;
-    nose.position.x = 0.5;
+    nose.position.x = 1.75;
 
     const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.11, 12, 10),
+      new THREE.SphereGeometry(0.6, 14, 12),
       new THREE.MeshBasicMaterial({
         color: seat.alive ? color.clone() : new THREE.Color('#000000'),
         transparent: true,
@@ -203,11 +208,11 @@ export class BackScene {
         depthWrite: false,
       }),
     );
-    glow.position.x = -0.5;
+    glow.position.x = -1.45;
 
     // Active captain: a gold ring flat in the orbital plane, orbit-line style.
     const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.52, 0.028, 8, 40),
+      new THREE.TorusGeometry(1.5, 0.07, 8, 48),
       new THREE.MeshBasicMaterial({ color: ACTIVE_GOLD, transparent: true, opacity: 0.8 }),
     );
     ring.rotation.x = Math.PI / 2;
@@ -269,7 +274,7 @@ export class BackScene {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
-    const ring = new THREE.Mesh(new THREE.RingGeometry(4, 4.6, 96), ringMaterial);
+    const ring = new THREE.Mesh(new THREE.RingGeometry(7, 8.1, 96), ringMaterial);
     ring.rotation.x = -Math.PI / 2;
 
     const rng = mulberry32(Math.floor(Math.random() * 0xffffffff));
@@ -283,10 +288,10 @@ export class BackScene {
       const dx = s * Math.cos(a);
       const dy = u * 0.35;
       const dz = s * Math.sin(a);
-      const speed = 14 + rng() * 10;
-      positions[i * 3] = dx * 4.5;
-      positions[i * 3 + 1] = dy * 4.5;
-      positions[i * 3 + 2] = dz * 4.5;
+      const speed = 24 + rng() * 16;
+      positions[i * 3] = dx * 8.0;
+      positions[i * 3 + 1] = dy * 8.0;
+      positions[i * 3 + 2] = dz * 8.0;
       velocities[i * 3] = dx * speed;
       velocities[i * 3 + 1] = dy * speed;
       velocities[i * 3 + 2] = dz * speed;
@@ -295,7 +300,7 @@ export class BackScene {
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const burstMaterial = new THREE.PointsMaterial({
       color: 0xffb36b,
-      size: 1.2,
+      size: 2.2,
       transparent: true,
       opacity: 0.9,
       blending: THREE.AdditiveBlending,
@@ -303,14 +308,14 @@ export class BackScene {
     });
     const burst = new THREE.Points(geometry, burstMaterial);
     this.scene.add(ring, burst);
-    this.flareGlow = 6;
+    this.flareGlow = 8;
 
     let life = 0;
     this.effects.push({
       update: (dt) => {
         life += dt;
         const k = life / 1.8;
-        ring.scale.setScalar(1 + k * 26);
+        ring.scale.setScalar(1 + k * 22);
         ringMaterial.opacity = Math.max(0, 0.9 * (1 - k));
         for (let i = 0; i < count; i++) {
           positions[i * 3] += velocities[i * 3] * dt;
@@ -340,7 +345,7 @@ export class BackScene {
     const start = from.group.position.clone();
     const end = to.group.position.clone();
     const mid = start.clone().add(end).multiplyScalar(0.5);
-    mid.y += 16; // the raid arcs high over the orbital plane
+    mid.y += 22; // the raid arcs high over the orbital plane
     const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
     const color = from.color;
 
@@ -362,7 +367,7 @@ export class BackScene {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
-    const comet = new THREE.Mesh(new THREE.SphereGeometry(0.32, 12, 10), cometMaterial);
+    const comet = new THREE.Mesh(new THREE.SphereGeometry(1.1, 16, 12), cometMaterial);
     this.scene.add(line, comet);
 
     const ease = (x: number): number => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
@@ -407,7 +412,7 @@ export class BackScene {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
-    const flash = new THREE.Mesh(new THREE.RingGeometry(0.45, 0.55, 48), material);
+    const flash = new THREE.Mesh(new THREE.RingGeometry(1.5, 1.85, 48), material);
     flash.rotation.x = -Math.PI / 2;
     flash.position.copy(at);
     this.scene.add(flash);
@@ -416,7 +421,7 @@ export class BackScene {
       update: (dt) => {
         life += dt;
         const k = life / 0.5;
-        flash.scale.setScalar(1 + k * 5);
+        flash.scale.setScalar(1 + k * 4);
         material.opacity = Math.max(0, 0.85 * (1 - k));
         return k < 1;
       },
@@ -441,7 +446,7 @@ export class BackScene {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
-    const pulse = new THREE.Mesh(new THREE.RingGeometry(0.6, 0.7, 48), material);
+    const pulse = new THREE.Mesh(new THREE.RingGeometry(2.0, 2.45, 48), material);
     pulse.rotation.x = -Math.PI / 2;
     pulse.position.copy(ship.group.position);
     this.scene.add(pulse);
@@ -450,7 +455,7 @@ export class BackScene {
       update: (dt) => {
         life += dt;
         const k = life / 0.65;
-        pulse.scale.setScalar(1 + k * 3.5);
+        pulse.scale.setScalar(1 + k * 2.5);
         material.opacity = Math.max(0, 0.85 * (1 - k));
         return k < 1;
       },
@@ -486,6 +491,8 @@ export class BackScene {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    this.baseDistance = this.frameFor(this.camera.aspect); // framing follows the viewport
+    this.applyCameraPose();
   }
 
   dispose(): void {
@@ -583,6 +590,20 @@ export class BackScene {
   private updateCamera(dt: number): void {
     this.theta += CAMERA_DRIFT * dt;
     this.applyCameraPose();
+  }
+
+  /**
+   * Whole-system framing that honors the viewport: a tilted orbital disc needs
+   * less vertical reach than a face-on ring (the 0.68 factor), landscape screens
+   * are bound by the horizontal fit, and portrait keeps a phone-safe pull-back
+   * (aspect floored at 0.55 so the term never explodes). 280 u is the closest
+   * any viewport may sit — the belt corridor never leaves the frame.
+   */
+  private frameFor(aspect: number): number {
+    const halfFov = (this.camera.fov * Math.PI) / 360;
+    const vertical = (this.framedRadius * 0.68) / Math.tan(halfFov);
+    const horizontal = this.framedRadius / (Math.tan(halfFov) * Math.max(aspect, 0.55));
+    return Math.max(vertical, horizontal, 280);
   }
 
   private applyCameraPose(): void {

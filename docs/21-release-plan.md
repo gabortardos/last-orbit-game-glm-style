@@ -28,7 +28,7 @@
 - [ ] Gábor tests all 8 powers in-game (solo vs AI is a fine start)
 - [ ] Family online sessions — 3p and 4–5p — feedback captured per `docs/08`/`docs/09`
 - [ ] Same-session triage loop (as practiced: concrete UX blockers fixed the day they're reported)
-- **Exit (= the P5 "good game" gate + v1.0 rules freeze):** full sessions with zero rules arguments · at least one session where the table asks to play again · no blocker-severity issues open → v0.3 rules stamped **v1.0**.
+- **Exit — D-040 (2026-10-25): Gábor waived this gate** ("I tested enough, I want to release"). The items above are no longer launch-blocking; they become post-launch feedback with the same day-of triage loop. v0.3 rules are stamped **v1.0** by owner decision.
 
 ### M2 — Living table, rung 1 (D-038; parallel lane, starts now) 🔄
 - [ ] 6 style frames, code-drawn (HTML/CSS/SVG) so they review in the browser: match open · Fury peak · reaction window · rupture draw · endgame · victory
@@ -56,7 +56,7 @@
 
 ## Why no gate is jumped
 
-M2 is UI-only — engine, sim and the 110 tests stay untouched — so the visual lane runs parallel to the beta without diluting the "good game" verdict. If M1's exit criteria aren't met, v1.0 waits (the visuals render any rules). Scope changes to this plan are decision-log entries (D-039 + successors).
+M2 is UI-only — engine, sim and the 110 tests stay untouched — so the visual lane runs parallel to the beta without diluting the "good game" verdict. ~~If M1's exit criteria aren't met, v1.0 waits~~ — **amended by D-040 (2026-10-25): the owner waived the beta gate ("I tested enough, I want to release"); v1.0 proceeds to launch, family feedback post-launch.** Scope changes to this plan are decision-log entries (D-039 + successors).
 
 ## Open questions for Gábor (non-blocking for M0–M2)
 

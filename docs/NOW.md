@@ -1,5 +1,16 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 6 — first visible 3D slice shipped + release green light (D-040); all commits pushed — 2026-10-25 ✅
+
+**Dev plan step executed:** M2 rung 1 opened with real code (not docs): `SolarScene.tsx` (three.js + react-three-fiber, lazy-loaded chunk) — the living solar system now renders **behind the table in hotseat and online alike**. Sun = the Fury state (calm gold → furious red, glow and pulse rise with Fury 0–5); seats = planets on lit orbits (Mercury→Neptune colors by fleet, classic captains slate-grey; Saturn wears its ring; eliminated seats go dark); orbit direction follows play direction; the active captain's world gets a gold halo; starfield twinkle; prefers-reduced-motion → static; devices without WebGL fall back to the plain backdrop via an error boundary. HUD/player/log panels became translucent glass (backdrop-blur) over the scene. Engine, server, sims and the 110 tests untouched. Validated: typecheck ×3, 110/110 tests, production build, dev-server module check (HTTP 200).
+
+**Release green light — D-040 (decision log):** Gábor: "I tested enough, I want to release" → the M1/P5 beta gate is **waived by owner decision**; family feedback moves post-launch. M0's first half done in-session: all 5 local commits **pushed to GitHub** (`958a042` on `main`). Remaining to launch: (1) the PC deployment session — the one part that needs Gábor's hands (~30 min, `docs/19`; walk him through click-by-click), (2) M3 online-hardening essentials (reaction countdown ring, reconnect overlay), (3) M5: `git tag v1.0.0` + the launch share.
+
+**Next:**
+1. Gábor refreshes `localhost:5173`, starts any game, and watches the system live behind the cards.
+2. PC deployment session with Gábor (M0 completion).
+3. Next dev session: M3 hardening + log-event light pulses (the animation director: light streaks between orbits on steal/contain events).
+
 ## Session 5 — "where are we now" round: full recap delivered; 3D vision APPROVED (D-038); v1.0 release plan adopted (D-039) — 2026-10-25 ✅
 
 **Dev plan step executed:** planning session, no product code — Gábor asked for (1) a full remaining-work recap, (2) the 8-player call, (3) progression on the 3D vision ("i want to progress with that"), (4) a release plan. All four landed as decisions + docs:

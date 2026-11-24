@@ -40,7 +40,7 @@ Design docs (brief, ledger, proposal, rules v0.2, catalogue, signature analysis,
 - [ ] Online UX hardening: reaction countdown ring, turn-timer display, autopilot notices, reconnect overlay, Derelict spectator view
 - [ ] Deployment: hosting choice (self-host vs Colyseus Cloud — open question for Gábor) + CI deploy + basic ops
 - [ ] Small friends-and-family beta — **now carries PT-01 (3p) + PT-02 (4–5p) human playtests (D-034): Gábor tests with real humans here**
-- [ ] **Release track (D-039):** the three open P4 items above are milestones M0–M3 of the v1.0 release plan — `docs/21-release-plan.md`; the beta's exit criteria ARE the P5 gate + the v1.0 rules freeze
+- [ ] **Release track (D-039):** the three open P4 items above are milestones M0–M3 of the v1.0 release plan — `docs/21-release-plan.md`; the beta's exit criteria ARE the P5 gate + the v1.0 rules freeze — **amended by D-040 (2026-10-25): Gábor waived the beta exit gate ("I tested enough, I want to release"); the remaining launch path is the M0 PC deploy + M2 rung-1 visuals + M3 hardening essentials**
 - **Gate to P5:** stable online matches; retention signal.
 
 ## P5 — Explorer evaluation, polish, beyond ⬜

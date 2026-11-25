@@ -1,5 +1,26 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 11 — visual status audited, card batch independently verified 15/15, AI Nexus adopted, joint conclusion proposed (QA-G-004) — 2026-11-25 ✅
+
+**Dev plan step executed:** Gábor's ask — check the actual status of visual developments, negotiate where we are with the other agent, agree a conclusion, report it to the owner for review. Docs-only session: engine, server, sims, UI untouched.
+
+- **QA-G-003 ACCEPTED by VISUAL — the concurrent-write protocol is now permanent on both sides.** They run the equivalent compare-and-swap (`update_ref`) in their connector; both sides refresh-then-write, append-only, no force-push ever, every entry carries a base-commit hash. First full cycle ran clean this session (their `9bb5ffd` → my `dbe11f8`, zero conflicts). **QA-V-005 formally closed by originator** (transport gate passed; every future file still individually verified pre-import).
+- **Their side moved hard (7 commits, `4eee802`→`9bb5ffd`):** four-category card pilot delivered → first-pass register **7 success candidates / 9 failed-deferred / 2 unattempted** of the 18 identities (deflector, flyby, requisition, storm, coolant, rupture, containment + common back are candidates; override, burn, scan, slingshot, boarding, reversal, salvage, ion_surge, hull deferred under the owner-directed bounded-retry rule D013; tractor, wind untouched) · **Release-1 Classic-first scope** defined on their side (owner-directed: complete 18-card set → controlled UI upgrade → package/license → acceptance; cinematic enhancements deferred to Release 2) · joint review register (`CARD_REVIEW_REGISTER.md`) with owner+GAME review columns.
+- **Independent verification of their batch — 15/15 SHA-256 MATCH, 0 missing:** all runtime-relevant LO-CARD assets re-fetched from the Drive mount and hashed against their manifest v0.19-card-deferred (7 candidate WebPs + back SVG + 3 masters + 3 thumbs); this closes the "no per-file cloud checksum roundtrip" gap they honestly flagged. Pixel dimensions verified: 7× exactly 1200×900, 3× exactly 600×450 — conforms to the QA-G-002 approved spec. **Honest limit:** no artwork was visually inspected this session (model lacks image input) — visual-quality judgment stays with the owner + the future harness screenshots; my read of *process* quality: high (honest failure register, provenance, bounded retries, no premature approval claims).
+- **AI Nexus adopted (their QA-V-NEXUS-001, owner-authorized):** read at HEAD `cdbaf035` (README v0.1.1 — 5 mandatory duties NX-01–05, 128 registry entries); NX-02 duty embedded as **AGENTS.md rule 6 (this commit)**; no conflict found with standing GAME practice. Local clones of the drive-hash script + report kept out of the repo (`/tmp`).
+- **QA-G-004 — joint conclusion proposal A–E posted to their mailbox:** (A) VISUAL finishes the 2 unattempted cards, holds the 9 retries until joint review; (B) GAME builds the dev-only visual harness next dev session — env-gated `LO_ASSET_DIR` Drive loader so zero studio assets enter this public repo (D-042 untouched), one harness covering QA-V-011 (cards in real app chrome, 320px floor, hand/log never obscured) + QA-V-007 (GLB pivots/morphs/material/fps); (C) joint review after first-pass coverage (owner visual + GAME technical report, per their D013/QA-V-012); (D) then D-042 per-asset licensing → first import → `import-log.md`; (E) M3 online-hardening proceeds independently in parallel. Plus the QA-V-011 slot answer (UI order + portrait 48/40/28px + backdrop sizes) and the QA-G-002 flexible-expanded-height acceptance. **Confirmation requested from VISUAL; the conclusion goes to Gábor for review and direction.**
+
+**Evidence:** docs-only — verification script + 15/15 report (SHA-256 + sips dimensions, run live); visual repo pushed `9bb5ffd..dbe11f8` after fresh pull; this repo: AGENTS.md rule 6 + this entry, pushed.
+
+**Next:**
+1. VISUAL confirms/amends QA-G-004 A–E; **Gábor reviews the joint conclusion → his direction decides the track order.**
+2. **Dev-only visual harness** (QA-V-007 GLB + QA-V-011 in-app card placement; env-gated Drive loader) — next dev session, unblocked.
+3. Gábor: 10-min screenshot session (QA-V-003 follow-up).
+4. Gábor: D-042 licensing call per import — first approved import lands in `docs/visual-studio/import-log.md`.
+5. M3 online-hardening essentials (reaction countdown ring, reconnect overlay) → M5 `git tag v1.0.0`.
+
+
+
 ## Session 10 — QA-V-005 retrieval proof (Drive verified 4/4), give/snag_discard visibility ruling, concurrent-write protocol proposed — 2026-11-25 ✅
 
 **Dev plan step executed:** Gábor's three asks — adapt to the concurrent-visual-production reality, verify his Drive install actually works, and a human-wording status + needs list. Docs-only session: engine, server, sims, UI untouched.

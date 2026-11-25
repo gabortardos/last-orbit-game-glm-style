@@ -1,5 +1,24 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 9 — visual-studio technical handoff shipped (D-042): the full game export for the OpenAI-studio repo — 2026-11-25 ✅
+
+**Dev plan step executed:** Gábor's parallel visual production repo (`last-orbit-visual-studio`, private) reached the point where its whole QA queue (QA-V-001…009) blocked on GAME's authoritative export — delivered as a complete handoff. Docs-only session: engine, server, sims, UI untouched.
+
+- **`docs/visual-studio/` (new, this repo):**
+  - `VISUAL_STUDIO_TECHNICAL_HANDOFF.md` — 13 sections answering their queue end-to-end: repo facts + quality gates · render stack (plain three.js 0.187, no R3F — D-041) + budget proposals (60/30 fps floor, ≤ 25 MB first import, lazy-after-first-paint) · game model · the 18-card catalogue · all 8 faction powers (incl. their QA-V-008/009 animation notes: Flare Skip chain semantics, Court Favor reversal) · all 43 authoritative event types with payloads, visibility and source lines · the full privacy map · screens inventory (screenshots impossible from this environment — a 10-min capture session with Gábor proposed) · the event-contract adapter mapping (QA-V-004: `eventId = ${matchId}:${logIndex}`, private events filtered pre-emission, skip-always-safe by architecture) · the asset import protocol (QA-V-005: Drive retrieval + SHA-256 vs manifest + manifest-commit pinning + import-log) · the Classic/Cinematic two-mode presentation (owner requirement) · GAME's 5 ordered next commitments · the 51-row COVERAGE reconciliation (QA-V-001, incl. explicit no-engine rows).
+  - `visual-game-export.json` — the machine-readable twin (16 top-level sections: cards, cardFamilies, factions, factionRules, 43 events, privacy, screens, uiConstraints, presentationModes, adapterVisualMap, importProtocol, coverageReconciliation…).
+- **Verification caught real defects before shipping:** the first JSON draft carried `requisition` at ×2 copies (the engine's `BASE_DECK` says ×4 — the 46-card sum exposed it) and 4 non-verbatim card blurbs; both fixed in the JSON and the handoff table, then **every card field byte-verified against `cards.ts` `CARD_INFO`** (18/18 clean, 0 diffs) and all 43 event types confirmed unique with source anchors.
+- **Cross-repo mailbox (their append-only protocol):** `Q_AND_A.md` got the first real GAME entry — **QA-G-002** (intro, export links, where each QA-V is answered, two asks: propose `adapterVisualMap` entries; card-art dimensions/WebP via `UI_PROPOSALS.md` review with the owner) + a QA-V-001 sync reply (deliverable landed; closure is VISUAL's to confirm) + the QA-O-001 acknowledgment their entry requested ("GAME to acknowledge on first read"). Their README repo pointer corrected (`last-orbit-game` → `last-orbit-game-glm-style`), PROJECT_STATE game-side update appended, committed and pushed there.
+- **Governance:** D-042 logged (protocol adopted; **asset-import licensing gate explicitly OPEN** — studio assets are "all rights reserved pending license", this repo is public, an import publishes); PROJECT_CONTEXT hard rule 1 rewritten to match reality (Explorer = upstream-only after the D-041 port; visual assets enter only through the D-042 gate) + stale GitHub-remote line fixed.
+
+**Evidence:** docs-only — **110/110 tests + typecheck ×3 re-run green**; JSON validated + source-verified by script; both repos pushed (game: handoff + D-042 + Session 9; visual: mailbox + README + PROJECT_STATE).
+
+**Next:**
+1. **Gábor (one-time setup):** install Drive for Desktop on this Mac → unblocks QA-V-005 closure (fetch the reference PNG + 3 Mercury GLBs, SHA-256 verify vs their manifest) and the QA-V-007 GLB renderer harness (dev-only page: 4 sail pivots, 104-track morph playback, 3-texture material test, draw-call/fps report).
+2. **Gábor (D-042 gate):** the licensing call — every visual import needs his explicit sign-off + a license approved for *public* distribution before anything lands in this public repo.
+3. 10-min screenshot session with Gábor (QA-V-003 follow-up: menu/lobby/faction-pick/match/reaction/game-over/mobile into their manifest).
+4. M3 online-hardening essentials (reaction countdown ring, reconnect overlay) → M5 `git tag v1.0.0`.
+
 ## Session 8 — rung-1 polish: the action reads (responsive framing, ship scale, glass panels) — 2026-11-24 ✅
 
 **Dev plan step executed:** Session 7's next-item #2 — Gábor's noted issue "the glass overlays still cover part of the action" — plus the second half found while measuring it: at the old fixed whole-system framing the camera sat ~615 u out, so each starship subtended **about 1 pixel**. Both halves fixed; engine, server, sims untouched.

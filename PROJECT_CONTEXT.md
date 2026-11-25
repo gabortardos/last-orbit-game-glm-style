@@ -10,7 +10,7 @@ Gábor is the owner and creative decision-maker. Aides (AI or human) present opt
 
 ## Hard rules (never violate)
 
-1. **Never touch the Solar System Explorer.** Do not modify, document, deploy, or couple it to this repo. Reuse of its *ideas/techniques* may be evaluated in Phase 5, by reading only, and only with an explicit decision-log entry.
+1. **External repos stay read-only upstream.** The Solar System Explorer (github.com/gabortardos/solar-system-glm) is never to be modified, documented, deployed, or coupled to this repo; its core was ported **once** into `apps/hotseat/src/solar/` by owner direction (D-041) — treat the Explorer as an upstream source, not a dependency. Assets from the visual-studio repo (`last-orbit-visual-studio`, private) enter this repo **only** through the D-042 import gate: owner sign-off + a license approved for *public* distribution + SHA-256 manifest pin, recorded in `docs/visual-studio/import-log.md` — this repo is public, an import publishes.
 2. **No Exploding Kittens IP.** Mechanics may be referenced; branding, art, characters, card text, names, and comedy voice must be original.
 3. **Don't silently replace decisions.** Record changes in `docs/11-decision-log.md` with what/why/evidence.
 4. **The rules live in `packages/game-core`.** UI, sim, and future server must all consume the engine — never re-implement rules elsewhere.
@@ -52,5 +52,5 @@ Solar Rupture (catastrophe) · Containment Field (survivor) · Sun Fury (doom tr
 
 - Created: 2026-10-25, session 1 (design foundation + prototype + sim).
 - Owner: Gábor. Working title *Last Orbit: Solar System Showdown* (provisional).
-- GitHub remote: to be added by Gábor (`git remote add origin <url> && git push -u origin main`).
+- GitHub remote: https://github.com/gabortardos/last-orbit-game-glm-style (`origin/main`; all commits pushed through `316cc58`).
 - Git identity is repo-local (`gabor@lastorbit.local`) until Gábor sets a global one.

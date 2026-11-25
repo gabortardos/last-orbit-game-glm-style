@@ -1,5 +1,25 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 10 — QA-V-005 retrieval proof (Drive verified 4/4), give/snag_discard visibility ruling, concurrent-write protocol proposed — 2026-11-25 ✅
+
+**Dev plan step executed:** Gábor's three asks — adapt to the concurrent-visual-production reality, verify his Drive install actually works, and a human-wording status + needs list. Docs-only session: engine, server, sims, UI untouched.
+
+- **QA-V-005 retrieval proof — 4/4 SHA-256 MATCH.** Gábor installed Drive for Desktop and signed in; the warehouse mounts locally at `~/Library/CloudStorage/GoogleDrive-…/My Drive/AI/Last Orbit` (read-only use — no Drive API, no tokens). Fetched the reference PNG + all 3 Mercury GLBs and verified byte sizes + SHA-256 against their manifest v0.14-card-pilot: LO-SYS-QUALITY-REF-001.png `7c79c8fd…a23f0` · LO-MER-SHIP-3D-001.glb `75bc078a…83d2f` · LO-MER-SHIP-3D-002.glb `2e9261c5…df89` · LO-MER-SHIP-3D-003.glb `18642e45…80a1` — all match. Proof posted to their Q&A; closure is VISUAL's to confirm (originator rule). **QA-V-007 (GLB harness) is now unblocked.**
+- **give/snag_discard visibility ruling (their QA-G-002 open issue) — source-verified across all three enforcement layers:** `give` = public with `card` in the payload (commands.ts:307, addLog default) and `seatView` passes public entries to every seat unmodified — only `draw` is card-stripped for other seats (views.ts:27–37) · `snag_discard` = public with `cards` (commands.ts:342 — necessarily: the cards land in the public discard pile). The handoff's §5 requisition row and QA-V-009 note wrongly said "card identity private" (the export JSON was correct) — **both corrected as errata in this commit**; ruling + citations posted to their Q&A. Cinematics may show the transferred face or keep it sealed — both privacy-safe; snag-loss identities must be showable.
+- **QA-G-003 (new) — concurrent-write coordination protocol proposed** in their mailbox: refresh-then-write (pull + re-read immediately before composing edits, append-commit-push in one short window) · owned zones (VISUAL owns its docs/contracts/memory files; GAME writes only Q_AND_A.md appends + pre-announced pointer fixes) · push-rejected → pull --rebase → keep both sides chronologically → push · no force push ever · every entry carries its base-commit hash. Rejected alternative: freeze flags — they can't be seen without refreshing first, so dynamic refresh-then-write strictly dominates. Their confirmation requested; this session already ran the protocol (pulled to their `6ca0066` before writing).
+- **QA-G-002 reply (card pilot review, dimension/privacy gate):** approved against the live build — compact hand 120–160 CSS px matches the current `.card` min-width 128px (styles.css:89) · 4:3 art 1200×900 + 600×450 thumb + 5:7 card 720×1008 reference + captain 512²/600×800 approved · mobile must reflow ≤880px, test to 320px · category signal never color-only (hard accessibility rule) · Classic/Cinematic = same card components, identical rules info · uniform card back approved. D-042 licensing gate unchanged: no import without per-asset owner sign-off + public-distribution license.
+- **Their side moved too (their `6ca0066`):** QA-V-001 resolved for the export snapshot (they independently re-checked 18 CARD_INFO entries against cards.ts) · card-production pilot started (Solar Rupture WebP, private manifest LO-CARD-RUPTURE-*) · first event-mapping candidates proposed (harness references only) · their Q&A protocol questions answered above.
+
+**Evidence:** docs-only — typecheck ×3 + 110/110 tests re-run green; SHA-256 proofs above; game repo pushed (errata + this entry); visual-repo mailbox entries committed and pushed after a fresh pull (protocol in action, base @ 6ca0066).
+
+**Next:**
+1. VISUAL confirms/amends QA-G-003; both sides then run it permanently.
+2. **QA-V-007 GLB renderer harness** (dev-only page: 4 sail pivots, 104-track morph playback, 3-texture material, draw-call/fps report) — now unblocked, next dev session.
+3. Gábor's 10-min screenshot session (QA-V-003 follow-up: menu/lobby/faction-pick/match/reaction/game-over/mobile).
+4. Gábor's D-042 licensing call per import — first approved import lands in `docs/visual-studio/import-log.md`.
+5. M3 online-hardening essentials (reaction countdown ring, reconnect overlay) → M5 `git tag v1.0.0`.
+
+
 ## Session 9 — visual-studio technical handoff shipped (D-042): the full game export for the OpenAI-studio repo — 2026-11-25 ✅
 
 **Dev plan step executed:** Gábor's parallel visual production repo (`last-orbit-visual-studio`, private) reached the point where its whole QA queue (QA-V-001…009) blocked on GAME's authoritative export — delivered as a complete handoff. Docs-only session: engine, server, sims, UI untouched.

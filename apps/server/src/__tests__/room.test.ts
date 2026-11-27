@@ -61,6 +61,7 @@ async function until(cond: () => boolean, ms = 3000, what = 'condition'): Promis
   }
 }
 
+/** D-043: `seed` here is a SERVER-side pin — clients can no longer seed a match. */
 async function makeRoom(extra: Record<string, unknown> = {}): Promise<LastOrbitRoom> {
   return server.createRoom<LastOrbitRoom>('last_orbit', {
     playerCount: 2,
@@ -100,7 +101,7 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     const t0 = track(c0);
     c0.onMessage('seats', ((m: { seats: { seat: number; kind: string; faction: string | null }[] }) => seatsSeen.push(m)) as never);
 
-    c0.send('start', { seed: 77 });
+    c0.send('start', {}); // D-043: no client seed — the deal comes from the server
     await until(() => t0.states.length >= 1, 3000, 'initial snapshot');
 
     const g = internals(room);
@@ -120,7 +121,7 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     const t0 = track(c0);
     const t1 = track(c1);
 
-    c0.send('start', { seed: 100 });
+    c0.send('start', {});
     await until(() => t0.states.length >= 1 && t1.states.length >= 1, 3000, 'initial snapshots');
     await sleep(50); // catch any unexpected follow-ups (there should be none)
 
@@ -164,7 +165,7 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     const c0 = (await server.connectTo(room)) as unknown as TestClient;
     await server.connectTo(room);
     const t0 = track(c0);
-    c0.send('start', { seed: 101 });
+    c0.send('start', {});
     await until(() => t0.states.length >= 1, 3000, 'match start');
     const version = t0.states[t0.states.length - 1].version;
 
@@ -182,7 +183,7 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     const room = await makeRoom({ playerCount: 4, humanSeats: 1, seed: 777, botPolicy: 'greedy' });
     const c0 = (await server.connectTo(room, { name: 'Solo' })) as unknown as TestClient;
     const t0 = track(c0);
-    c0.send('start', { seed: 777 });
+    c0.send('start', {});
     await until(() => t0.states.length >= 1, 3000, 'match start');
 
     // the human's whole strategy: end turn, pass windows, satisfy choices minimally
@@ -227,7 +228,7 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     const room = await makeRoom({ playerCount: 2, humanSeats: 1, seed: 9001, reactionMs: 60, turnMs: 80 });
     const c0 = (await server.connectTo(room)) as unknown as TestClient;
     const t0 = track(c0);
-    c0.send('start', { seed: 9001 });
+    c0.send('start', {});
     await until(() => t0.states.length >= 1, 3000, 'match start');
     const vStart = t0.states[0].version;
 
@@ -247,7 +248,7 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     const c1 = (await server.connectTo(room, { name: 'Vesper' })) as unknown as TestClient;
     const t0 = track(c0);
     const t1 = track(c1);
-    c0.send('start', { seed: 4242 });
+    c0.send('start', {});
     await until(() => t0.states.length >= 1 && t1.states.length >= 1, 3000, 'match start');
 
     // command phase: the active player's turn deadline rides every view —
@@ -285,7 +286,7 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     const spec = (await server.connectTo(room)) as unknown as TestClient; // seats full → spectator
     const tSpec = track(spec);
 
-    c0.send('start', { seed: 103 });
+    c0.send('start', {});
     await until(() => t0.states.length >= 1 && tSpec.states.length >= 1, 3000, 'snapshots');
 
     const v = tSpec.states[tSpec.states.length - 1];
@@ -306,7 +307,7 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     const c1 = (await server.connectTo(room, { name: 'Vesper' })) as unknown as TestClient;
     const t0 = track(c0);
     const t1 = track(c1);
-    c0.send('start', { seed: 104 });
+    c0.send('start', {});
     await until(() => t0.states.length >= 1 && t1.states.length >= 1, 3000, 'match start');
     const vBefore = t1.states[t1.states.length - 1];
     expect(vBefore.seat).toBe(1);
@@ -323,6 +324,24 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     expect(vAfter.seat).toBe(1); // same seat restored
     expect(vAfter.version).toBeGreaterThanOrEqual(vBefore.version);
     assertViewIsPrivate(vAfter);
+  });
+
+  it('deals its own galaxy: a host-supplied seed is ignored (D-043)', async () => {
+    const room = await server.createRoom<LastOrbitRoom>('last_orbit', {
+      playerCount: 2,
+      humanSeats: 2,
+      reactionMs: 0,
+      turnMs: 0,
+      // deliberately NO seed — the production room shape
+    });
+    const c0 = (await server.connectTo(room, { name: 'SneakyHost' })) as unknown as TestClient;
+    const t0 = track(c0);
+    c0.send('start', { seed: 777 }); // a modified client trying to inject a memorized deal
+    await until(() => t0.states.length >= 1, 3000, 'match start');
+    const dealt = internals(room).config.seed;
+    expect(dealt).not.toBe(777); // the injected seed never reached the engine
+    expect(dealt).toBeGreaterThan(0); // the server still dealt a real galaxy
+    assertViewIsPrivate(t0.states[0]);
   });
 // __TESTS2__
 });

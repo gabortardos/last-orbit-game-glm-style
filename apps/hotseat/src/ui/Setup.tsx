@@ -129,10 +129,21 @@ export default function Setup({ onStart, onOnline }: { onStart: (o: StartOptions
         </div>
       </div>
 
-      <label className="row">
-        Seed:
-        <input type="number" value={seed} min={1} onChange={(e) => setSeed(Number(e.target.value) || 1)} />
-      </label>
+      <div className="galaxyseed">
+        <div className="fleetrow">
+          <span className="flabel">🌌 Galaxy seed</span>
+          <input type="number" value={seed} min={1} onChange={(e) => setSeed(Number(e.target.value) || 1)} />
+          <button className="mini" onClick={() => setSeed(Math.floor(Math.random() * 100000) + 1)} title="Spin a fresh galaxy">
+            🎲 new galaxy
+          </button>
+        </div>
+        <p className="hint">
+          Every number is a different galaxy: <b>same number, same luck, every time</b> — the same shuffle,
+          the same starting captain, the same breaks. Leave it fresh for a brand-new deal, or share a number
+          with a friend to race the exact same race again. Online matches always deal a fresh galaxy of the
+          server's choosing.
+        </p>
+      </div>
 
       <button className="primary big" onClick={begin}>
         {mode === 'solo' ? 'Begin — you vs the AI captains' : 'Begin the Rally'}

@@ -175,6 +175,9 @@ button { font: inherit; }
 .chip.flare.spent { color: var(--dim); border-color: var(--dim); text-decoration: line-through; }
 .flarebtn { border-color: var(--gold); color: var(--gold); }
 .fleetrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0; }
+.galaxyseed { margin: 8px 0 2px; }
+.galaxyseed input[type='number'] { width: 110px; }
+.galaxyseed .hint { margin: 6px 0 0; }
 .fleetrow .flabel { font-size: 0.85rem; color: var(--dim); width: 100%; }
 .fleetnote { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-top: 2px; font-size: 0.82rem; color: var(--dim); line-height: 1.5; }
 .fleetpick select { font: inherit; }

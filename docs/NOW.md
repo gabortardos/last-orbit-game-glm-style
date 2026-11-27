@@ -1,5 +1,22 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 13 — Galaxy seed (D-043): player-friendly deal codes, server-owned online deals — 2026-11-25 ✅
+
+**Dev plan step executed:** Gábor's competitive-integrity directive — the seed must stay a feature but must never be player-settable against real competitors, and needs human-facing copy. Engine untouched (pure server/UI layer); M3 scope unaffected.
+
+- **Setup screen: "Seed" → 🌌 Galaxy seed** with the owner-approved copy — *"every number is a different galaxy: same number, same luck, every time"* — plus a 🎲 "new galaxy" re-spin button. The description teaches what it's for now: identical-deal rematches and share-a-deal-with-a-friend races, and states plainly that online matches are always dealt by the server. Local hotseat/solo keep the field (default random) — D-043.
+- **Online: the seed is the server's, full stop.** `LastOrbitRoom` now **ignores any client-supplied seed** on `start`. The old `msg?.seed ?? …` path let the host inject a memorized deal *invisibly* — views deliberately hide the seed from the other seats, so victims could never even suspect. Unpinned rooms deal crypto-random (`node:crypto`); the bot stream re-keys to the dealt galaxy; room-creation `options.seed` remains a server-side pin for tests/dev. `OnlineConn.startMatch()` no longer carries a seed (`'start' {}` on the wire); `net.ts` protocol comment + `docs/17-online-architecture.md` updated.
+- **Test:** +1 — a modified client sending `start { seed: 777 }` at an unpinned room still gets a server-dealt galaxy (≠777), privacy audit intact. All prior room tests now pin determinism via server-side room options (identical behavior — each already matched its old wire seed). **112/112 tests, typecheck ×3 green.**
+- Session also answered the owner's questions: the seed explainer (determinism → replayable matches, stable tests, the online replay-attack guard) and the model switch (GLM-5.4 + Cline "Support Images" — empirically proven the current model can't see images; vision on the Coding Plan costs nothing extra).
+
+**Next:**
+1. M3 remainder: Derelict spectator view + Final Transmission entry → M4 release-candidate pass.
+2. VISUAL recreates the failed nine per QA-G-005 → GAME re-verifies hashes and reports.
+3. Semantic icon inventory for QA-V-013 (one docs session).
+4. Dev-only visual harness (QA-G-004 B): env-gated `LO_ASSET_DIR` loader.
+5. Gábor: 10-min screenshot session (QA-V-003) · D-042 per-import calls · model switch to `glm-5.4` + "Support Images" when convenient.
+
+
 ## Session 12 — M3 online-hardening essentials shipped (countdown ring · turn timers · auto-reconnect) + owner-directed card-recreation solution (QA-G-005) — 2026-11-25 ✅
 
 **Dev plan step executed:** release-plan M3 (docs/21) — the four hardening essentials. Shipped: reaction countdown ring, turn-timer display, reconnect overlay; autopilot notices were already live from the D-036 spike. Remaining in M3: Derelict spectator view + Final Transmission entry. Engine untouched (pure server/UI layer).

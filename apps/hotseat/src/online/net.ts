@@ -3,7 +3,7 @@
  *
  * Protocol (apps/server/src/room.ts — the ONE authority):
  *   → 'command'  { cmd }    request a move (cmd.player must equal our seat)
- *   → 'start'    { seed? }  host-only, once
+ *   → 'start'    {}        host-only, once — the galaxy seed is the server's (D-043)
  *   ← 'welcome'  { seat, started }   our seat (-1/null = spectator) on join
  *   ← 'seats'    { seats, started }  roster on every seat change
  *   ← 'state'    SeatViewMsg         full private snapshot on every change
@@ -138,8 +138,9 @@ export class OnlineConn {
     this.room?.send('command', { cmd });
   }
 
-  startMatch(seed?: number): void {
-    this.room?.send('start', { seed });
+  /** Host-only, once. No seed travels: the server deals its own galaxy (D-043). */
+  startMatch(): void {
+    this.room?.send('start', {});
   }
 
   leave(): void {

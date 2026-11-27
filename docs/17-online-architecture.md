@@ -96,7 +96,7 @@ the architecture of record for the online version and the ordered plan for the r
 
 client (app)                      apps/server (Colyseus Room)
   send('command', { cmd })  ───►  seat lookup → cmd.player === seat? (authority)
-  send('start', { seed })   ───►  host-only; seats without humans become bots
+  send('start', {})         ───►  host-only; the galaxy seed is the server's (D-043); empty seats fly as bots
                                   applyCommand(game, cmd)        ← the ONE engine
   on 'state' (per-seat snapshot) ◄─── seatView(game, seat, version) — every change
   on 'seats' / 'welcome' / 'started' / 'reject' / 'autopilot'

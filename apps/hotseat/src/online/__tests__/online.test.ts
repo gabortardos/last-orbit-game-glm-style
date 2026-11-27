@@ -38,10 +38,10 @@ describe('OnlineConn (protocol wiring)', () => {
     const room = stubRoom();
     conn.attach(room);
     conn.sendCommand({ type: 'END_TURN_DRAW', player: 2 });
-    conn.startMatch(1234);
+    conn.startMatch(); // no seed travels — the server deals its own galaxy (D-043)
     expect(room.sent).toEqual([
       ['command', { cmd: { type: 'END_TURN_DRAW', player: 2 } }],
-      ['start', { seed: 1234 }],
+      ['start', {}],
     ]);
   });
 

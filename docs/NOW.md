@@ -1,5 +1,26 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 16 — V6 art sign-off COMPLETE: 19/19 vision-audited, all PASS, zero change requests; VISUAL's three open decisions accepted; QA-G-009 posted — 2026-11-27 ✅
+
+**Dev plan step executed:** handover FIRST TASK (docs/22) — the per-card art verdict table (19) → QA-G-009, fused D-042 licensing rows presented to the owner. Docs-only: engine, server, sims, UI untouched; no rules change (no test gate required).
+
+- **Fresh image budget held the full pass:** all 19 images (18 faces + card back) inspected at ≤340 px thumbs in batches of 2–3 — zero omissions, nothing deferred this time (fresh chat = fresh budget, as the handover predicted).
+- **Hash gate re-run first** (regenerated `/tmp/verify_v6.py`): **19/19 SHA-256 MATCH** vs manifest `0.26-v6-manufactured-review`, 0 mismatched, 0 missing — the mounted set is the reviewed set.
+- **Verdict: 19/19 PASS, zero CHANGE_REQUESTs.** Highlights: **Solar Wind reads ACTION — the V5 blocker is closed**; Reversal ("persists" + all-counts no-draw) and Boarding (no invented conditional) text fixes confirmed on the faces; Containment bubble, Deflector glance-off, Burn pristine hull, Scan abstract returns (privacy honored), Tractor drift-to-discard, Flyby station-pass all match their QA-G-005 briefs.
+- **VISUAL's three open decisions accepted as delivered** (owner still arbitrates): Deflector junction glow = deflection energy, not impact harm; Containment generic ship = right call for a faction-neutral card (the set varies ships per face); Tractor sparks/drift = release truth, not theft. Full per-card table in **QA-G-009** (visual repo `Q_AND_A.md`).
+- **Set-level audit clean:** categories 2 catastrophe / 1 survival / 13 action / 2 component exact vs engine; uniform frame family with distinct category colors, never color-only; emblems confined to template plates; no text-as-art/posters; single subject everywhere. Non-blocking notes: Tractor is the busiest face (still one coherent scene); the "REVIEW EDITION" footer must swap in the production template before runtime/print; 320 px legibility belongs to the real-UI harness pass.
+- **QA-G-009 posted** to the visual mailbox (append-only, fresh pull first; their HEAD `0c01dc4` unchanged since QA-G-008 — no V7, no concurrent entries). Publication hold stands until licensing lands.
+- **AI Nexus (NX-01):** unreachable this session — HTTP 404 on raw `AGENTS.md` and the repo page; no local clone found on this Mac. Standing practice continues from the last verified revision `cdbaf035` (session 11); a docs-only art-verdict session raises no nexus-level questions.
+- **D-042 fused table → owner (the decision that remains):** art column = GAME's verdict (this session); license column = **Gábor's per-card call — 19 sign-offs pending**. Manifest still carries `rights: "unverified"` on all V6 assets, and the art is generated via external AI tools, so public-distribution clearance is genuinely open (a blanket decision + per-card exceptions is a valid form). On sign-off: first approved import lands in `docs/visual-studio/import-log.md`, and VISUAL is released onto the remaining v1 lanes.
+
+**Next:**
+1. **Gábor: the 19 D-042 license sign-offs** (fused table delivered this session; blanket + exceptions fine).
+2. On license clearance: first import → `docs/visual-studio/import-log.md`; VISUAL released onto non-card v1 lanes (menu/command-deck/reaction polish, faction portraits, icon integration).
+3. Semantic icon inventory (QA-V-013 ask) — one docs session.
+4. Dev-only visual harness (`LO_ASSET_DIR`) — real-app screenshots incl. 320 px card legibility.
+5. M3 code remainder: Derelict spectator view + Final Transmission entry → M4 RC (galaxy deal-code polish).
+
+
 ## Session 15 — V6 complete card set: hashes 19/19 clean · text parity 18/18 PASS; art sign-off queued next session (vision budget spent) — 2026-11-25 ✅
 
 **Dev plan step executed:** owner's ask — review VISUAL's finished V6 production and approve if satisfactory; owner accepted the session-14 ideas (licensing fusion, template/art-layer split, pictograms-before-baking, dev harness, v1/v2 split → D-044 ADOPTED, docs/21 amended). Docs-only for the game repo.

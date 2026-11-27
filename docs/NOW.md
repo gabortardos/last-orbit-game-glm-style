@@ -11,7 +11,7 @@
 - **D-044 ADOPTED** on the owner's word — docs/21 amended same commit: v1.0 visuals = "Classic complete" (cards + UI polish); 3D backdrop optional; living-table/cinematic = v2 lane (M2 re-titled).
 
 **Next:**
-1. **First item next session: the per-card art verdict table (19) → QA-G-009.** On PASS, the owner releases VISUAL onto the remaining v1 requirements.
+1. **First item next session: the per-card art verdict table (19) → QA-G-009.** On PASS, the owner releases VISUAL onto the remaining v1 requirements. Handover: `docs/22-agent-handover.md` — the owner starts a fresh chat with its starter prompt (fresh image budget).
 2. Owner may start VISUAL on non-card v1 lanes (menu/command-deck/reaction polish, faction portraits) in parallel — card text is approved and art direction is approved; only the 3 flagged cards carry change risk.
 3. Per-card D-042 licensing sign-off fused into the art verdict table (session-14 idea).
 4. Icon inventory (QA-V-013) + dev-only visual harness (QA-G-004 B).

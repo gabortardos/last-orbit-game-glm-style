@@ -2,8 +2,78 @@ import { useEffect, useRef, useState } from 'react';
 import { CARD_INFO, canAxialTilt, canCourtFavor, canRespond, canRingWall, eligibleReactorIds, furyDepthLimit, openRespondents } from '@last-orbit/game-core';
 import type { CardKind, Command, LogEntry, MatchReport } from '@last-orbit/game-core';
 import { deckSize, handSize } from '../online/types';
-import type { ClientGame } from '../online/types';
+import type { ClientGame, PendingTimer } from '../online/types';
 import { isMuted, startAudio, toggleMuted } from '../audio';
+
+/**
+ * M3 online hardening — live countdown for the server-armed deadline on the
+ * current snapshot. Derives the client/server clock skew from `at`/`now` (same
+ * LAN, so it is near-zero; still beats showing a frozen number), then ticks
+ * locally at 4 Hz. Hotseat has no timers → timer undefined → null.
+ */
+export function useRemaining(timer: PendingTimer | null | undefined): number | null {
+  const [left, setLeft] = useState<number | null>(null);
+  const at = timer?.at; // new identity only when a fresh snapshot arrives → stable effect deps
+  const now = timer?.now;
+  useEffect(() => {
+    if (at === undefined || now === undefined) { setLeft(null); return; }
+    const skew = now - Date.now();
+    const end = at - skew;
+    const tick = () => setLeft(Math.max(0, Math.ceil((end - Date.now()) / 1000)));
+    tick();
+    const iv = setInterval(tick, 250);
+    return () => clearInterval(iv);
+  }, [at, now]);
+  return left;
+}
+
+/** SVG ring that drains as the deadline approaches — red pulse in the last 10 s. */
+export function CountdownRing({ total, left, size = 36 }: { total: number; left: number; size?: number }) {
+  const r = (size - 6) / 2;
+  const c = 2 * Math.PI * r;
+  const frac = total > 0 ? Math.min(1, Math.max(0, left / total)) : 0;
+  const urgent = left <= 10;
+  return (
+    <span className={`timerring ${urgent ? 'urgent' : ''}`} role="timer" aria-label={`${left} seconds left`}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
+        <circle cx={size / 2} cy={size / 2} r={r} className="ring-bg" />
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          className="ring-fg"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - frac)}
+        />
+      </svg>
+      <b>{left}</b>
+    </span>
+  );
+}
+
+/**
+ * The one countdown surface every online screen shares:
+ *  - the decision is OURS → the draining ring (reaction window, choice modals, own turn)
+ *  - it's someone else's  → a quiet "⏱ name — Ns" line/chip (turn display, others' windows)
+ * Renders nothing in hotseat (no server timers there).
+ */
+export function TimerBadge({ game, viewer, hud }: { game: ClientGame; viewer?: number; hud?: boolean }) {
+  const t = game.timer;
+  const left = useRemaining(t);
+  if (!t || left === null) return null;
+  const mine = viewer !== undefined && t.seat === viewer;
+  const name = game.players[t.seat]?.name ?? `Seat ${t.seat + 1}`;
+  const label = mine
+    ? t.kind === 'turn' ? 'your move' : 'your call'
+    : t.kind === 'turn' ? `${name}'s turn` : `${name} deciding`;
+  if (hud) return <span className={`chip timer ${mine ? 'mine' : ''}`}>⏱ {label} — {left}s</span>;
+  return mine
+    ? (
+      <div className="timerline">
+        <CountdownRing total={t.ms} left={left} />
+        <span className="hint">{label} — the server flies it for you when the ring runs out</span>
+      </div>
+    )
+    : <p className="hint dim">⏱ {label} — {left}s.</p>;
+}
 
 /** 🔊/🔇 ambient soundtrack toggle. */
 export function SoundButton({ className = 'ghost' }: { className?: string }) {
@@ -171,6 +241,7 @@ export function ReactionOverlay({ game, dispatch, humans, remote, viewer }: {
           {game.players[pending.initiator].name} plays {reasonText(pending.reason)}
           {target && <> — target: <b>{target.name}</b>{pending.growth ? <b className="red">{` — payload +${pending.growth}!`}</b> : null}</>}
         </h3>
+        <TimerBadge game={game} viewer={viewer} />
         <p className={`stackline ${cancelled ? 'red' : 'green'}`}>
           {stack === 0
             ? '✅ No Overrides yet — as it stands, the action WILL happen.'
@@ -365,6 +436,7 @@ function ReinsertModal({ game, dispatch, viewer }: { game: ClientGame; dispatch:
     <div className="overlay">
       <div className="modal">
         <h3>☀️ Seal &amp; reinsert the Rupture</h3>
+        <TimerBadge game={game} viewer={me} />
         <p className="hint">
           Position 1 = top of the deck ({deckSize(game) + 1} cards total).
           {game.config.modules.sunFury && ` Sun Fury ${game.sunFury}: deepest legal position is ${maxPos}.`}
@@ -397,6 +469,7 @@ function GiveModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c:
         {soloGiver ? (
           <>
             <h3>🤝 {taker.name} requisitions your supplies</h3>
+            <TimerBadge game={game} viewer={giver.id} />
             <p className="hint">Choose 1 card to hand over — your choice, but it&apos;s going to {taker.name}.</p>
           </>
         ) : (
@@ -436,6 +509,7 @@ function StormModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c
         {soloVictim ? (
           <>
             <h3>☄️ Micrometeoroid Storm!</h3>
+            <TimerBadge game={game} viewer={victim.id} />
             <p className="hint">Jettison <b>1 card of your choice</b> — the storm itself is discarded afterwards.</p>
           </>
         ) : (
@@ -499,6 +573,7 @@ function SnagModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c:
         {soloVictim ? (
           <>
             <h3>🧲 Tractor Snag!</h3>
+            <TimerBadge game={game} viewer={victim.id} />
             <p className="hint">
               Choose <b>{count} card{count > 1 ? 's' : ''} to discard</b> — you keep the rest
               {game.pending?.growth ? <> (a ↪️ Deflector tightened the beam: keep {3 - (game.pending.growth ?? 0)})</> : null}.

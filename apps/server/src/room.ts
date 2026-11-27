@@ -21,6 +21,7 @@ import {
 } from '@last-orbit/game-core';
 import type { BotPolicy, Command, FactionId, GameState, ModuleFlags } from '@last-orbit/game-core';
 import { seatView } from './views';
+import type { ArmedDeadlines } from './views';
 
 export interface RoomOptions {
   playerCount: number; // 2..5
@@ -59,6 +60,8 @@ export class LastOrbitRoom extends Room {
   private version = 0;
   private botRngState = 1; // dedicated stream for bot brains (deterministic per seed)
   private started = false;
+  /** M3: deadlines currently armed for human deciders — shipped with every snapshot. */
+  private deadlines: ArmedDeadlines = new Map();
 
   // __LIFECYCLE__
   onCreate(options: RoomOptions): void {
@@ -103,8 +106,7 @@ export class LastOrbitRoom extends Room {
         return;
       }
       this.commit(res.state);
-      this.driveBots();
-      this.armTimers();
+      this.driveBots(); // commits internally, re-arming timers at each step
     });
   }
 
@@ -143,7 +145,7 @@ export class LastOrbitRoom extends Room {
     try {
       const back = await this.allowReconnection(client, RECONNECT_SECONDS);
       this.seatOf.set(back.sessionId, seat);
-      if (this.game) back.send('state', seatView(this.game, seat, this.version));
+      this.pushViewTo(back); // fresh snapshot — carries the currently armed countdown
       this.broadcastSeats();
     } catch {
       // reconnection window expired: the seat stays in the match under autopilot
@@ -188,8 +190,7 @@ export class LastOrbitRoom extends Room {
     this.started = true;
     this.broadcast('started', {}); // the seed stays server-side (replay-attack guard)
     this.commit(this.game);
-    this.driveBots();
-    this.armTimers();
+    this.driveBots(); // commits internally, re-arming timers at each step
   }
 
   /** Applies pending bot decisions until a human (or nobody) must act. */
@@ -231,19 +232,27 @@ export class LastOrbitRoom extends Room {
   /** Server deadlines: a stalling human is autopiloted so the match never stalls. */
   private armTimers(): void {
     this.clock.clear();
+    this.deadlines.clear(); // never ship a stale countdown with the next snapshot
     if (!this.started || !this.game || this.game.phase === 'game_over') return;
     if (this.opts.reactionMs <= 0 && this.opts.turnMs <= 0) return; // timers off (tests)
     const g = this.game;
     if (g.phase === 'command' && this.opts.turnMs > 0) {
       if (!this.isBot[g.activePlayer]) {
         const seat = g.activePlayer;
-        this.clock.setTimeout(() => this.autopilot(seat), this.opts.turnMs);
+        this.arm(seat, 'turn', this.opts.turnMs);
       }
     } else if (this.opts.reactionMs > 0) {
+      const kind = g.phase === 'reaction' ? 'reaction' : 'choice';
       for (const seat of this.decidersNow().filter((d) => !this.isBot[d])) {
-        this.clock.setTimeout(() => this.autopilot(seat), this.opts.reactionMs);
+        this.arm(seat, kind, this.opts.reactionMs);
       }
     }
+  }
+
+  /** Arms one autopilot timer and records its deadline for the seat views. */
+  private arm(seat: number, kind: 'turn' | 'reaction' | 'choice', ms: number): void {
+    this.deadlines.set(seat, { kind, at: Date.now() + ms, ms });
+    this.clock.setTimeout(() => this.autopilot(seat), ms);
   }
 
   /** Takes one decision on behalf of a stalled/absent human, then re-drives the match. */
@@ -255,8 +264,7 @@ export class LastOrbitRoom extends Room {
     if (!res.ok) return; // never fatal: the next human input re-arms
     this.broadcast('autopilot', { seat, command: cmd.type });
     this.commit(res.state);
-    this.driveBots();
-    this.armTimers();
+    this.driveBots(); // commits internally, re-arming timers at each step
   }
 
   // --- plumbing ----------------------------------------------------------------
@@ -264,13 +272,15 @@ export class LastOrbitRoom extends Room {
   private commit(state: GameState): void {
     this.game = state;
     this.version += 1;
+    // arm before pushing: every snapshot ships the countdown the client is about to render
+    this.armTimers();
     for (const c of this.clients) this.pushViewTo(c);
   }
 
   private pushViewTo(client: Client): void {
     if (!this.game) return;
     const seat = this.seatOf.get(client.sessionId) ?? -1;
-    client.send('state', seatView(this.game, seat === -1 ? null : seat, this.version));
+    client.send('state', seatView(this.game, seat === -1 ? null : seat, this.version, this.deadlines));
   }
 
   private seatNameFor(seat: number): string | null {

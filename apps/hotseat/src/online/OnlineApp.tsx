@@ -57,9 +57,45 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
   const [mySeat, setMySeat] = useState<number | null>(null);
   const [view, setView] = useState<SeatViewMsg | null>(null);
   const [reveal, setReveal] = useState<CardKind | null>(null);
+  // M3 hardening: auto-reconnect state — 'live' | 'reconnecting' (overlay while retrying)
+  const [net, setNet] = useState<'live' | 'reconnecting'>('live');
+  const autoReconnecting = useRef(false); // one retry loop at a time (onLeave can refire)
   screenRef.current = screen;
 
   const pushNotice = (s: string) => setNotices((ns) => [...ns.slice(-2), s]);
+
+  /**
+   * M3 hardening: automatic reconnection. Fires on any non-consented drop, retries
+   * on a widening schedule (0 / 2 / 5 / 10 s — four tries inside the server's 30 s
+   * seat-hold), and keeps the frozen table visible under a scrim the whole time.
+   * Falls back to the manual 'lost' screen only when the window is truly gone.
+   */
+  const autoReconnect = useCallback(async (): Promise<void> => {
+    if (autoReconnecting.current) return;
+    autoReconnecting.current = true;
+    const conn = connRef.current;
+    try {
+      if (conn) {
+        for (const delay of [0, 2000, 5000, 10000]) {
+          if (delay > 0) await new Promise((r) => { setTimeout(r, delay); });
+          if (connRef.current !== conn) return; // the user left meanwhile — stop retrying
+          try {
+            if (await conn.reconnect()) {
+              setNet('live');
+              setScreen(mySeatRef.current === null ? 'spectating' : 'game');
+              return; // snapshots re-flow via handlers.state
+            }
+            break; // no reconnection token — nothing to restore, ever
+          } catch { /* server unreachable (sleep, wifi…) — try again on the next delay */ }
+        }
+      }
+      setNet('live');
+      setScreen((s) => (s === 'form' ? s : 'lost'));
+      setError('Auto-reconnect failed — the server keeps flying your seat on autopilot.');
+    } finally {
+      autoReconnecting.current = false;
+    }
+  }, []);
 
   // One connection per mount; handlers read refs so they never go stale.
   const ensureConn = useCallback((): OnlineConn => {
@@ -100,7 +136,11 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
       const nm = viewRef.current?.players[m.seat]?.name ?? `Seat ${m.seat + 1}`;
       pushNotice(`⏱ ${nm}: server autopilot (${m.command})`);
     };
-    conn.handlers.dropped = () => setScreen((s) => (s === 'form' ? s : 'lost'));
+    conn.handlers.dropped = () => {
+      if (screenRef.current === 'form') return; // never got in — nothing to restore
+      setNet('reconnecting');
+      void autoReconnect();
+    };
     connRef.current = conn;
     return conn;
   }, []);
@@ -150,6 +190,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
     seenLog.current = 0;
     screenRef.current = 'form';
     setScreen('form');
+    setNet('live');
     setRoomId(null);
     setSeats([]);
     setMySeat(null);
@@ -166,6 +207,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
     setError(null);
     try {
       if (conn && (await conn.reconnect())) {
+        setNet('live');
         setScreen(mySeatRef.current === null ? 'spectating' : 'game');
       } else {
         setError('Reconnect window expired — the server keeps flying your seat on autopilot.');
@@ -182,6 +224,17 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
   const report = useMemo(() => (view && view.phase === 'game_over' ? matchReport(view) : null), [view]);
 
   // ---- screens ----------------------------------------------------------------
+
+  /** M3: the auto-reconnect scrim — stays above every live screen while retrying. */
+  const reconnectOverlay = net === 'reconnecting' ? (
+    <div className="reconnect-overlay" role="alertdialog" aria-live="polite" aria-label="reconnecting">
+      <div className="modal">
+        <h3>📡 Connection lost</h3>
+        <p className="hint">Reconnecting automatically — your seat is held for 30 s and the match keeps flying on the server.</p>
+        <p className="hint dim">Nothing to do; this closes itself. If it can&apos;t get through, the next screen offers a manual retry.</p>
+      </div>
+    </div>
+  ) : null;
 
   if (screen === 'form') {
     return (
@@ -294,6 +347,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
         )}
         {error && <div className="error">{error}</div>}
         <button className="ghost" onClick={exitToMenu}>Leave the table</button>
+        {reconnectOverlay}
       </div>
     );
   }
@@ -313,6 +367,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
           </div>
         ))}
         <button className="ghost" onClick={exitToMenu}>Leave</button>
+        {reconnectOverlay}
       </div>
     );
   }
@@ -366,6 +421,7 @@ export default function OnlineApp({ onExit }: { onExit: () => void }) {
         <span className="chip" title="Room code">🌐 {roomId}</span>
         {notices.map((n, i) => <span key={i} className="chip">{n}</span>)}
       </div>
+      {reconnectOverlay}
     </div>
   );
 }

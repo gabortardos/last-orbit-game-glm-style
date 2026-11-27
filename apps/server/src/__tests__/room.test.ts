@@ -241,6 +241,42 @@ describe('LastOrbitRoom (D-036 spike)', () => {
     for (const v of t0.states) assertViewIsPrivate(v);
   });
 
+  it('ships the pending decision countdown with every snapshot (M3 ring data)', async () => {
+    const room = await makeRoom({ seed: 4242, reactionMs: 45_000, turnMs: 120_000 }); // seed 4242: seat 1 opens, holding 🌀
+    const c0 = (await server.connectTo(room, { name: 'Amara' })) as unknown as TestClient;
+    const c1 = (await server.connectTo(room, { name: 'Vesper' })) as unknown as TestClient;
+    const t0 = track(c0);
+    const t1 = track(c1);
+    c0.send('start', { seed: 4242 });
+    await until(() => t0.states.length >= 1 && t1.states.length >= 1, 3000, 'match start');
+
+    // command phase: the active player's turn deadline rides every view —
+    // the decider sees their OWN countdown, the other viewer the same (earliest) one
+    const v0 = t0.states[t0.states.length - 1];
+    const v1 = t1.states[t1.states.length - 1];
+    for (const v of [v0, v1]) {
+      expect(v.timer).not.toBeNull();
+      expect(v.timer!.seat).toBe(1);
+      expect(v.timer!.kind).toBe('turn');
+      expect(v.timer!.ms).toBe(120_000);
+      expect(v.timer!.at).toBeGreaterThan(v.timer!.now);
+      expect(v.timer!.at - v.timer!.now).toBeLessThanOrEqual(120_000);
+    }
+
+    // seat 1 plays a targetless action → reaction window; the RESPONDER now owns the clock
+    c1.send('command', { cmd: { type: 'PLAY', player: 1, cards: ['slingshot'] } });
+    await until(() => t1.states[t1.states.length - 1].phase === 'reaction', 3000, 'reaction window');
+    const r0 = t0.states[t0.states.length - 1];
+    const r1 = t1.states[t1.states.length - 1];
+    expect(r0.timer).not.toBeNull();
+    expect(r0.timer!.seat).toBe(0); // own — this is the ring the client draws
+    expect(r0.timer!.kind).toBe('reaction');
+    expect(r0.timer!.ms).toBe(45_000);
+    expect(r1.timer!.seat).toBe(0); // earliest (not own) — "Amara deciding" chip
+
+    for (const v of [...t0.states, ...t1.states]) assertViewIsPrivate(v); // the clock leaks nothing
+  });
+
   it('gives spectators a handless view of a live match (Derelict UX groundwork)', async () => {
     const room = await makeRoom({ seed: 103 });
     const c0 = (await server.connectTo(room)) as unknown as TestClient; // seat 0

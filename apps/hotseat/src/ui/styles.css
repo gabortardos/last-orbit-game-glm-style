@@ -121,6 +121,21 @@ button { font: inherit; }
 .scancard { background: var(--panel2); border: 1px solid #34406b; border-radius: 8px; padding: 8px 10px; }
 .sliderrow { display: flex; align-items: center; gap: 12px; }
 .sliderrow input[type='range'] { flex: 1; accent-color: var(--gold); }
+/* M3 online hardening — countdown ring + timer chips + auto-reconnect scrim */
+.timerring { display: inline-flex; align-items: center; gap: 8px; }
+.timerring svg { transform: rotate(-90deg); display: block; }
+.timerring .ring-bg { fill: none; stroke: #2c3554; stroke-width: 4; }
+.timerring .ring-fg { fill: none; stroke: var(--gold); stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.25s linear; }
+.timerring b { font-variant-numeric: tabular-nums; min-width: 2.2ch; }
+.timerring.urgent .ring-fg { stroke: #e5484d; }
+.timerring.urgent b { color: #e5484d; animation: pulse 1s ease-in-out infinite; }
+.timerline { display: flex; align-items: center; gap: 10px; }
+.timerline .hint { margin: 0; }
+.chip.timer { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip.timer.mine { border-color: var(--gold); color: var(--gold); }
+.reconnect-overlay { position: fixed; inset: 0; z-index: 160; background: #05070fd9; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.reconnect-overlay h3 { animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
 .stats { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .stats td { padding: 6px 8px; border-bottom: 1px solid #232b47; color: var(--dim); }
 .stats td:nth-child(even) { color: var(--ink); font-weight: 600; }

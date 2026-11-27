@@ -16,14 +16,36 @@
  */
 import type { GameState, LogEntry } from '@last-orbit/game-core';
 
+/**
+ * The pending decision's server-armed countdown (M3 online hardening).
+ * `at`/`now` are server epoch ms — the client derives the skew once per snapshot
+ * and ticks locally; `ms` is the full armed duration so a UI ring can start full.
+ */
+export interface PendingTimer {
+  seat: number; // who the match currently waits on
+  kind: 'turn' | 'reaction' | 'choice';
+  at: number; // deadline, epoch ms
+  now: number; // server clock at snapshot time
+  ms: number; // armed duration (turnMs / reactionMs)
+}
+
 export type SeatView = GameState & {
   handSizes: number[]; // hand length per seat (hands themselves are private)
   deckSize: number; // draw pile size (contents private)
   seat: number | null; // the viewer's seat; null = spectator
   version: number; // monotonic snapshot counter for client-side ordering
+  timer: PendingTimer | null; // the decision this viewer is counting down to, if any
 };
 
-export function seatView(state: GameState, seat: number | null, version: number): SeatView {
+/** Deadlines the room has currently armed (one per human decider). */
+export type ArmedDeadlines = Map<number, { kind: PendingTimer['kind']; at: number; ms: number }>;
+
+export function seatView(
+  state: GameState,
+  seat: number | null,
+  version: number,
+  deadlines?: ArmedDeadlines,
+): SeatView {
   const log: LogEntry[] = state.log
     .filter((e) => e.visibility === 'public' || (typeof e.visibility === 'object' && e.visibility.only === seat))
     .map((e) =>
@@ -35,6 +57,18 @@ export function seatView(state: GameState, seat: number | null, version: number)
         ? { ...e, data: { ...e.data, card: undefined } }
         : e,
     );
+  // M3: the viewer's own countdown if they owe the decision; else the earliest
+  // armed deadline (whose turn / who is being waited on). Spectators get the earliest.
+  let timer: PendingTimer | null = null;
+  if (deadlines && deadlines.size > 0) {
+    const own = seat !== null ? deadlines.get(seat) : undefined;
+    const earliest = [...deadlines.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+    const pick = own ?? (earliest ? earliest[1] : undefined);
+    const pickSeat = own ? seat : earliest ? earliest[0] : null;
+    if (pick && pickSeat !== null) {
+      timer = { seat: pickSeat, kind: pick.kind, at: pick.at, now: Date.now(), ms: pick.ms };
+    }
+  }
   return {
     ...state,
     players: state.players.map((p) => ({
@@ -49,5 +83,6 @@ export function seatView(state: GameState, seat: number | null, version: number)
     config: { ...state.config, seed: 0 },
     seat,
     version,
+    timer,
   };
 }

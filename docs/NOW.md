@@ -1,5 +1,27 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 12 — M3 online-hardening essentials shipped (countdown ring · turn timers · auto-reconnect) + owner-directed card-recreation solution (QA-G-005) — 2026-11-25 ✅
+
+**Dev plan step executed:** release-plan M3 (docs/21) — the four hardening essentials. Shipped: reaction countdown ring, turn-timer display, reconnect overlay; autopilot notices were already live from the D-036 spike. Remaining in M3: Derelict spectator view + Final Transmission entry. Engine untouched (pure server/UI layer).
+
+- **Every online snapshot now ships the pending decision's deadline** — `timer { seat, kind: 'turn'|'reaction'|'choice', at, now, ms }` (`apps/server/src/views.ts`, `room.ts`): deadlines are recorded when `armTimers()` fires inside `commit()`, so no snapshot can ever carry a stale clock; the viewer's own deadline is preferred, other viewers get the earliest (whose move the match waits on). Spectators: earliest. Hotseat has no timers → the UI badge renders nothing there.
+- **Client countdown surfaces** (`apps/hotseat/src/ui/Overlays.tsx`, `GameView.tsx`): `CountdownRing` — an SVG ring that drains gold, turns red and pulses under 10 s — sits on the decider's own windows (reaction window, storm/snag/give/reinsert choice modals); other seats see a quiet "⏱ name — Ns" chip; the HUD shows the turn timer ("your move" gold-outlined when it's ours). Clock skew derived per snapshot from `at`/`now`, ticking locally at 4 Hz between snapshots.
+- **Auto-reconnect overlay** (`apps/hotseat/src/online/OnlineApp.tsx`): any non-consented drop now triggers automatic seat-restoring reconnection — 4 tries (0/2/5/10 s, inside the server's 30 s seat-hold) under a scrim that keeps the frozen table visible; the manual "Connection lost" screen remains only as the fallback. Reconnect snapshots arrive with the live countdown (the reconnected player instantly sees how long they still have).
+- **Test:** `room.test.ts` +1 — the countdown rides every view (own vs earliest), flips to the respondent when a reaction window opens (seed 4242 drives a real 🌀 play), and the full privacy audit runs over every snapshot the clock travels with. **111/111 tests, typecheck ×3 green.**
+- **Visual track, same session (owner's ask):** their `2ad1a1b` pulled (first pass complete: 9 usable candidates / 9 failed-deferred, 18 named layout previews, QA-G-004 A–E accepted) + concurrent `32e4ff2` (QA-V-013: owner-directed game-wide pictogram upgrade program, V3 design system). Independent verification re-run against manifest v0.20: **31/31 SHA-256 match** on the Drive mount (new Tractor/Wind art + layouts included); 12 newest review files not yet synced down to this Mac — their own flagged caveat, cloud copies stay authoritative.
+- **QA-G-005 posted to their mailbox (their repo `32e4ff2..1d204aa`, concurrent-write protocol ran clean):** the owner-directed joint solution for the 9 failed cards — engine-grounded one-scene briefs for each (mechanic truth + the single moment + what must NOT be implied, e.g. Burn = evasive acceleration, hull pristine, never fire damage), anti-poster prompt constraints (no text/frames/collages, single subject, 4:3), style anchoring on the 9 successes (Coolant = component template, Flyby/Requisition = action template), D013 bounded retries, delivery to manifest v0.21. Recreation authorized by the owner's session word (this supersedes the QA-G-004 retry hold; D-042 import gates unchanged). Tractor-Snag/Deflector/Containment revision notes included. QA-V-013's icon-inventory ask acknowledged and queued.
+- **Owner's "let GAME see the cards" question answered:** it is a model-capability switch in the agent harness (vision-capable model in Cline/VS Code), not a repo setting — with it on, GAME can inspect the WebPs/PNGs directly; until then visual judgment stays owner-side + harness screenshots.
+
+**Evidence:** `npm test` 111/111 · `npm run typecheck` green · visual verification `/tmp/cardhash_v20.txt` (31/31, live run) · both repos pushed (game: this commit; visual: `32e4ff2..1d204aa`).
+
+**Next:**
+1. VISUAL recreates the failed nine per QA-G-005 briefs → GAME re-runs the hash verification and reports.
+2. GAME: semantic icon inventory for QA-V-013 (every inline rules symbol, faction glyph, HUD/status/reaction/navigation emoji, sizes, constraints + a semantics-preserving vector mapping proposal) — one docs session.
+3. Dev-only visual harness (QA-G-004 B): env-gated `LO_ASSET_DIR` Drive loader — QA-V-011 cards in real app chrome (320px floor) + QA-V-007 GLB checks (4 sail pivots, 104-track morphs, 3-texture material, fps report).
+4. M3 remainder: Derelict spectator view + Final Transmission entry → M4 release-candidate pass.
+5. Gábor: 10-min screenshot session (QA-V-003) · D-042 per-import licensing calls · optional: switch the harness to a vision-capable model so GAME can review card art directly.
+
+
 ## Session 11 — visual status audited, card batch independently verified 15/15, AI Nexus adopted, joint conclusion proposed (QA-G-004) — 2026-11-25 ✅
 
 **Dev plan step executed:** Gábor's ask — check the actual status of visual developments, negotiate where we are with the other agent, agree a conclusion, report it to the owner for review. Docs-only session: engine, server, sims, UI untouched.

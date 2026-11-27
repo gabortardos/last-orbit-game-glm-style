@@ -21,16 +21,30 @@ export interface SeatInfo {
   faction?: FactionId | null; // fleet chip on the lobby roster (host-assigned, D-029)
 }
 
+/**
+ * The pending decision's server-armed countdown (M3 online hardening — see
+ * apps/server/src/views.ts). `at`/`now` are server epoch ms: the client derives
+ * the clock skew once per snapshot and ticks locally between snapshots.
+ */
+export interface PendingTimer {
+  seat: number;
+  kind: 'turn' | 'reaction' | 'choice';
+  at: number;
+  now: number;
+  ms: number;
+}
+
 /** What the server puts on the wire for one seat (see views.ts). */
 export type SeatViewMsg = GameState & {
   handSizes: number[];
   deckSize: number;
   seat: number | null;
   version: number;
+  timer: PendingTimer | null;
 };
 
 /** A local GameState OR a server snapshot — lets every UI component serve both modes. */
-export type ClientGame = GameState & Partial<Pick<SeatViewMsg, 'handSizes' | 'deckSize' | 'seat' | 'version'>>;
+export type ClientGame = GameState & Partial<Pick<SeatViewMsg, 'handSizes' | 'deckSize' | 'seat' | 'version' | 'timer'>>;
 
 /** Cards in seat `id`'s hand — `handSizes` when online (other hands are sealed). */
 export function handSize(g: ClientGame, id: number): number {

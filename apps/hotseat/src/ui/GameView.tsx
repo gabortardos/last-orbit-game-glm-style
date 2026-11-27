@@ -42,7 +42,7 @@ const FACTION_CHIP: Record<FactionId, { label: string; title: string }> = {
     title: '♆ Neptune — Deep Sight: once per match, during your own Command Phase, privately view the top 3 cards of the deck — a 🔭 without spending the card. Counterplay: 🌀 Slingshot shuffles the sight into noise. Spent powers are public.',
   },
 };
-import { LogFeed, Modals, SoundButton } from './Overlays';
+import { LogFeed, Modals, SoundButton, TimerBadge } from './Overlays';
 import Briefing from './Briefing';
 import Codex from './Codex';
 
@@ -97,6 +97,8 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
         <span>Ruptures left <b>{rupturesLeft}</b></span>
         <span>Turn <b>{game.turnCount}</b></span>
         <span>Direction <b>{game.direction === 1 ? '↻' : '↺'}</b></span>
+        {/* M3 online hardening: whose move the server is counting down (hotseat: none) */}
+        <TimerBadge game={game} viewer={viewer} hud />
         {game.config.modules.sunFury && (
           <button
             className="fury"

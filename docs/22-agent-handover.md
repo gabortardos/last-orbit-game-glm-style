@@ -5,20 +5,17 @@ Purpose: any new GAME chat session starts here with full context and zero archae
 ## Standing entry points (read in order)
 1. `AGENTS.md` (repo rules) → 2. `PROJECT_CONTEXT.md` (mission + hard rules) → 3. `docs/NOW.md` (top entry = latest session) → 4. this file's **FIRST TASK**.
 
-## Current snapshot (2026-11-25, after session 15)
-- **Game repo:** `github.com/gabortardos/last-orbit-game-glm-style` — local `/Users/gabortardos/Desktop/Last orbit game - glm`, HEAD `1dc8e76`, clean/pushed. Tests 112/112, typecheck ×3 green. Engine untouched by the last three sessions (docs/server/UI only).
-- **Visual repo:** `github.com/gabortardos/last-orbit-visual-studio` — local `/Users/gabortardos/Desktop/last-orbit-visual-studio`, our last word is **QA-G-008** (HEAD `0c01dc4`). **VISUAL is active** — always pull first and check `Q_AND_A.md` for entries after QA-G-008; the manifest may have moved past `0.26-v6-manufactured-review` (if a V7 exists, review that set with the same protocol).
-- **Vision:** the owner has switched this harness to a vision-capable model — direct image inspection works (confirmed sessions 14–15).
+## Current snapshot (2026-11-27, after session 16)
+- **Game repo:** `github.com/gabortardos/last-orbit-game-glm-style` — local `/Users/gabortardos/Desktop/Last orbit game - glm`, HEAD `13ad478` (session-16 docs), pushed. Tests 112/112, typecheck ×3 green — engine untouched by the last four sessions (docs/server/UI only).
+- **Visual repo:** `github.com/gabortardos/last-orbit-visual-studio` — local `/Users/gabortardos/Desktop/last-orbit-visual-studio`, our last word is **QA-G-009** (HEAD `426968a`). **V6 art is signed off: 19/19 PASS, zero change requests** (text parity 18/18 PASS in QA-G-008 — do not redo). The ONLY gate left on the card set is **D-042 licensing**: the owner's per-card sign-offs (manifest `rights` fields still "unverified"). VISUAL is active — always pull first and check `Q_AND_A.md` for entries after QA-G-009 (they may confirm receipt or prep next lanes).
+- **Vision:** vision-capable model confirmed (sessions 14–16) — the full 19-image audit ran in ONE fresh session within budget, using the image-budget protocol below.
 
-## FIRST TASK next session — V6 art sign-off (the only blocking item)
-Context: V6 = complete manufactured card set (18 uniform faces + card back + 18 art layers + `card-data.json`), manifest `0.26`, Drive folder **"Card Collection V6 - complete set for joint approval"**. **Text parity is DONE: 18/18 PASS (QA-G-008) — do not redo it.** What remains is ONLY the per-card art verdict.
-1. Pull both repos; check the visual mailbox for anything after QA-G-008 (concurrent entries possible; if a newer card set exists, review that instead, same protocol).
-2. Regenerate tools (§Commands below — `/tmp` is wiped on reboot).
-3. Inspect **all 19 images** (18 faces + `LO-CARD-BACK-V6`) at ~340px thumbs, batches of 2–3. Judge per card: art truth vs `CARD_INFO` + the QA-G-005 briefs (in the visual repo `Q_AND_A.md`); single subject, no posters/text-as-art; category badge vs engine (**Solar Wind must read ACTION**); uniform frame family + emblem placement; and the three open decisions VISUAL flagged: **Deflector** junction/destination glow · **Containment** generic-vs-Mercury geometry · **Tractor** pod sparks/beam direction.
-4. Produce the per-card **PASS / CHANGE_REQUEST** table (CHANGE_REQUESTs = exact, bounded instructions).
-5. Post **QA-G-009** (next mailbox number) to the visual repo `Q_AND_A.md`; VISUAL holds publication until licensing lands.
-6. Present the table to the owner **fused with D-042 licensing rows** — art PASS + owner license sign-off per card in one pass. The owner decides licenses; never assume them.
-7. Update `docs/NOW.md` (new session entry), commit both repos (docs-only), push. Report to the owner in plain words.
+## FIRST TASK next session — D-042 licensing disposition (the only gate left on V6)
+Context: the V6 art verdict is delivered — QA-G-009: **19/19 PASS, zero CHANGE_REQUESTs**, three open decisions accepted (Deflector junction glow · Containment generic geometry · Tractor sparks/drift). Text parity is DONE (QA-G-008, 18/18). The fused art+license table went to the owner (session-16 report + QA-G-009). Manifest `rights` fields are "unverified" and the art is AI-generated via external tools, so public-distribution clearance is a real owner call.
+1. Pull both repos; check the visual mailbox for anything after QA-G-009 (VISUAL may confirm receipt or prep next-lane work).
+2. **If Gábor has recorded license decisions** (decision log / import-log / his session word): execute the first import per D-042 — per-asset sign-off + license approved for *public* distribution + SHA-256 manifest pin → `docs/visual-studio/import-log.md`; then VISUAL is released onto the remaining v1 lanes (menu/command-deck/reaction polish, faction portraits, icon integration).
+3. **If not:** ask Gábor for the 19 license calls (blanket decision + per-card exceptions is a valid form). Never assume licenses; nothing imports or publishes without explicit per-item owner sign-off.
+4. Update `docs/NOW.md` (new session entry), commit both repos (docs-only), push. Report to the owner in plain words.
 
 ## Image-budget protocol (hard-won, sessions 14–15)
 The harness permits roughly **5–10 images per conversation**; beyond that, media is omitted (`[media omitted: invalid or exceeds size limit]`) even at ~84KB. It is **not** the GLM plan quota (calls are unlimited) — it is the conversation context/request size, and it only resets with a **new chat** (or harness compaction). Protocol: fresh session for visual audits · thumbs ≤340px · batches of 2–3 · text work via JSON (cheap) · when omissions start, STOP and continue next session · **never approve unseen art**.
@@ -40,15 +37,15 @@ python3 /tmp/verify_v6.py   # manifest→Drive SHA-256 gate; recreate from docs/
 - **D-043:** galaxy seed — online seeds are server-owned, never client-settable; hotseat/solo keep the shareable deal code.
 - **D-044:** v1.0 = "Classic complete" (cards + UI polish); cinematic/animation = v2 lane; 3D backdrop is an optional toggle, not a v1 gate.
 - **Engine purity:** no `Math.random`/`Date.now` in `game-core`; any rules change = decision-log entry + matching docs in the same commit.
-- **Mailbox protocol:** append-only entries (next number **QA-G-009**); pull before writing; on conflict, reset to theirs and re-append — never overwrite their entries.
+- **Mailbox protocol:** append-only entries (next number **QA-G-010**); pull before writing; on conflict, reset to theirs and re-append — never overwrite their entries.
 - Conventional commits · `docs/NOW.md` every session · AI Nexus check at substantial-session start (owner mandate NX-01–05).
 
-## Queue after the art pass
-1. Fused art+licensing table → owner.
+## Queue after licensing
+1. First approved import → `docs/visual-studio/import-log.md` (per D-042) → release VISUAL onto the non-card v1 lanes.
 2. Semantic icon inventory (their QA-V-013 ask) — one docs session.
-3. Dev-only visual harness (`LO_ASSET_DIR`) — real-app screenshots for reviews.
+3. Dev-only visual harness (`LO_ASSET_DIR`) — real-app screenshots, incl. the 320 px card-legibility pass flagged in QA-G-009.
 4. M3 code remainder: Derelict spectator view + Final Transmission entry.
 5. M4 RC: galaxy deal-code polish (word-style codes), full gate pass.
 
 ## Owner's starter prompt (paste into the new chat)
-> New GAME session. The vision-capable model is selected. Read AGENTS.md, PROJECT_CONTEXT.md, docs/NOW.md (top entry) and docs/22-agent-handover.md, then execute its FIRST TASK (V6 art sign-off → QA-G-009, fused D-042 licensing rows). Follow the image-budget protocol and report in plain words.
+> New GAME session. Read AGENTS.md, PROJECT_CONTEXT.md, docs/NOW.md (top entry) and docs/22-agent-handover.md, then execute its FIRST TASK (D-042 licensing disposition on the signed-off V6 set). Report in plain words.

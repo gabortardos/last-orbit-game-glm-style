@@ -121,7 +121,7 @@
     "enforcement": ["LogEntry.visibility (engine)", "seatView per seat (server)", "adapter filter (planned)"]
   },
   "screens": [
-    { "name": "Setup", "path": "apps/hotseat/src/ui/Setup.tsx", "contents": "title, tagline, mode (pass-and-play/solo/online), captain count 2-5, names, module toggles (Sun Fury, Derelicts), per-seat fleet selects, seed, begin" },
+    { "name": "Setup", "path": "apps/hotseat/src/ui/Setup.tsx", "contents": "title, tagline, mode (pass-and-play/solo/online), captain count 2-5, names, module toggles (Sun Fury, Derelicts), per-seat fleet selects, galaxy seed deal-code block (D-043: label + hint copy + dice re-spin; online matches are server-dealt), begin" },
     { "name": "Briefing", "path": "apps/hotseat/src/ui/Briefing.tsx", "contents": "full rules + card reference modal, auto-open for new players, reachable mid-game" },
     { "name": "Codex", "path": "apps/hotseat/src/ui/Codex.tsx", "contents": "8 civilization lore sheets (data-driven)" },
     { "name": "GameView", "path": "apps/hotseat/src/ui/GameView.tsx", "contents": "HUD (deck, ruptures left, turn, direction, Fury pips), players rail (faction chips ready/spent, debt, derelict markers), LogFeed pinned side rail, command section (hand, pairs, choosers, faction powers, end turn), modals (reaction window, storm/snag/give/reinsert choices, draw reveal, handoff gate, game-over + metrics export)" },

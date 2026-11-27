@@ -43,6 +43,7 @@
 
 ### M4 — Release candidate ⬜
 - [ ] Full pass: tests, typecheck ×3, build, fresh 2×3,000-game sim vs the v1.0 rules baseline
+- [ ] **Galaxy deal-code polish (D-043, Gábor's release requirement, 2026-11-25):** the player-facing deal code ships as a styled, human-friendly code (e.g. word-style `GALAXY-58201` or equivalent) in ALL modes — the prototype's bare number input is accepted only until the RC pass
 - [ ] Accessibility: reduced motion, contrast, tooltips, mobile pass
 - [ ] Sound — minimal SFX pass or silent v1.0 (**Gábor's call, Q3**); PWA (stretch, Q3)
 - [ ] Playtest-kit full run (`docs/16`) · known-issues sweep (`docs/12` → empty or documented)

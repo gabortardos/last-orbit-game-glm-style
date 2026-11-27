@@ -9,6 +9,8 @@
 - **Test:** +1 — a modified client sending `start { seed: 777 }` at an unpinned room still gets a server-dealt galaxy (≠777), privacy audit intact. All prior room tests now pin determinism via server-side room options (identical behavior — each already matched its old wire seed). **112/112 tests, typecheck ×3 green.**
 - Session also answered the owner's questions: the seed explainer (determinism → replayable matches, stable tests, the online replay-attack guard) and the model switch (GLM-5.4 + Cline "Support Images" — empirically proven the current model can't see images; vision on the Coding Plan costs nothing extra).
 
+- **Same-day follow-up:** D-043 propagated to the visual channel — handoff screens inventory + `visual-game-export.json` Setup line refreshed (the export previously still said "seed"), test-count drift fixed (110→112); **QA-G-006** posted to the visual mailbox so VISUAL treats the Galaxy seed block as current Setup UI. Per the owner's word, `docs/21` M4 now carries a release requirement: polished human-friendly deal codes in v1.0 (bare number input is prototype-only).
+
 **Next:**
 1. M3 remainder: Derelict spectator view + Final Transmission entry → M4 release-candidate pass.
 2. VISUAL recreates the failed nine per QA-G-005 → GAME re-verifies hashes and reports.

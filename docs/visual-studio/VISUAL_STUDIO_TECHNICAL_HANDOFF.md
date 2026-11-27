@@ -9,7 +9,7 @@
 ## 1. Repo facts
 
 - **Live game repository:** https://github.com/gabortardos/last-orbit-game-glm-style — public, clean, synced (`HEAD = 316cc58 = origin/main` at export; this file lands in the immediately following commit). The old `gabortardos/last-orbit-game` repo is a 2026-10-25 historical snapshot (23 files, no app source) — the visual repo's README still links it; GAME has noted the correction in the mailbox.
-- **Quality gates on every change:** `npm test` (110/110 green), `npm run typecheck` (3 projects), `npm run build`, `npm run sim` (16,500-game seeded balance sim). CI runs test+typecheck+build on every push (D-025).
+- **Quality gates on every change:** `npm test` (112/112 green at this revision; CI keeps it green), `npm run typecheck` (3 projects), `npm run build`, `npm run sim` (16,500-game seeded balance sim). CI runs test+typecheck+build on every push (D-025).
 - **Layout:**
   - `packages/game-core/` — the **pure engine** (rules, deck, commands, events, bots). Deterministic: a pure function of (state, command, seed); no `Math.random`, no `Date.now` (PROJECT_CONTEXT hard rule 5). This package is the mechanics authority.
   - `apps/hotseat/` — the React client (Setup → match UI) + the three.js presentation layer (`src/solar/`, `src/ui/`).
@@ -186,7 +186,7 @@ Current visual language: **glass panels (backdrop-blur, 60–70% translucent) ov
 
 | screen | component (path) | contents / states |
 |---|---|---|
-| Title/Setup | `apps/hotseat/src/ui/Setup.tsx` | title ☀️ Last Orbit + tagline · mode: 👥 Pass-and-play / 🤖 Solo vs AI / 🌐 Online · captains 2–5 · name inputs · modules: Sun Fury, Derelicts (checkboxes) · **per-seat fleet selects** (classic + 8 factions) · seed · Begin · opens Briefing/Codex modals |
+| Title/Setup | `apps/hotseat/src/ui/Setup.tsx` | title ☀️ Last Orbit + tagline · mode: 👥 Pass-and-play / 🤖 Solo vs AI / 🌐 Online · captains 2–5 · name inputs · modules: Sun Fury, Derelicts (checkboxes) · **per-seat fleet selects** (classic + 8 factions) · 🌌 **Galaxy seed** deal-code block — "every number is a different galaxy: same number, same luck, every time" + 🎲 new-galaxy re-spin (D-043: online matches are always server-dealt, clients never see the seed) · Begin · opens Briefing/Codex modals |
 | Mission Briefing | `ui/Briefing.tsx` | full rules + card reference modal; auto-opens for new players (localStorage); reachable from anywhere, mid-game (D-023) |
 | Civilization Codex | `ui/Codex.tsx` | the 8 civ lore sheets (captains, flagship, power, counterplay, real planet facts) — the lore v0.6 companion, data-driven |
 | Match — HUD | `ui/GameView.tsx` | deck size · ruptures left · turn # · direction ↻/↺ · Sun Fury pip bar (click = briefing) · Civs / Help / New game buttons |

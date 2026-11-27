@@ -11,12 +11,12 @@ Purpose: any new GAME chat session starts here with full context and zero archae
 - **Mid-review arrivals:** QA-V-042 (crop-only pack 05, recorded fallback) + **QA-V-043 (pack 06: six same-design native re-renders ☿ 🌍 ♂ ♃ ♅ ♆ + unchanged ♀ ♄, 27 members, 23,332,986 bytes, SHA-256 `215c4dcc…c69`)** = exactly the prescribed master-gate fix → FIRST TASK step 2.
 - **Vision budget note:** session 20 ran 21 image inspections with zero omissions (headless-Chrome screenshots included) — but QA-V-043's fidelity pass still deserves a FRESH session per protocol.
 
-## FIRST TASK next session — QA-V-043 fidelity pass + license calls + V6 wiring
+## FIRST TASK next session — QA-V-043 fidelity pass + pair-tests + clearance (D-046) + V6 wiring
 Context: batch-04 verdicts are in (QA-G-020); VISUAL responded mid-review with native re-render pack 06; imports remain gated on owner rights clearance (captains + environments are NOT covered by D-045); the V6 UI wiring lane is GO.
 1. Pull both repos; check the mailbox for entries after **QA-V-043 (theirs) / QA-G-020 (ours)**; check Drive/mount for new deliveries (hashes first, always).
 2. **QA-V-043 pack 06 fidelity pass → QA-G-021:** hash-verify the ZIP (`215c4dcc…`, 23,332,986 bytes) → fresh-session image pass → judge the six re-renders against the LOCKED references (their own flags to verify hard: ☿ moonlike background + pointed toes remain · 🌍 equipment/framing DRIFT vs approved design · ♃ seams present but suit articulation ambiguous · ♅ level edge "not unequivocal" — a recorded mandatory, it must BE level · ♆ crest retained). Locked originals REMAIN AUTHORITY. Per-master EXPORT_PASS/MANDATORY_FIX.
 3. **Pair-tests:** cut 48 px grayscale pairs from pack 06's 512 avatars (♀/♆, ♄/♅) — certify, or prescribe the UI-layer approved-glyph badge. Last technical gate before captain import.
-4. **Owner license calls (ask directly, blanket + exceptions form):** the 8 captain masters/derivatives AND the 8 environment masters for public distribution. On clearance: hash-verify → import-log rows → manifest flags (approval_ref QA-G-0xx).
+4. **Clearance + imports (D-046, owner-decided this session):** clearance for the 8 captains AND 8 environments executes ONLY after QA-G-021 fidelity verdicts + certified pair-tests — then ask Gábor in the D-045 form (blanket + exceptions), hash-verify → import-log rows → manifest flags (approval_ref QA-G-0xx).
 5. **V6 wiring lane (game code):** footer swap (REVIEW EDITION), card faces into UI/fixtures from `/visual/<id>.png`, typed semantic bindings per `prototypes/v1-remaining/asset-bindings.json` (123 entries; server rules untouched), keyboard/focus pass, semantic faction-mapping re-check (QA-V-036).
 6. WebP optimization when an encoder exists (new import rows, never edit row #1). Update `docs/NOW.md`, commit both repos, push, report plainly.
 
@@ -36,7 +36,7 @@ python3 /tmp/verify_v6.py   # manifest→Drive SHA-256 gate; recreate from docs/
 `card-data-v6.json` fields: `id, category, rules (=engine, EXACT_ENGINE_EXPORT), displayLead, displayRules, *Status`. Engine text authority: `packages/game-core/src/cards.ts` `CARD_INFO`.
 
 ## Standing decisions you must not violate
-- **D-042 → D-045:** the licensing gate is CLOSED for the 19 V6 card assets (owner blanket, 2026-11-27, first import executed). EVERY import still requires hash verification + an import-log row, and anything outside the 19 (captain masters, derivatives, environments) needs its own owner clearance before import.
+- **D-042 → D-045:** the licensing gate is CLOSED for the 19 V6 card assets (owner blanket, 2026-11-27, first import executed). EVERY import still requires hash verification + an import-log row, and anything outside the 19 (captain masters, derivatives, environments) needs its own owner clearance before import. **D-046:** that clearance is now owner-sequenced — ONLY after QA-G-021 fidelity verdicts + certified pair-tests, then blanket+exceptions, then import.
 - **D-043:** galaxy seed — online seeds are server-owned, never client-settable; hotseat/solo keep the shareable deal code.
 - **D-044:** v1.0 = "Classic complete" (cards + UI polish); cinematic/animation = v2 lane; 3D backdrop is an optional toggle, not a v1 gate.
 - **Engine purity:** no `Math.random`/`Date.now` in `game-core`; any rules change = decision-log entry + matching docs in the same commit.

@@ -10,7 +10,7 @@
 - **Mid-review deliveries:** QA-V-042 (crop-only pack 05, fallback) + **QA-V-043 (six same-design native 1086×1448 re-renders ☿ 🌍 ♂ ♃ ♅ ♆ + unchanged ♀ ♄ — exactly the prescribed master-gate fix)** — queued as the immediate next pass (fresh session): hash-verify pack 06 (ZIP `16nfZCue…`, 23,332,986 bytes, SHA-256 `215c4dcc…`) → per-master fidelity review vs the LOCKED references (their own flags: ☿ moon+toes remain, 🌍 equipment/framing drifted, ♃ articulation ambiguous, ♅ level edge "not unequivocal") → per-master verdicts as QA-G-021. Locked originals stay authority.
 - **AI Nexus:** unreachable again (HTTP 404, repo page + raw AGENTS.md) — record stands.
 
-**Next:** QA-V-043 fidelity pass → QA-G-021; owner license calls (captains 8 + environments 8 — D-045 does NOT cover them); certified pair-tests from 06's avatars; V6 wiring lane GO (footer swap, faces into UI, typed bindings per asset-bindings.json, keyboard/focus, faction-mapping re-check); WebP re-pin when an encoder exists.
+**Next:** QA-V-043 fidelity pass → QA-G-021; certified pair-tests from 06's avatars; **then the clearance call per D-046** (owner decided this session: clearance only after verdicts + certified pair-tests, then blanket+exceptions → import rows); V6 wiring lane GO (footer swap, faces into UI, typed bindings per asset-bindings.json, keyboard/focus, faction-mapping re-check); WebP re-pin when an encoder exists.
 
 
 

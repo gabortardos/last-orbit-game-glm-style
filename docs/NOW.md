@@ -1,5 +1,25 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 14 — vision enabled: V5 card faces audited (18/18 hashes · 6 faces inspected), direction approved with punch list; v1/v2 reconciled (D-044 proposed) — 2026-11-25 ✅
+
+**Dev plan step executed:** owner's ask — verify the visual agent's V5 card-face delivery (GitHub `b8fc6fc` + Drive), approve or reject to unlock the next visual tasks; reconcile the v1/v2 release framing. Docs-only for the game repo (no engine/app change; tests untouched).
+
+- **Vision works.** The owner switched this harness to a vision-capable model — GAME read card art directly from the Drive mount (the QA-G-005/006 answer validated in practice).
+- **Hash gate:** 18/18 V5 review faces SHA-256-verified against manifest `0.25-v5-face-review` (new `/tmp/verify_v5.py`; all synced to the Mac mount, 0 mismatched, 0 missing).
+- **Visual audit — 6 of 18 this session** (the harness's per-session media budget is rolling; the remaining 12 are queued first-next-session): **Override, Burn, Scan, Slingshot, Boarding, Reversal — all PASS their QA-G-005 briefs** (single subject, mechanic truth, no posters/collages, nothing harmed). Baked-text parity vs live `CARD_INFO`: **Reversal wrong twice** (the direction flip persists — not "remainder of the turn" — and the no-draw turn-end applies at all player counts), **Boarding invents a containment conditional** (a stolen 🛡️ just goes to the thief's hand); **Override flag retracted after engine check** (baked line matches the live blurb verbatim).
+- **Cross-checks vs their QA-V-016/CARD_V5_QUALITY_REVIEW:** categories 2 catastrophe / 1 survival / 13 action / 2 component verified exact in `cards.ts`; **Wind = action confirmed** → their "blocker" stands (catastrophe-styled face on an action card); their Tractor/Deflector/Containment refinements + action-frame normalization adopted into a joint punch list (QA-G-007 posted to their mailbox at their HEAD `b8fc6fc`; one concurrent-write rebase tangle resolved by reset-to-theirs + clean re-append, their QA-V-014/015 acknowledged side-by-side).
+- **Verdict:** direction approved → punch-list work proceeds; not runtime-ready; D-042 import gates unchanged. Production-form recommendation re-logged: fixed CSS template + art-layer split so generated text can never become authority.
+- **v1/v2 reconciled:** the visual repo's `RELEASE_1_VISUAL_SCOPE.md` matches the owner's framing — **R1 = polished Classic card game** (18 rights-cleared art IDs, one back, engine-sourced text, controlled UI upgrade, playable checks, owner acceptance) · **R2 = moving environments, faction ships, event FX, cutscenes** (premium-motion gate intact). This supersedes docs/21's v1.0 "living table rung 1" scope — **D-044 PROPOSED**: the shipped D-041 3D backdrop stays in the build as an optional toggle, not a v1 release requirement; docs/21 amended on the owner's word.
+
+**Next:**
+1. GAME: remaining 12 V5 face inspections + full parity pass of proposed display copy vs `CARD_INFO` (next session, media budget fresh).
+2. VISUAL: punch list per QA-G-007 (Wind restyle, Tractor/Deflector/Containment refinements, frame normalization, Reversal/Boarding text regen).
+3. D-044 owner call: v1.0 = Classic complete; v2 = cinematic — docs/21 amended on approval.
+4. Icon inventory (QA-V-013 ask) + dev-only visual harness (QA-G-004 B).
+5. M3 code remainder: Derelict spectator view + Final Transmission entry.
+6. D-042 per-import licensing calls (fuse into the per-card art approval pass).
+
+
 ## Session 13 — Galaxy seed (D-043): player-friendly deal codes, server-owned online deals — 2026-11-25 ✅
 
 **Dev plan step executed:** Gábor's competitive-integrity directive — the seed must stay a feature but must never be player-settable against real competitors, and needs human-facing copy. Engine untouched (pure server/UI layer); M3 scope unaffected.

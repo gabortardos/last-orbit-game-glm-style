@@ -10,7 +10,7 @@
 - **Image ledger:** 8 real review inspections (captain-fidelity sheet, env before/after sheet, ☿/♃ detail sheet with 100% native crops, 48px pair sheet, assembly contact sheet + 3 broken-placeholder reads that consumed budget but showed nothing). Within budget, zero omissions, no art approved unseen.
 - **AI Nexus:** HTTP 404 again this session (repo page + raw AGENTS.md) — recorded; last verified revision practice stands.
 
-**Next (GAME lane only):** `npm test` + typecheck + build green → commit + push both repos → integrated QA pass on the wired app (keyboard/focus walk, rules spot-check, privacy, performance sanity; optional approved polish: env backgrounds into title/codex) → local build for owner release acceptance → production flip (ReviewFooter off — the only change) → owner-PC deploy per `docs/19`. **No remaining visual or rights gates; D-047's local-test-before-deploy rule stands.**
+**Next (GAME lane only):** `npm test` + typecheck + build green → commit + push both repos → **integrated QA = VISUAL's `docs/V1_ACCEPTANCE_PROTOCOL.md` A01–A24** (adopted via QA-G-022; evidence pins first: GAME commit `e1850ae`, visual manifest v0.32 `661bb2d`, import-log #1–#3) → local build for owner release acceptance → production flip (ReviewFooter off — the only change) → owner-PC deploy per `docs/19`. **No remaining visual or rights gates; D-047's local-test-before-deploy rule stands.**
 
 
 

@@ -1,5 +1,23 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 15 — V6 complete card set: hashes 19/19 clean · text parity 18/18 PASS; art sign-off queued next session (vision budget spent) — 2026-11-25 ✅
+
+**Dev plan step executed:** owner's ask — review VISUAL's finished V6 production and approve if satisfactory; owner accepted the session-14 ideas (licensing fusion, template/art-layer split, pictograms-before-baking, dev harness, v1/v2 split → D-044 ADOPTED, docs/21 amended). Docs-only for the game repo.
+
+- **V6 received** (their `16ecd43`, manifest `0.26-v6-manufactured-review`, Drive "Card Collection V6 - complete set for joint approval"): 18 uniform faces + **card back** + 18 separate art layers + 4 category frames + `card-data.json` + CSS/tests. The fixed-template + art-layer production form (session-14 idea) is real — generated text can no longer become authority by construction.
+- **Hash gate: 19/19 clean** (18 faces + back) from the Mac mount vs manifest; 6 auxiliary manifest entries (pack ZIP under its manifest name, gallery, sheets) cloud-pending as usual — pack contents reviewed via the mounted ZIP.
+- **Text parity COMPLETE: 18/18 PASS, zero semantic errors** — `sourceRulesStatus = EXACT_ENGINE_EXPORT` verified against live `CARD_INFO`; every QA-G-007 text fix confirmed in `card-data.json` (Reversal persists + no-draw at all counts; Boarding conditional removed; Wind on-draw action truth). Full per-card review in QA-G-008.
+- **Art sign-off deferred one session — honestly:** the harness's per-session image budget was spent in the V5 round (7 faces seen) and did not recycle this session (even 84KB singles dropped). Nothing rejected; the per-card PASS/CHANGE_REQUEST table (all 19, including their three open decisions: Deflector junction glow, Containment geometry, Tractor sparks/direction) is the FIRST item of the next session. **QA-G-008** posted with the partial verdict; VISUAL asked to hold publication until it lands; D-042 unchanged.
+- **D-044 ADOPTED** on the owner's word — docs/21 amended same commit: v1.0 visuals = "Classic complete" (cards + UI polish); 3D backdrop optional; living-table/cinematic = v2 lane (M2 re-titled).
+
+**Next:**
+1. **First item next session: the per-card art verdict table (19) → QA-G-009.** On PASS, the owner releases VISUAL onto the remaining v1 requirements.
+2. Owner may start VISUAL on non-card v1 lanes (menu/command-deck/reaction polish, faction portraits) in parallel — card text is approved and art direction is approved; only the 3 flagged cards carry change risk.
+3. Per-card D-042 licensing sign-off fused into the art verdict table (session-14 idea).
+4. Icon inventory (QA-V-013) + dev-only visual harness (QA-G-004 B).
+5. M3 code remainder: Derelict spectator view + Final Transmission entry.
+
+
 ## Session 14 — vision enabled: V5 card faces audited (18/18 hashes · 6 faces inspected), direction approved with punch list; v1/v2 reconciled (D-044 proposed) — 2026-11-25 ✅
 
 **Dev plan step executed:** owner's ask — verify the visual agent's V5 card-face delivery (GitHub `b8fc6fc` + Drive), approve or reject to unlock the next visual tasks; reconcile the v1/v2 release framing. Docs-only for the game repo (no engine/app change; tests untouched).

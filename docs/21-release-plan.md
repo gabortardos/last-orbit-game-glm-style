@@ -10,7 +10,7 @@
 - **Rules v0.3 frozen** — the full pick-(g) package (A+B+C+D, D-019 trim) as implemented; the freeze act = Gábor's in-game 8-power testing + beta round 1
 - **All 8 civilizations, active powers** (☿♀♂♃🌍♄♅♆) — opt-in; vanilla seats provably unchanged
 - **Modes:** hotseat pass-and-play · solo vs AI · online (rooms, share-links, server bots, timers/autopilot, 30 s reconnect, spectators)
-- **Visuals:** rung 1 "living table" (D-038) — animated 3D solar system behind the card glass; glass UI stays as tactical + reduced-motion + low-end mode
+- **Visuals (D-044, 2026-11-25):** Release-1 "Classic complete" polish — all 18 card IDs with rights-cleared art, one card back, engine-sourced card text, controlled UI upgrade (per visual repo `RELEASE_1_VISUAL_SCOPE.md`); the D-041/D-038 animated 3D solar backdrop stays in the build as an optional toggle, NOT a v1.0 gate — the living-table/cinematic lane moves to v2 (R2)
 - **Onboarding:** Mission Briefing, per-card tooltips, ❓ help, 📖 Codex
 - **Hosting:** PC + Cloudflare Tunnel per `docs/19` (0 €/mo) · free to play
 
@@ -30,7 +30,7 @@
 - [ ] Same-session triage loop (as practiced: concrete UX blockers fixed the day they're reported)
 - **Exit — D-040 (2026-10-25): Gábor waived this gate** ("I tested enough, I want to release"). The items above are no longer launch-blocking; they become post-launch feedback with the same day-of triage loop. v0.3 rules are stamped **v1.0** by owner decision.
 
-### M2 — Living table, rung 1 (D-038; parallel lane, starts now) 🔄
+### M2 — Living table, rung 1 (D-038) — moved to the v2 cinematic lane per D-044 🔄
 - [ ] 6 style frames, code-drawn (HTML/CSS/SVG) so they review in the browser: match open · Fury peak · reaction window · rupture draw · endgame · victory
 - [ ] three.js + react-three-fiber shell behind the existing card glass; the Sun's state = Fury level; seats = orbiting planets
 - [ ] Log events → animated light between orbits (steal = cable, Override = jam wave, rupture = flare, deflection = bouncing beam); animation director = pure `(logEntry, prevState, state)` function (testable headless)

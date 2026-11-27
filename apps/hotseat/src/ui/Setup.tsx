@@ -4,6 +4,8 @@ import type { StartOptions } from '../App';
 import Briefing from './Briefing';
 import Codex from './Codex';
 import { FACTION_LABEL } from './factions';
+import ReviewFooter from './ReviewFooter';
+import { CAPTAIN_PORTRAIT } from './visualAssets';
 import { SoundButton } from './Overlays';
 
 const AI_NAMES = ['Vega', 'Sirius', 'Altair', 'Rigel', 'Deneb'];
@@ -114,6 +116,7 @@ export default function Setup({ onStart, onOnline }: { onStart: (o: StartOptions
                 <option key={id} value={id}>{label}</option>
               ))}
             </select>
+            {factions[i] && <img className="avatar" src={CAPTAIN_PORTRAIT[factions[i] as FactionId]} alt="" loading="lazy" title="Approved V1 captain portrait" />}
           </label>
         ))}
         <div className="fleetnote">
@@ -148,6 +151,8 @@ export default function Setup({ onStart, onOnline }: { onStart: (o: StartOptions
       <button className="primary big" onClick={begin}>
         {mode === 'solo' ? 'Begin — you vs the AI captains' : 'Begin the Rally'}
       </button>
+
+      <ReviewFooter />
       <p className="hint">
         {mode === 'solo'
           ? 'Your hand stays private; the AI plays its turns automatically —Overrides and all.'

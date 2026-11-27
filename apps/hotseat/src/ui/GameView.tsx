@@ -43,6 +43,8 @@ const FACTION_CHIP: Record<FactionId, { label: string; title: string }> = {
   },
 };
 import { LogFeed, Modals, SoundButton, TimerBadge } from './Overlays';
+import ReviewFooter from './ReviewFooter';
+import { CARD_FACE, CAPTAIN_PORTRAIT } from './visualAssets';
 import Briefing from './Briefing';
 import Codex from './Codex';
 
@@ -117,6 +119,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
         {game.players.map((p) => (
           <div key={p.id} className={`player ${p.id === game.activePlayer && game.phase === 'command' ? 'active' : ''} ${p.alive ? '' : 'dead'}`}>
             <div className="pname">
+              {p.faction && <img className="avatar" src={CAPTAIN_PORTRAIT[p.faction]} alt="" loading="lazy" />}
               {p.name}
               {(solo || remote) && (
                 <span className="chip" title={humans.includes(p.id) ? 'you' : remote ? 'a captain on another screen' : 'AI captain'}>
@@ -170,14 +173,14 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
                   onClick={() => onCardClick(k)}
                   title={CARD_INFO[k].blurb + note}
                 >
-                  <span className="emoji">{CARD_INFO[k].emoji}</span>
+                  <img className="face" src={CARD_FACE[k]} alt="" loading="lazy" />
                   <span>{CARD_INFO[k].name}{n > 1 ? ` ×${n}` : ''}{CARD_INFO[k].pairable && n === 1 && <span className="lone"> · scrap me, or find my twin</span>}</span>
                 </button>
               );
             })}
             {pairs.map((k) => (
               <button key={`pair-${k}`} className="card pair" onClick={() => setChoosing([k, k])} title="Play two matching Components as one action: steal 1 random card from a target captain (can be overridden).">
-                <span className="emoji">{CARD_INFO[k].emoji}{CARD_INFO[k].emoji}</span>
+                <img className="face" src={CARD_FACE[k]} alt="" loading="lazy" />
                 <span>Play matching pair — steal</span>
               </button>
             ))}
@@ -288,6 +291,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
       </div>
       {help && <Briefing onClose={() => setHelp(false)} sunFury={game.config.modules.sunFury} derelicts={game.config.modules.derelicts} />}
       {civs && <Codex onClose={() => setCivs(false)} />}
+      <ReviewFooter />
     </div>
   );
 }

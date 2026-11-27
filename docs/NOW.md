@@ -1,5 +1,24 @@
 # NOW — Current Status (update every work session; most recent on top; every entry must state the dev-plan step executed and what remains — Gábor's standing request, 2026-10-25)
 
+## Session 17 — race visuals: captain direction review (all 8 owner-selected bases) → QA-G-010: 7/8 textual PASS (2 mandatory corrections), 1 NEEDS_VISUAL_REFERENCE — 2026-11-27 ✅
+
+**Dev plan step executed:** owner request ("check the direction of the races visuals — we just created the bases; if not satisfied, explain and commit your feedback") + VISUAL's QA-V-021 review gate. Docs-only: engine untouched.
+
+- Pulled the visual repo: a full **captain-direction cycle** landed after the V6 approval (their D018) — sprint docs (Mercury 02–08, Venus 09–12), `CIVILIZATION_PORTRAIT_CHECKPOINT.md`, `CAPTAIN_AUDIT_2026-11-27_AGENT_TAKEOVER.md`, `contracts/civilization-portraits.json` (v0.1-concept), and **owner selections for all eight captains**: ☿ Mercury B low quadrupedal cast-glass sprinter · ♀ Venus B flowing translucent masked cloud organism · 🌍 Earth young-adult human engineer (Amara "Warranty Void" Okafor) · ♂ Mars nonhumanoid industrial salvage organism · ♃ Jupiter faceless atmospheric manta · ♄ Saturn "Ring Weaver B" clean faceted crystal (no body-wrapped hoops; prize-orbit deferred to wider scenes) · ♅ Uranus angular ice geometry (B vs D open) · ♆ Neptune flowing blue bioluminescent organism. QA-V-021 = the textual concept-review gate this session answers.
+- **Verdict committed as QA-G-010** (visual mailbox, base @ their HEAD `6f939e7`): **7/8 textual PASS** · **2 mandatory corrections** — ♄ Saturn's purple/gold ribbons must move to the Codex triad pale gold + ring-platinum + hexagon teal (purple is in nobody's palette and collides with Uranus's one vertical-magenta accent at chip sizes), ♃ Jupiter's ceremonial pressure suit must be explicit in the master brief (Codex: "gaseous manta giants IN ceremonial pressure suits"); **1 NEEDS_VISUAL_REFERENCE** — ♅ Uranus B-vs-D pick (binaries not synced; canon selection criteria provided: drafting-instrument anatomy, ONE magenta accent, the "True Level" level/tilted gag, 48 px grayscale vs Saturn).
+- Mandatory canon markers recorded per faction for the masters (Mercury: cast glass, gold seams = service history, visor-slits, **no visible mouth**, 5° lean, sails = engine · Venus: never-removed mask + warm triad champagne/rose-copper/acid-cream · Earth: the junk visible and loved · Mars: welded seams, stencils, rust/bone/oil, drill lineage in some form · Neptune: chartreuse glow as warning signal, restrained glare) + **differentiation matrix** (♀/♆ = highest collision risk, warm-vs-cold split mandatory; ♂/🌍 junk schism visible; ♄/♅ resolved by the palette swap) + tone gate ("rude, not grim" — impudent competitors, never menacing).
+- **Honesty flag kept:** TEXT-ONLY review — no captain binaries were seen (not synced to Drive); stated explicitly in QA-G-010; final per-captain verdicts await masters + 600×800/512 crops + hashes at real UI sizes.
+- **Answered VISUAL's QA-V-020 question:** no portrait slot exists in the live UI today — faction identity is a text chip (~11.5 px) + glyph (~17 px); masters must survive the 512×512 tile, the 600×800 crop and 48 px grayscale, keep a central ~60% safe area, and carry no baked text or faction glyphs (☿♀🌍♂♃♄♅♆ are UI-layer marks).
+- Canon register confirmed (Codex names/callsigns only; invented board names — Ivy Patch, Axis Architect, Ring Curator — dead); no GAME objection to the owner's Mercury/Venus B picks overriding VISUAL's A-recommendations.
+- AI Nexus (NX-01): 404 again this session (repo page + raw `AGENTS.md` on main **and** master); VISUAL's relayed D019 completion gate adopted; noted in QA-G-010.
+- **Unchanged: D-042 licensing — the 19 per-card owner license calls remain the only V1 release gate;** nothing imports or publishes.
+
+**Next:**
+1. VISUAL: independent masters (Batch 01: ♃♄♅♆ first) → private Drive sync + hashes → GAME visual-inspection gate (image protocol incl. 48 px grayscale + the differentiation matrix) → QA-G-011 per-captain verdicts; Uranus B/D decided via QA-G-010 criteria.
+2. **Gábor: the 19 D-042 license sign-offs** (fused table delivered in session 16; blanket + exceptions fine).
+3. On license clearance: first import → `docs/visual-studio/import-log.md`; VISUAL released onto remaining v1 lanes; then icon inventory (QA-V-013), dev visual harness (`LO_ASSET_DIR`), M3 code remainder → M4 RC.
+
+
 ## Session 16 — V6 art sign-off COMPLETE: 19/19 vision-audited, all PASS, zero change requests; VISUAL's three open decisions accepted; QA-G-009 posted — 2026-11-27 ✅
 
 **Dev plan step executed:** handover FIRST TASK (docs/22) — the per-card art verdict table (19) → QA-G-009, fused D-042 licensing rows presented to the owner. Docs-only: engine, server, sims, UI untouched; no rules change (no test gate required).

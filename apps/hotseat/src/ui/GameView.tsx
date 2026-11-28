@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useRef, useState } from 'react';
 import { CARD_INFO } from '@last-orbit/game-core';
 import type { CardKind, Command, FactionId, MatchReport } from '@last-orbit/game-core';
 
@@ -44,7 +44,7 @@ const FACTION_CHIP: Record<FactionId, { label: string; title: string }> = {
 };
 import { LogFeed, Modals, SoundButton, TimerBadge } from './Overlays';
 import ReviewFooter from './ReviewFooter';
-import { CARD_FACE, CAPTAIN_PORTRAIT } from './visualAssets';
+import { CARD_FACE, CARD_BACK, CAPTAIN_PORTRAIT } from './visualAssets';
 import Briefing from './Briefing';
 import Codex from './Codex';
 
@@ -64,6 +64,8 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
   const [bashKind, setBashKind] = useState<CardKind | null>(null); // D-033 🌍 Kit Bash: which Component, then which victim
   const [help, setHelp] = useState(false);
   const [civs, setCivs] = useState(false);
+  const helpBtn = useRef<HTMLButtonElement>(null); // A15: close returns focus to the opener
+  const civsBtn = useRef<HTMLButtonElement>(null);
   const solo = humans.length === 1;
   const me = game.players[viewer];
   const myTurn = game.phase === 'command' && game.activePlayer === viewer;
@@ -86,6 +88,7 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
 
   const aliveOthers = game.players.filter((p) => p.alive && p.id !== me.id);
   const salvageOptions = [...new Set(game.discard.filter((c) => c !== 'rupture' && c !== 'containment'))];
+  const topDiscard = game.discard.length > 0 ? game.discard[game.discard.length - 1] : null;
 
   return (
     <div className="table">
@@ -95,7 +98,16 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
       </Suspense>
       <header className="hud">
         <span className="brand">☀️ Last Orbit</span>
-        <span>Deck <b>{deckSize(game)}</b></span>
+        <span className="pile" title="Draw pile — face down. Drawing is how a ☀️ finds you.">
+          <img className="pilecard" src={CARD_BACK} alt="" />
+          Deck <b>{deckSize(game)}</b>
+        </span>
+        <span className="pile" title={topDiscard ? `Discard pile — top: ${CARD_INFO[topDiscard].name}` : 'Discard pile — empty'}>
+          {topDiscard
+            ? <img className="pilecard" src={CARD_FACE[topDiscard]} alt="" />
+            : <span className="pilecard empty" aria-hidden="true" />}
+          Discard <b>{game.discard.length}</b>
+        </span>
         <span>Ruptures left <b>{rupturesLeft}</b></span>
         <span>Turn <b>{game.turnCount}</b></span>
         <span>Direction <b>{game.direction === 1 ? '↻' : '↺'}</b></span>
@@ -110,8 +122,8 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
             Fury {Array.from({ length: 5 }, (_, i) => <span key={i} className={i < game.sunFury ? 'pip on' : 'pip'}>●</span>)}
           </button>
         )}
-        <button className="ghost" onClick={() => setCivs(true)} title="The eight civilizations of the Grand Solar Rally — lore, comedy wells, real planet facts">📖 Civs</button>
-        <button className="ghost" onClick={() => setHelp(true)} title="Rules, goal and card reference">❓ Help</button>
+        <button ref={civsBtn} className="ghost" onClick={() => setCivs(true)} title="The eight civilizations of the Grand Solar Rally — lore, comedy wells, real planet facts">📖 Civs</button>
+        <button ref={helpBtn} className="ghost" onClick={() => setHelp(true)} title="Rules, goal and card reference">❓ Help</button>
         <button className="ghost" onClick={onNewGame}>New game</button>
       </header>
 
@@ -289,8 +301,8 @@ export default function GameView({ game, viewer, humans, dispatch, error, report
         <button className="ghost" onClick={() => setCivs(true)} title="Civilization codex — open any time, even mid-window">📖</button>
         <button className="ghost" onClick={() => setHelp(true)} title="Rules & card reference — open any time, even mid-window">❓</button>
       </div>
-      {help && <Briefing onClose={() => setHelp(false)} sunFury={game.config.modules.sunFury} derelicts={game.config.modules.derelicts} />}
-      {civs && <Codex onClose={() => setCivs(false)} />}
+      {help && <Briefing onClose={() => { setHelp(false); helpBtn.current?.focus(); }} sunFury={game.config.modules.sunFury} derelicts={game.config.modules.derelicts} />}
+      {civs && <Codex onClose={() => { setCivs(false); civsBtn.current?.focus(); }} />}
       <ReviewFooter />
     </div>
   );

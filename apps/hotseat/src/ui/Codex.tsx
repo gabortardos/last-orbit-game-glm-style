@@ -1,3 +1,7 @@
+import { useEffect } from 'react';
+import type { FactionId } from '@last-orbit/game-core';
+import { CAPTAIN_PORTRAIT, ENV_THUMB } from './visualAssets';
+
 /** Civilization Codex — the bible (`docs/14`) living on the game screen, so any player
  *  who wonders "who ARE these people?" can read it without leaving the table (D-030). */
 
@@ -161,7 +165,18 @@ const SHEETS: Sheet[] = [
   },
 ];
 
+/** Codex origin label → engine faction id (mirrors asset-bindings.json; QA-V-036). */
+const ORIGIN_FACTION: Record<string, FactionId> = {
+  Mercury: 'flareskip', Venus: 'courtier', Earth: 'kitbash', Mars: 'rustborn',
+  Jupiter: 'stormkin', Saturn: 'ringwall', Uranus: 'axialtilt', Neptune: 'deepsight',
+};
+
 export default function Codex({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
   return (
     <div className="overlay top">
       <div className="modal wide briefing">
@@ -174,20 +189,25 @@ export default function Codex({ onClose }: { onClose: () => void }) {
             Classic seats still fly the tested vanilla game.
           </p>
           <div className="civgrid">
-            {CIVS.map((c) => (
-              <div key={c.origin} className={`civcard ${c.playable ? 'pilot' : ''}`}>
-                <h4><span className="civglyph">{c.glyph}</span> {c.name} <span className="dim">· {c.origin}</span></h4>
-                <p>{c.direction}</p>
-                <p className="dim">Comedy well: {c.hook}</p>
-                {c.playable && <p className="civtag"> playable — deep sheet below </p>}
-                {!c.playable && c.deep && <p className="civtag dim"> designed — deep sheet below (not yet playable) </p>}
-              </div>
-            ))}
+            {CIVS.map((c) => {
+              const f = ORIGIN_FACTION[c.origin];
+              return (
+                <div key={c.origin} className={`civcard ${c.playable ? 'pilot' : ''}`}>
+                  <span className="civbg" style={{ backgroundImage: `url(${ENV_THUMB[f]})` }} aria-hidden="true" />
+                  <img className="civface" src={CAPTAIN_PORTRAIT[f]} alt="" loading="lazy" />
+                  <h4><span className="civglyph">{c.glyph}</span> {c.name} <span className="dim">· {c.origin}</span></h4>
+                  <p>{c.direction}</p>
+                  <p className="dim">Comedy well: {c.hook}</p>
+                  {c.playable && <p className="civtag"> playable — deep sheet below </p>}
+                  {!c.playable && c.deep && <p className="civtag dim"> designed — deep sheet below (not yet playable) </p>}
+                </div>
+              );
+            })}
           </div>
 
           {SHEETS.map((sh) => (
             <section key={sh.id} className="brief">
-              <h3>{sh.title}</h3>
+              <h3><img className="avatar" src={CAPTAIN_PORTRAIT[ORIGIN_FACTION[sh.id.charAt(0).toUpperCase() + sh.id.slice(1)] ?? 'flareskip']} alt="" loading="lazy" />{sh.title}</h3>
               {sh.paras.map((p, i) => (
                 <p key={i} className={p.dim ? 'dim' : ''}>{p.b && <b>{p.b} </b>}{p.text}</p>
               ))}

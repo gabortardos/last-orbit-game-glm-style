@@ -4,6 +4,8 @@ import type { CardKind, Command, LogEntry, MatchReport } from '@last-orbit/game-
 import { deckSize, handSize } from '../online/types';
 import type { ClientGame, PendingTimer } from '../online/types';
 import { isMuted, startAudio, toggleMuted } from '../audio';
+import CardFace from './CardFace';
+import { CAPTAIN_PORTRAIT, ENV_BACKGROUND } from './visualAssets';
 
 /**
  * M3 online hardening — live countdown for the server-armed deadline on the
@@ -104,7 +106,7 @@ export function DrawReveal({ game, reveal, solo, onDone, nextNote }: {
     <div className="overlay">
       <div className="modal gate">
         <h3>🃏 {p.name} drew:</h3>
-        <div className="drawcard"><span className="emoji">{info.emoji}</span> <b>{info.name}</b></div>
+        <div className="drawcard"><CardFace kind={reveal.card} size="lg" /> <b>{info.name}</b></div>
         <p className="hint">{info.blurb}</p>
         <p className="hint dim">{nextNote ?? (stillMe ? 'You owe another turn — stay at the controls.' : solo ? `Next up: ${game.players[game.activePlayer]?.name ?? '—'} 🤖 — watch their move in the log.` : `Next up: ${game.players[game.activePlayer]?.name ?? '—'} — then pass the device.`)}</p>
         <button className="primary" onClick={onDone}>Got it</button>
@@ -115,11 +117,13 @@ export function DrawReveal({ game, reveal, solo, onDone, nextNote }: {
 
 /** Privacy gate between captains (pass-and-play). */
 export function HandoffGate({ game, player, onDone }: { game: ClientGame; player: number; onDone: () => void }) {
+  const p = game.players[player];
   return (
     <div className="overlay gate" onClick={onDone}>
       <div className="modal">
         <h2>Pass the device to</h2>
-        <div className="bigname">🛰️ {game.players[player].name}</div>
+        {p.faction && <img className="winnerface" src={CAPTAIN_PORTRAIT[p.faction]} alt="" />}
+        <div className="bigname">🛰️ {p.name}</div>
         <p className="hint">Your turn: play any cards you like, then <b>draw to end the turn</b>.</p>
         <p className="hint">Goal: be the last flagship flying. Everyone else — eyes off the screen.</p>
         <p className="hint dim">Tap to start the turn.</p>
@@ -273,7 +277,7 @@ export function ReactionOverlay({ game, dispatch, humans, remote, viewer }: {
           <div className="reacthand" aria-label="your hand">
             <span className="handlabel">🃏 Your hand:</span>
             {game.players[viewer].hand.map((c, i) => (
-              <span key={i} className="hcard" title={CARD_INFO[c].blurb}>{CARD_INFO[c].emoji} {CARD_INFO[c].name}</span>
+              <span key={i} className="hcard" title={CARD_INFO[c].blurb}><CardFace kind={c} size="xs" /> {CARD_INFO[c].name}</span>
             ))}
           </div>
         )}
@@ -289,7 +293,7 @@ export function ReactionOverlay({ game, dispatch, humans, remote, viewer }: {
           if (solo && !humans.includes(id)) {
             return (
               <div key={id} className="reactrow">
-                <span className="pname">{p.name} {remote ? '🌐' : '🤖'}{isTarget ? ' 🎯' : ''}</span>
+                <span className="pname">{p.faction && <img className="avatar" src={CAPTAIN_PORTRAIT[p.faction]} alt="" />}{p.name} {remote ? '🌐' : '🤖'}{isTarget ? ' 🎯' : ''}</span>
                 <span className="botchip">{remote ? 'answering on their screen…' : 'deciding…'}</span>
               </div>
             );
@@ -331,7 +335,7 @@ export function ReactionOverlay({ game, dispatch, humans, remote, viewer }: {
           const isInitiator = id === pending.initiator; // deflect-only when the attack bounces back at them (D-022)
           return (
             <div key={id} className="reactrow">
-              <span className="pname">{p.name}{p.alive ? '' : ' (derelict)'}{isTarget ? ' 🎯' : ''}{isInitiator ? ' ⚔️' : ''}</span>
+              <span className="pname">{p.faction && <img className="avatar" src={CAPTAIN_PORTRAIT[p.faction]} alt="" />}{p.name}{p.alive ? '' : ' (derelict)'}{isTarget ? ' 🎯' : ''}{isInitiator ? ' ⚔️' : ''}</span>
               {canDeflectCard && (
                 <button
                   className="mini"
@@ -416,7 +420,7 @@ function ScanModal({ game, dispatch, viewer }: { game: ClientGame; dispatch: (c:
         <p className="hint">Only {game.players[me].name} should look.</p>
         <div className="scanrow">
           {cards.map((c, i) => (
-            <span key={i} className="scancard" title={CARD_INFO[c].blurb}>{CARD_INFO[c].emoji} {CARD_INFO[c].name}</span>
+            <span key={i} className="scancard" title={CARD_INFO[c].blurb}><CardFace kind={c} size="sm" /> {CARD_INFO[c].name}</span>
           ))}
         </div>
         <p className="hint">Top card first. The deck order does not change.</p>
@@ -481,7 +485,7 @@ function GiveModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c:
         <div className="hand">
           {[...new Set(giver.hand)].map((k) => (
             <button key={k} className="card" title={CARD_INFO[k].blurb} onClick={() => dispatch({ type: 'GIVE', player: giver.id, card: k })}>
-              <span className="emoji">{CARD_INFO[k].emoji}</span>
+              <CardFace kind={k} />
               <span>{CARD_INFO[k].name}{giver.hand.filter((c) => c === k).length > 1 ? ` ×${giver.hand.filter((c) => c === k).length}` : ''}</span>
             </button>
           ))}
@@ -543,7 +547,7 @@ function StormModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c
               title={`${CARD_INFO[k].blurb}\n(Click to jettison this card.)`}
               onClick={() => dispatch({ type: 'STORM_DISCARD', player: victim.id, card: k })}
             >
-              <span className="emoji">{CARD_INFO[k].emoji}</span>
+              <CardFace kind={k} />
               <span>{CARD_INFO[k].name}{victim.hand.filter((c) => c === k).length > 1 ? ` ×${victim.hand.filter((c) => c === k).length}` : ''}</span>
             </button>
           ))}
@@ -593,7 +597,7 @@ function SnagModal({ game, dispatch, humans }: { game: ClientGame; dispatch: (c:
               title={`${CARD_INFO[k].blurb}\n(Click to select/deselect.)`}
               onClick={() => toggle(k)}
             >
-              <span className="emoji">{CARD_INFO[k].emoji}{chosen(k) > 0 ? ' ✔' : ''}</span>
+              <CardFace kind={k} className={chosen(k) > 0 ? 'picked' : ''} />
               <span>{CARD_INFO[k].name}{chosen(k) > 0 ? ` · picked ${chosen(k)}/${available(k)}` : (available(k) > 1 ? ` ×${available(k)}` : '')}</span>
             </button>
           ))}
@@ -624,7 +628,7 @@ function ScrapModal({ game, viewer }: { game: ClientGame; viewer?: number }) {
         <div className="scanrow">
           {cards.length === 0 && <span className="scancard">(the deck is empty — tough scrap)</span>}
           {cards.map((c, i) => (
-            <span key={i} className="scancard" title={CARD_INFO[c].blurb}>{CARD_INFO[c].emoji} {CARD_INFO[c].name}</span>
+            <span key={i} className="scancard" title={CARD_INFO[c].blurb}><CardFace kind={c} size="sm" /> {CARD_INFO[c].name}</span>
           ))}
         </div>
         <button className="primary" onClick={() => setRevealed(true)}>Got it — hide</button>
@@ -635,6 +639,7 @@ function ScrapModal({ game, viewer }: { game: ClientGame; viewer?: number }) {
 
 function GameOverModal({ game, report, onNewGame }: { game: ClientGame; report: MatchReport | null; onNewGame: () => void }) {
   if (game.phase !== 'game_over' || game.winner === null || !report) return null;
+  const winner = game.players[game.winner];
   const download = () => {
     const blob = new Blob([JSON.stringify({
       config: game.config,
@@ -653,8 +658,12 @@ function GameOverModal({ game, report, onNewGame }: { game: ClientGame; report: 
   };
   return (
     <div className="overlay">
-      <div className="modal wide">
-        <h2>🏆 {game.players[game.winner].name} wins the Grand Solar Rally!</h2>
+      <div
+        className="modal wide winner"
+        style={winner.faction ? { backgroundImage: `linear-gradient(180deg, rgba(13,17,31,0.80), rgba(13,17,31,0.94)), url(${ENV_BACKGROUND[winner.faction]})` } : undefined}
+      >
+        {winner.faction && <img className="winnerface" src={CAPTAIN_PORTRAIT[winner.faction]} alt="" />}
+        <h2>🏆 {winner.name} wins the Grand Solar Rally!</h2>
         <table className="stats">
           <tbody>
             <tr><td>Turns</td><td>{report.turns}</td><td>First elimination</td><td>turn {report.firstElimTurn ?? '—'}</td></tr>

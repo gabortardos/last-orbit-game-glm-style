@@ -63,3 +63,8 @@ export const CAPTAIN_AVATAR: Record<FactionId, string> = Object.fromEntries(
 export const ENV_BACKGROUND: Record<FactionId, string> = Object.fromEntries(
   (Object.keys(PLANET) as FactionId[]).map((f) => [f, `/visual/LO-ENV-${PLANET[f]}-BG-V1.webp`]),
 ) as Record<FactionId, string>;
+
+/** 640×360 reviewed thumb — hero strips, codex tiles, chip backdrops. */
+export const ENV_THUMB: Record<FactionId, string> = Object.fromEntries(
+  (Object.keys(PLANET) as FactionId[]).map((f) => [f, `/visual/LO-ENV-${PLANET[f]}-THUMB-V1.webp`]),
+) as Record<FactionId, string>;

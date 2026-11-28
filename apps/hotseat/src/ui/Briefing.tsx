@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { CARD_INFO } from '@last-orbit/game-core';
 import type { CardKind } from '@last-orbit/game-core';
+import CardFace from './CardFace';
 
 /** Mission Briefing — everything a new captain needs before their first turn. */
 export default function Briefing({ onClose, sunFury = true, derelicts = true }: {
@@ -7,6 +9,11 @@ export default function Briefing({ onClose, sunFury = true, derelicts = true }: 
   sunFury?: boolean;
   derelicts?: boolean;
 }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
   const groups: [string, CardKind[]][] = [
     ['Survival & catastrophe', ['rupture', 'containment']],
     ['Draw-step events (hit the moment you draw them)', ['storm', 'wind']],
@@ -61,7 +68,7 @@ export default function Briefing({ onClose, sunFury = true, derelicts = true }: 
                 <p className="dim">{label}</p>
                 {kinds.map((k) => (
                   <div key={k} className="cardref-row">
-                    <b>{CARD_INFO[k].emoji} {CARD_INFO[k].name}</b>
+                    <b><CardFace kind={k} size="xs" /> {CARD_INFO[k].name}</b>
                     <span>{CARD_INFO[k].blurb}</span>
                   </div>
                 ))}

@@ -5,7 +5,7 @@ import Briefing from './Briefing';
 import Codex from './Codex';
 import { FACTION_LABEL } from './factions';
 import ReviewFooter from './ReviewFooter';
-import { CAPTAIN_PORTRAIT } from './visualAssets';
+import { CAPTAIN_PORTRAIT, ENV_THUMB } from './visualAssets';
 import { SoundButton } from './Overlays';
 
 const AI_NAMES = ['Vega', 'Sirius', 'Altair', 'Rigel', 'Deneb'];
@@ -42,6 +42,11 @@ export default function Setup({ onStart, onOnline }: { onStart: (o: StartOptions
     <div className="setup">
       <h1>☀️ Last Orbit</h1>
       <p className="tagline">Solar System Showdown — pass-and-play prototype (rules v0.3)</p>
+      <div className="homeworlds" aria-hidden="true">
+        {Object.values(ENV_THUMB).map((src) => (
+          <img key={src} src={src} alt="" loading="lazy" />
+        ))}
+      </div>
 
       <div className="row soundrow">
         <SoundButton />

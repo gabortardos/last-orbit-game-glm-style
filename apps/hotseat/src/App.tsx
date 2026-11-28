@@ -135,7 +135,7 @@ export default function App() {
     : humans.includes(game.activePlayer) ? game.activePlayer : humans[0] ?? 0;
 
   return (
-    <div className="app">
+    <div className="app v1">
       {game.phase === 'command' && gateFor !== null && (
         <HandoffGate game={game} player={gateFor} onDone={() => setGateFor(null)} />
       )}

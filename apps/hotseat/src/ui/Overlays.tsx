@@ -5,6 +5,7 @@ import { deckSize, handSize } from '../online/types';
 import type { ClientGame, PendingTimer } from '../online/types';
 import { isMuted, startAudio, toggleMuted } from '../audio';
 import CardFace from './CardFace';
+import Glyph from './Glyph';
 import { CAPTAIN_PORTRAIT, ENV_BACKGROUND } from './visualAssets';
 
 /**
@@ -120,7 +121,7 @@ export function HandoffGate({ game, player, onDone }: { game: ClientGame; player
   const p = game.players[player];
   return (
     <div className="overlay gate" onClick={onDone}>
-      <div className="modal">
+      <div className="modal privacy">
         <h2>Pass the device to</h2>
         {p.faction && <img className="winnerface" src={CAPTAIN_PORTRAIT[p.faction]} alt="" />}
         <div className="bigname">🛰️ {p.name}</div>
@@ -158,8 +159,8 @@ export function LogFeed({ game, viewer }: { game: ClientGame; viewer?: number })
     if (nearBottom) el.scrollTo({ top: el.scrollHeight });
   }, [feed.length]);
   return (
-    <aside className="log" aria-label="flight log">
-      <div className="loghead">📜 Flight log <span className="logcount">{visible.length} events — scroll ↑ for the full history</span></div>
+    <aside className="panel logpanel" aria-label="flight log">
+      <div className="panelhead"><span>FLIGHT LOG</span><span className="small">{visible.length} EVENTS · FULL HISTORY</span></div>
       <div className="logbody" ref={ref}>
         {feed.map((line, i) => (
           <div key={i} className={`logline ${line.startsWith('☀️') || line.startsWith('💥') || line.startsWith('🏆') ? 'loud' : ''}`}>{line}</div>
@@ -240,13 +241,15 @@ export function ReactionOverlay({ game, dispatch, humans, remote, viewer }: {
   const target = pending.target !== undefined ? game.players[pending.target] : null;
   return (
     <div className="overlay react">
-      <div className="modal">
+      <div className="modal reaction">
+        <div className="reactcopy"><Glyph id="attack" label="" /><div>
         <h3>
           {game.players[pending.initiator].name} plays {reasonText(pending.reason)}
           {target && <> — target: <b>{target.name}</b>{pending.growth ? <b className="red">{` — payload +${pending.growth}!`}</b> : null}</>}
         </h3>
+        </div></div>
         <TimerBadge game={game} viewer={viewer} />
-        <p className={`stackline ${cancelled ? 'red' : 'green'}`}>
+        <p className={`outcome stackline ${cancelled ? 'red' : 'green'}`}>
           {stack === 0
             ? '✅ No Overrides yet — as it stands, the action WILL happen.'
             : cancelled
@@ -388,12 +391,14 @@ export function ReactionOverlay({ game, dispatch, humans, remote, viewer }: {
                   title={p.alive && !hasCard ? 'No Comms Override in hand' : p.alive ? 'Play Comms Override' : 'Spend Final Transmission'}
                   onClick={() => dispatch({ type: 'OVERRIDE', player: id })}
                 >
+                  <Glyph id="override" className="xs" label="" />
                   {p.alive
                     ? (cancelled ? '📡 Override — restore it' : '📡 Override — CANCEL it')
                     : '📡 Final Transmission'}
                 </button>
               )}
               <button className="ghost" onClick={() => dispatch({ type: 'PASS', player: id })}>
+                <Glyph id={cancelled ? 'cancelled' : 'confirmed'} className="xs" label="" />
                 {cancelled ? 'Keep it cancelled' : 'Let it happen'}
               </button>
             </div>

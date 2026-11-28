@@ -83,3 +83,14 @@ Append-only per D-042. One row per asset ever imported into this (public) repo. 
 | 15 | `LO-ENV-NEPTUNE-BACKGROUND-V1` | `779f1662e6f112c376b8c24149f7199f8aa4451257f372b3211db620916b065e` | 237980 | `apps/hotseat/public/visual/LO-ENV-NEPTUNE-BACKGROUND-V1.webp` |
 | 16 | `LO-ENV-NEPTUNE-THUMB-V1` | `09c29fb78dd505e645243b9f71d8b7ebb2b0cbcc9d2812f07bcd0cb8d644c500` | 68294 | `apps/hotseat/public/visual/LO-ENV-NEPTUNE-THUMB-V1.webp` |
 
+
+## Import #4 - 2026-11-28 - V1 UI runtime set: 62 approved pictogram glyphs + the main-menu background (owner blanket, D-049)
+
+- **Owner clearance (blanket):** "I approve everything" + "wire the whole v1 together" - Gabor, 2026-11-28 (decision **D-049**). Covers the approved V1 interface assets (QA-G-012: 5/5 DESIGN_PASS) that the UI port needs at runtime: the pictogram library and the menu background.
+- **Verification:** `LO-UI-MENU-BG-002.webp` SHA-256 matched the visual manifest entry BEFORE copy (byte-identical). The 62 glyphs are ported verbatim from V1 assembly pack 07's `glyphs.js` (ZIP `1861d7ec…` hash-verified in QA-G-021; member SHA-256 re-verified here) into an inline-SVG module - no re-drawing, `currentColor` stroke so CSS colors them per the bindings.
+- **Scope note:** the remaining `LO-UI-*` design boards (menu/command/reaction JPG+HTML concepts) stay reference-only; only the two runtime members above are imported.
+
+| # | assetId | SHA-256 | bytes | target |
+|---|---------|---------|-------|--------|
+| 1 | `LO-UI-MENU-BG-002` | `3f1d7662bb0b1d9b3af6a39fa815d1bad6ec4c270706f8e4e468ea6f2b98b1dc` | 140854 | `apps/hotseat/public/visual/LO-UI-MENU-BG-002.webp` |
+| 2 | `LO-PICTOGRAM-PACK-001` (member `glyphs.js`, 62 glyphs) | `ba424ec806030366ef3ccec2db794fc21ade3e1492d6793e535cb8aebe90a58f` | 20784 | `apps/hotseat/src/ui/glyphs.ts` (inline SVG module) |

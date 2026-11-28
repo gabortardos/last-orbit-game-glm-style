@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { FactionId } from '@last-orbit/game-core';
 import { CAPTAIN_PORTRAIT, ENV_THUMB } from './visualAssets';
+import Glyph from './Glyph';
 
 /** Civilization Codex — the bible (`docs/14`) living on the game screen, so any player
  *  who wonders "who ARE these people?" can read it without leaving the table (D-030). */
@@ -27,7 +28,7 @@ interface Sheet {
   paras: SheetPara[];
 }
 
-const CIVS: Civ[] = [
+export const CIVS: Civ[] = [
   { glyph: '☿', origin: 'Mercury', name: 'The Flareskips', direction: 'Obsidian-and-gold heat-sail speedsters; impatient; permanent cooling problems', hook: 'Fastest orbit — scorched and icy at once', playable: true },
   { glyph: '♀', origin: 'Venus', name: 'The Cloud Courtiers', direction: 'Acid-cloud socialites in ornate masks; floating barges', hook: 'Crushing pressure, sulfuric clouds, "morning star" vanity', playable: true },
   { glyph: '🌍', origin: 'Earth', name: 'The Improvisers', direction: 'Mismatched gear, adapters, tape, dangerous optimism', hook: 'The only ones proud of their junk', playable: true, deep: true },
@@ -195,7 +196,7 @@ export default function Codex({ onClose }: { onClose: () => void }) {
                 <div key={c.origin} className={`civcard ${c.playable ? 'pilot' : ''}`}>
                   <span className="civbg" style={{ backgroundImage: `url(${ENV_THUMB[f]})` }} aria-hidden="true" />
                   <img className="civface" src={CAPTAIN_PORTRAIT[f]} alt="" loading="lazy" />
-                  <h4><span className="civglyph">{c.glyph}</span> {c.name} <span className="dim">· {c.origin}</span></h4>
+                  <h4><Glyph id={f} label="" /> {c.name} <span className="dim">· {c.origin}</span></h4>
                   <p>{c.direction}</p>
                   <p className="dim">Comedy well: {c.hook}</p>
                   {c.playable && <p className="civtag"> playable — deep sheet below </p>}
